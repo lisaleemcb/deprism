@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import emcee
 
 from functools import reduce # only in Python 3
 
@@ -118,3 +119,7 @@ def log_bins(min_k, max_k, n_bins):
 def resolution(r):
     box_length = r[0].max() - r[0].min()
     return (2 * np.pi) / box_length
+
+def log_prob(x, mu, cov):
+    diff = x - mu
+    return -0.5 * np.dot(diff, np.linalg.solve(cov, diff))
