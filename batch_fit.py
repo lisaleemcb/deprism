@@ -42,19 +42,23 @@ noise = [noise_vars[i] * np.identity(len(data_scalarbias)) for i in range(len(no
 runs = 200
 nwalkers = 48
 nsteps = 1e5
-fits_scalarbias = [[] for i in range(len(noise_vars))]
-fits_degreeone = [[] for i in range(len(noise_vars))]
 
-for i in range(len(noise_vars)):
+fits_scalarbias = [[] for i in range(0,len(noise_vars)),5]
+for i in range(0,len(noise_vars),5):
     print('Now on run: ', i)
 
     fits_scalarbias[i] = fitting.many_realizations(params_init_scalarbias,
                     list(params_scalarbias.keys())[1:], k_indices, data_scalarbias, model_scalarbias,
-                     noise[i], params_scalarbias, runs=runs)
+                     noise[i], params_scalarbias, runs=runs, parallel=True)
+
+np.save('fits_scalarbias.npy', fits_scalarbias)
+
+fits_degreeone = [[] for i in range(0,len(noise_vars)),5]
+for i in range(0,len(noise_vars),5):
+    print('Now on run: ', i)
 
     fits_degreeone[i] = fitting.many_realizations(params_init_degreeone,
                     list(params_degreeone.keys())[2:], k_indices, data_degreeone, model_degreeone,
-                     noise[i], params_degreeone, runs=runs)
+                     noise[i], params_degreeone, runs=runs, parallel=True)
 
-np.save('fits_scalarbias.npy', fits_scalarbias)
 np.save('fits_degreeone.npy', fits_degreeone)

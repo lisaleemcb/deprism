@@ -2,7 +2,8 @@ import numpy as np
 
 class Estimators:
     # Initializer / Instance Attributes
-    def __init__(self, data, noise, guesses=None):
+    def __init__(self, k, data, noise, guesses=None):
+        self.k = k
         self.data = data
         self.noise = noise
         self.guesses = guesses
@@ -25,13 +26,21 @@ class Estimators:
 
         return LSE_generic(self.data, self.noise, A)
 
-    def pspec_from_3lines(auto, cross_ij, cross_ki, cross_jk, b_0=1.45103492e-17):
+    def pspec_from_3lines(self):
+        auto, cross_ij, cross_jk, cross_ki = self.data
         return ((auto**3 * cross_ij * cross_ki)/(b_0**8 * cross_jk))**.25
 
-    def pspec_from_3lines_plus_autonoise(cross_ij, cross_ki, cross_jk, b_0=1.45103492e-17):
+    def pspec_from_3lines_plus_autonoise(self):
+        auto, cross_ij, cross_jk, cross_ki = self.data
         return (cross_ij * cross_ki) / (b_0**2 * cross_jk)
 
-    def LSE_lin_perturb(self, k_1, k_2, order1_perturb=None):
+    def LSE_lin_perturb(self, k_indices, order1_perturb=None):
+        if k_indices.size < 2:
+            raise Exception('this estimator requires at least 2 k-modes')
+
+        k_1 = k_indices[0]
+        k_2 = k_indices[1]
+
         P_m1 = self.guesses['P_m1']
         P_m2 = self.guesses['P_m2']
         a_0 = self.guesses['a_0']
@@ -65,13 +74,24 @@ class Estimators:
 
         return self.LSE_generic(np.zeros_like(self.data) + order1_perturb, self.noise, A)
 
-    def LSE_loglin_perturb(self, k_1, k_2):
+    def LSE_loglin_perturb(self, k_indices):
+        if k_indices.size < 2:
+            raise Exception('this estimator requires at least 2 k-modes')
+
+        k_1 = k_indices[0]
+        k_2 = k_indices[1]
+
+        #k = self.k[k_indices]
         a_0 = self.guesses['a_0']
         c_0 = self.guesses['c_0']
         a_j = self.guesses['a_j']
         c_j = self.guesses['c_j']
         a_k = self.guesses['a_k']
         c_k = self.guesses['c_k']
+
+
+        # fix to be more modular
+        A_k = None
 
         data_1ogk = np.array([np.log(self.data[0]) - 2 * np.log(a_0 * k_1 + c_0),
                         np.log(self.data[1]) - np.log(a_0 * k_1 + c_0) - np.log(a_j * k_1 + c_j),
