@@ -112,7 +112,6 @@ def linear_bins(min_k, max_k, n_bins):
 
     return bins
 
-
 def log_bins(min_k, max_k, n_bins):
     return np.geomspace(min_k, max_k,n_bins)
 
@@ -123,3 +122,12 @@ def resolution(r):
 def log_prob(x, mu, cov):
     diff = x - mu
     return -0.5 * np.dot(diff, np.linalg.solve(cov, diff))
+
+def estimate_errors(signal, frac_error=.01):
+    sigma =  frac_error * signal
+    N = sigma**2 * np.identity(signal.size)
+
+    return N
+
+def calc_errors(signal, specs):
+    pass

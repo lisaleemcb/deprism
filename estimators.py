@@ -1,34 +1,137 @@
 import numpy as np
+import utils
 
 class Estimators:
     # Initializer / Instance Attributes
     def __init__(self, k, data, noise, guesses=None):
         self.k = k
-        self.data = data
+        self.data = np.asarray(data)
         self.noise = noise
         self.guesses = guesses
 
     @staticmethod
     def LSE_generic(data, noise, A):
-        errors = np.linalg.inv(np.dot(A.T, np.dot(np.linalg.inv(noise), A)))
+        e_inv = np.dot(A.T, np.dot(np.linalg.inv(noise), A))
+        errors = np.linalg.inv(e_inv)
         estimator = np.dot(errors, np.dot(A.T, np.dot(np.linalg.inv(noise), data)))
 
-        return estimator, errors
+        return estimator, errors, e_inv
 
-    def LSE_3cross_1auto_scalarbias_constraint(self):
-        if data.shape is None:
-            raise Exception('data shape must be 5 observations')
+    def LSE_3cross_1auto_scalarbias(self):
+        if self.data.shape is None:
+            raise Exception('data shape must be 4 observations')
         A = np.array([[2, 0, 0, 1],
+                    [1, 1, 0, 1],
+                    [0, 1, 1, 1],
+                    [1, 0, 1, 1]])
+
+        num_P_m = (self.data.size - 1) % 4
+        print(num_P_m)
+
+        #A = np.zeros()
+
+        return LSE_generic(self.data, self.noise, A)
+
+    def LSE_3CC_1PS_bias(self, noise=None, inject_noise=False):
+        if self.data.shape is None:
+            raise Exception('data shape must be 5 observations')
+
+        if noise is not None:
+            self.noise = utils.log_noise(noise, self.data)
+            print(self.noise)
+
+        else:
+            self.noise = utils.log_noise(self.noise, self.data)
+
+        A_base = np.array([[2, 0, 0, 1],
                     [1, 1, 0, 1],
                     [0, 1, 1, 1],
                     [1, 0, 1, 1],
                     [1, 0, 0, 0]])
 
-        return LSE_generic(self.data, self.noise, A)
+        num_P_m = int((self.data.size - 1) / 4)
+        num_params = 3 + num_P_m
+        num_obvs = self.data.size
+
+        A = np.zeros((num_obvs, num_params))
+
+        for i in range(num_obvs - 1):
+            #line = A_base[]
+            A[i][:3] = A_base[i % 4 ][:3]
+            A[i][3 + i // 4] = 1
+
+        A[-1][0] = 1
+
+        if inject_noise is True:
+            noise_r = np.asarray([np.random.normal(scale=np.sqrt(x)) for x in np.diag(self.noise)])
+            noisey_data = self.data + noise_r
+            self.data = noisey_data
+
+        #print('noise matrix is: ', self.noise)
+        estimates, errors, e_inv = Estimators.LSE_generic(np.log(self.data), self.noise, A)
+        return estimates, errors
+
+    def LSE_logged_test(self, noise=None, inject_noise=False):
+        if self.data.shape is None:
+            raise Exception('data shape must be 5 observations')
+
+        if noise is not None:
+            self.noise = noise
+
+        A_base = np.array([[2, 0, 0, 1],
+                    [1, 1, 0, 1],
+                    [0, 1, 1, 1],
+                    [1, 0, 1, 1],
+                    [1, 0, 0, 0]])
+
+        num_P_m = int((self.data.size - 1) / 4)
+        num_params = 3 + num_P_m
+        num_obvs = self.data.size
+
+        A = np.zeros((num_obvs, num_params))
+
+        for i in range(num_obvs - 1):
+            #line = A_base[]
+            A[i][:3] = A_base[i % 4 ][:3]
+            A[i][3 + i // 4] = 1
+
+        A[-1][0] = 1
+
+        if inject_noise is True:
+            noise_r = np.asarray([np.random.normal(scale=np.sqrt(x)) for x in np.diag(self.noise)])
+            noisey_data = self.data + noise_r
+            self.data = noisey_data
+
+        print('no error matrix: ', np.dot(A.T, np.dot(np.linalg.inv(self.noise), self.data)))
+
+        #print('noise matrix is: ', self.noise)
+        estimates, errors, e_inv = Estimators.LSE_generic(self.data, self.noise, A)
+        return estimates, errors, e_inv
 
     def pspec_from_3lines(self):
         auto, cross_ij, cross_jk, cross_ki = self.data
         return ((auto**3 * cross_ij * cross_ki)/(b_0**8 * cross_jk))**.25
+
+    def Beane_et_al(self, N, P_jj=1, P_kk=1, R_ijk=1):
+        P_ii, P_ij, P_jk, P_ki = self.data
+
+        N_i = 0
+        N_j = 0
+        N_k = 0
+
+        P_ii_tot = P_ii + N_i
+        P_jj_tot = P_jj + N_j
+        P_kk_tot = P_kk + N_j
+
+        var = (P_ij / P_ki)**2 * (P_ki**2 + P_ii_tot * P_kk_tot) \
+                + (P_ki / P_ij)**2 * (P_ij**2 + P_ii_tot * P_jj_tot) \
+                + ((P_ij * P_ki) / (P_jk**2))**2 * (P_jk**2 + P_jj_tot * P_kk_tot) \
+                + ((P_ij * P_ki) / (P_jk**2)) * (P_ii_tot * P_jk + P_ij * P_ki) \
+                - (((P_ij)**2 * P_ki) / (P_jk**3)) * (P_kk_tot * P_ij + P_ki * P_jk) \
+                - ((P_ij * (P_ki**2))/ (P_jk**3)) * (P_jj_tot * P_ki + P_ij * P_jk)
+
+
+        return P_ii, (R_ijk * P_ij * P_ki) / P_jk, var
 
     def pspec_from_3lines_plus_autonoise(self):
         auto, cross_ij, cross_jk, cross_ki = self.data
