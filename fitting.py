@@ -3,16 +3,20 @@ import matplotlib.pyplot as plt
 import emcee
 import copy
 import utils
+import analysis
 
 from multiprocessing import Pool
 
 def log_prior(param_guesses, params, k_indices, model, noise,
-                priors='uniform', positivity=False):
+                priors='uniform', priors_width=.25, positivity=False):
+
     P_m = param_guesses['P_m']
-    b_0 = 1.0 # params['b_i']
+    b_0 = params['b_i']
     b_i = param_guesses['b_i']
     b_j = param_guesses['b_j']
     b_k = param_guesses['b_k']
+
+    # print(b_0)
 
     if priors is 'uniform':
         b_0 = params['b_i']
@@ -27,7 +31,7 @@ def log_prior(param_guesses, params, k_indices, model, noise,
         if np.any(np.asarray(P_m) < 0):
             return -np.inf
 
-        if b_i < b_0 * .99 or b_i > b_0 * 1.01:
+        if b_i < (b_0 - b_0 * priors_width) or b_i > (b_0 + priors_width * b_0):
             return -np.inf
 
         return 0.0
@@ -54,7 +58,7 @@ def log_prior(param_guesses, params, k_indices, model, noise,
         if np.any(np.asarray(P_m) < 0):
             return -np.inf
 
-        return np.log(utils.gaussian(b_i, b_0, b_0 * 1.0))
+        return np.log(utils.gaussian(b_i, b_0, b_0 * priors_width))
 
     if priors is 'jeffreys':
         #print(param_guesses)
@@ -112,7 +116,8 @@ def log_likelihood(param_guesses, params, k_indices, data, model, noise,
         return -0.5 * (np.dot(diff, np.linalg.solve(noise, diff)) + (diff**4 / sigma**4).sum())
 
 def log_probability(guesses, params, k_indices, data, model, noise,
-                    priors='gaussian', positivity=False, pdf='gaussian'):
+                    priors='gaussian', priors_width=.25,
+                    positivity=False, pdf='gaussian'):
 
     param_guesses = copy.deepcopy(params)
 
@@ -126,7 +131,7 @@ def log_probability(guesses, params, k_indices, data, model, noise,
                 param_guesses['P_m'][k] = P_m_params[j]
 
     lp = log_prior(param_guesses, params, k_indices, model, noise,
-                    priors=priors, positivity=positivity)
+                    priors=priors, priors_width=priors_width, positivity=positivity)
     if not np.isfinite(lp):
         return -np.inf
 
@@ -134,19 +139,21 @@ def log_probability(guesses, params, k_indices, data, model, noise,
                                 pdf=pdf)
 
 def start_mcmc(params_init, k_indices, data, model, noise,
-                priors='gaussian', positivity=False, pdf='gaussian',
-                backend_filename=None, nsteps=1000, nwalkers=32,
-                 burn_in=1000, parallel=False):
+                priors='gaussian', priors_width=.25, positivity=False,
+                pdf='gaussian', backend_filename=None, nsteps=1000, nwalkers=32,
+                burn_in=1000, parallel=False):
 
     print('running mcmc with the following settings:')
     print('fitting data from k: ', k_indices)
     print('prior is: ', priors)
-    print('pdf is: ', pdf)
+    print('prior width is: ', priors_width)
     print('positivity prior is: ', positivity)
+    print('pdf is: ', pdf)
 
     pvals = np.asarray(list(params_init.values()), dtype=object)
 
-    args = [params_init, k_indices, data, model, noise, priors,positivity, pdf]
+    args = [params_init, k_indices, data, model, noise, priors,
+                priors_width, positivity, pdf]
 
     ndim = len(pvals) - 1 + len(pvals[-1][k_indices])
 
@@ -223,3 +230,51 @@ def many_realizations(params_initial, param_names, k_indices,
 
 
     return samples, log_prob
+
+def recover_params_mcmc(k, k_indices, lumen_pspecs, model, density,
+            priors='uniform', priors_width=.25, noise=False, pdf='gaussian',
+            positivity=False):
+
+    data = utils.fetch_data(k, k_indices, lumen_pspecs)
+    N = analysis.estimate_errors(data, frac_error=.1)
+    biases = utils.extract_bias(k_indices, lumen_pspecs, density)
+
+    p_names = np.asarray(['b_i','b_j', 'b_k', 'P_m'])
+    pvals = np.zeros(len(p_names), dtype=object)
+
+    for i in range(pvals.size-1):
+        pvals[i] = biases[i]
+
+    pvals[-1] = density
+    data[-1] = biases[0]
+
+    params = dict(zip(p_names, pvals))
+
+    if noise is True:
+        data = data + utils.generate_noise(N)
+
+    results = start_mcmc(params, k_indices, data[:4*len(k_indices)],
+                            model, N[:4*len(k_indices),:4*len(k_indices)],
+                            nwalkers=72, burn_in=5000, nsteps=1e4, parallel=False,
+                            pdf=pdf, priors=priors, priors_width=priors_width,
+                            positivity=positivity)
+
+    return results, params, data
+
+def recover_params_LSE(k, k_indices, lumen_pspecs, model, density):
+    data = utils.fetch_data(k, k_indices, lumen_pspecs)
+    biases = utils.extract_bias(k_indices, lumen_pspecs, density)
+
+    data[-1] = 1.0 # biases_HI_L_M[0]
+
+
+    # print('LSE data: ', data_HI_L_M)
+    # print('LSE biases: ,', biases_HI_L_M)
+
+    N = analysis.estimate_errors(data, frac_error=.1)
+    N[4,4] = .25**2
+
+    LSE = estimators.Estimators(k_indices, data, N)
+    LSE_results = LSE.LSE_3CC_1PS_bias()
+
+    return LSE_results

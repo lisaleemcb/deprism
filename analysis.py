@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import emcee
 
 from functools import reduce # only in Python 3
+from scipy.special import comb
 
 def autocorrelation(signal):
     return signal * signal.conj()
@@ -14,7 +15,7 @@ def correlation(signal1, signal2):
 #def bin_k(k_vector, S_k, bins=5):
 #k = np.fft.fftshift(np.sqrt((k_vec**2).sum(axis=0)))
 
-def pspec(r_vec, signals, n_bins=5, bin_scale='log'):
+def calc_pspec(r_vec, signals, n_bins=5, bin_scale='log'):
     S_r1 = 0
     S_r2 = 0
 
@@ -38,13 +39,19 @@ def pspec(r_vec, signals, n_bins=5, bin_scale='log'):
     #print(survey_n_pixels)
     survey_volume = pixel_volume(r_vec) * K_vec[0].size
 
+    print('voxel size is: ', r_vec[1,1] - r_vec[0,0], ' Mpc')
+    print('voxel volume is: ', pixel_volume(r_vec), ' Mpc^3')
+    print('survey volume is: ', survey_volume, ' Mpc^3')
+
     max_k = min([k_vec[i].max() for i in range(k_vec.shape[0])])
 
     bin_edges = np.zeros(n_bins)
     if bin_scale is 'linear':
+        print('bin scale is: linear')
         bin_edges = linear_bins(resolution(r_vec), max_k, n_bins)
 
     elif bin_scale == 'log':
+        print('bin scale is: log')
         bin_edges = log_bins(resolution(r_vec), max_k, n_bins)
 
     elif bin_scale == 'custom':
@@ -81,7 +88,7 @@ def pspec(r_vec, signals, n_bins=5, bin_scale='log'):
     factor = 2 * np.pi**2
     # plt.plot(bin_edges, bin_avgs / survey_volume)
 
-    return bin_edges, pspec / factor, pspec_dimless / factor  #, stds, counts #, two_point_k / survey_volume
+    return bin_edges, pspec, pspec_dimless / factor  #, stds, counts #, two_point_k / survey_volume
 
 
 
@@ -131,3 +138,31 @@ def estimate_errors(signal, frac_error=.01):
 
 def calc_errors(signal, specs):
     pass
+
+def N_pixel_thermal(T_sys, Delta_nu, t_int, f_cover):
+    sigma_N = T_sys / (np.sqrt(Delta_nu * t_int) * f_cover)
+
+    return sigma_N
+
+def gen_spectra(r_vec, fields, runs=3, n_bins=20):
+    lines_indices = np.zeros((int(comb(runs, 2) + runs), 2))
+    pspecs = np.zeros((int(comb(runs, 2) + runs), n_bins))
+    pspecs_dim = np.zeros((int(comb(runs, 2) + runs), n_bins))
+
+    counter = 0
+    for i in range(runs):
+        for j in range(i, runs):
+            print('Calculating correlation for Lines', i, ' and ', j)
+            k, pspec, pspec_dim = calc_pspec(r_vec,
+                            [fields[i], fields[j]],
+                            n_bins=n_bins, bin_scale='log')
+
+            pspecs[counter] = pspec
+            pspecs_dim[counter] = pspec_dim
+
+            lines_indices[counter,0] = i
+            lines_indices[counter,1] = j
+
+            counter += 1
+
+    return k, pspecs, pspecs_dim
