@@ -3,6 +3,9 @@ import copy as cp
 import scipy
 import matplotlib.pyplot as plt
 
+from astropy.cosmology import Planck15
+from scipy.integrate import quad
+
 c = 2.99792e8 # m/s (kilometers per second)
 k_B = 1.381e-23 # J/K (joules per kelvin)
 
@@ -355,3 +358,48 @@ def overdensity(density):
     delta = (density - mean) / mean
 
     return delta
+
+def FWHM_to_sigma(FWHM):
+    sigma = FWHM / np.sqrt(8 * np.log(2))
+
+    return sigma * np.pi / 648000
+
+def calc_nu_obs(nu_rest, z):
+    nu_obs = nu_rest * (1 + z)
+
+    return nu_obs
+
+def calc_z_of_nu_obvs(nu_obvs, nu_rest):
+    nu_obs / nu_rest - 1
+
+def calc_sigma_perp(z, sigma_beam):
+    sigma_perp = Planck15.comoving_distance(z) * sigma_beam
+
+    return sigma_perp.to_value()
+
+def calc_sigma_para(z, nu_obs, delta_nu):
+    sigma_para = (c / utils.H(z)) * delta_nu * (1 + z) / nu_obs
+
+    return sigma_para
+
+def calc_sm_func(mu, k, sigma_perp, sigma_para):
+    sm_func = np.exp(-k**2 * sigma_perp**2) * np.exp(-mu**2 * k**2 * (sigma_para**2 - sigma_perp**2))
+
+    return sm_func
+
+def calc_W_k(k, sigma_perp, sigma_para):
+    W_k = np.zeros_like(k)
+
+    for i, k in enumerate(k):
+        W_k[i] = quad(calc_sm_func, 0, 1, args=(k, sigma_perp, sigma_para))[0]
+
+    return W_k
+
+def nu_to_wavelength(nu):
+    return c / nu
+
+def angular_res(wavelength, D):
+ # in meters
+    angular_res = wavelength / D
+
+    return angular_res
