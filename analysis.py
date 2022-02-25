@@ -123,7 +123,9 @@ def log_bins(min_k, max_k, n_bins):
     return np.geomspace(min_k, max_k,n_bins)
 
 def resolution(r):
+    # for a square volume
     box_length = r[0].max() - r[0].min()
+
     return (2 * np.pi) / box_length
 
 def log_prob(x, mu, cov):

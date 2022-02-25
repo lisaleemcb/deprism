@@ -4,7 +4,9 @@ import scipy
 import matplotlib.pyplot as plt
 
 from astropy.cosmology import Planck15
-from scipy.integrate import quad
+from astropy import units as u
+from astropy import constants as const
+from scipy.integrate import simpson
 
 c = 2.99792e8 # m/s (kilometers per second)
 k_B = 1.381e-23 # J/K (joules per kelvin)
@@ -18,9 +20,11 @@ Omega_m = 0.27
 Omega_r = 10e-4
 Omega_Lambda = 0.73
 
-nu_C_II = 1.900539e12 # Hz
+nu_CII = 1.900539e12 # Hz
 nu_CO = 115.271203e9 # Hz
 nu_O_III = 1e9 # Hz
+
+lambda_CII = 158 # nanometers
 
 def gaussian(x, mean, sigma, normed=False):
     N = 1
@@ -53,10 +57,6 @@ def H(z, Omega_b=Omega_b, Omega_c=Omega_c, Omega_r=Omega_r, Omega_Lambda=Omega_L
 
     return H_0 * np.sqrt(Omega_r / a(z)**4 + Omega_m / a(z)**3 + Omega_Lambda)
 
-def error_bars(P_x):
-    # return np.cov(P_x)
-    pass
-
 def mass2luminosity(masses, power=3./5, mass_0=1, normalize=True):
         N = 1 # np.mean(np.abs(masses.flatten())**2)
 
@@ -71,7 +71,7 @@ def phi(z):
 def emissivity(z, phi=phi, SFR=SFR, L_0=6e6, alpha=-1.96):
     return  phi(z) * L_0 * L_solar * SFR(z) * scipy.special.gamma(2 + alpha)
 
-def specific_intensity(z, e=None, nu=nu_C_II, L=None, ):
+def specific_intensity(z, e=None, nu=nu_CII, L=None, ):
     if L is None:
         e = emissivity(z)
 
@@ -362,25 +362,23 @@ def overdensity(density):
 def FWHM_to_sigma(FWHM):
     sigma = FWHM / np.sqrt(8 * np.log(2))
 
-    return sigma * np.pi / 648000
-
-def calc_nu_obs(nu_rest, z):
-    nu_obs = nu_rest * (1 + z)
-
-    return nu_obs
-
-def calc_z_of_nu_obvs(nu_obvs, nu_rest):
-    nu_obs / nu_rest - 1
+    return sigma.to(u.radian)
 
 def calc_sigma_perp(z, sigma_beam):
     sigma_perp = Planck15.comoving_distance(z) * sigma_beam
 
-    return sigma_perp.to_value()
+    return sigma_perp.to(u.Mpc, equivalencies=u.dimensionless_angles())
 
 def calc_sigma_para(z, nu_obs, delta_nu):
-    sigma_para = (c / utils.H(z)) * delta_nu * (1 + z) / nu_obs
+    sigma_para = (const.c / Planck15.H(z)) * delta_nu * (1 + z) / nu_obs
 
-    return sigma_para
+    return sigma_para.decompose().decompose(bases=[u.Mpc])
+
+def set_sigma_para(sigma_para, z, nu_rest):
+    # finds the appropriate delta_nu to get specified sigma_parallel
+    delta_nu = (sigma_para * Planck15.H(z) * nu_rest) / (const.c * (1 + z))
+
+    return delta_nu
 
 def calc_sm_func(mu, k, sigma_perp, sigma_para):
     sm_func = np.exp(-k**2 * sigma_perp**2) * np.exp(-mu**2 * k**2 * (sigma_para**2 - sigma_perp**2))
@@ -388,18 +386,42 @@ def calc_sm_func(mu, k, sigma_perp, sigma_para):
     return sm_func
 
 def calc_W_k(k, sigma_perp, sigma_para):
-    W_k = np.zeros_like(k)
+    W_k = np.zeros(len(k))
+    mu = np.linspace(0,1,int(1e5))
 
-    for i, k in enumerate(k):
-        W_k[i] = quad(calc_sm_func, 0, 1, args=(k, sigma_perp, sigma_para))[0]
+    for i in range(len(k)):
+        W_k[i] = simpson(calc_sm_func(mu, k[i], sigma_perp, sigma_para), mu)
 
     return W_k
 
 def nu_to_wavelength(nu):
-    return c / nu
+    return (const.c / nu)
+
+def wavelength_to_nu(wavelength):
+    return (const.c / wavelength )
+
+def calc_nu_obs(nu_rest, z):
+    nu_obs = nu_rest / (1 + z)
+
+    return nu_obs
+
+def calc_z_of_nu_obs(nu_obs, nu_rest):
+    nu_obs / nu_rest - 1
 
 def angular_res(wavelength, D):
  # in meters
     angular_res = wavelength / D
 
     return angular_res
+
+def calc_N_modes(k, delta_k, V_surv):
+    N_modes = k**2 * delta_k * V_surv / (4 * np.pi**2)
+
+    return N_modes
+
+def calc_V_surv_ij(z, lambda_i=lambda_CII, Omega_surv_j=1.7, B_nu_j=200):
+    # units in nanometers, GHz
+    A = 3.7e7 # just a random prefactor (c Mpc / h)^3
+    V_surv_ij = A * (lambda_i / 158) * np.sqrt((1 + z) / 8) * (Omega_surv_j / 16) * (B_nu_j / 20)
+
+    return V_surv_ij
