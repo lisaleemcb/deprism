@@ -11,7 +11,7 @@ def log_prior(param_guesses, params, k_indices, model, noise,
                 priors='uniform', priors_width=.25, positivity=False):
 
     P_m = param_guesses['P_m']
-    b_0 = params['b_i']
+    b_0 = 30 # params['b_i']
     b_i = param_guesses['b_i']
     b_j = param_guesses['b_j']
     b_k = param_guesses['b_k']

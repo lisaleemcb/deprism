@@ -138,6 +138,19 @@ def estimate_errors(signal, frac_error=.01):
 
     return N
 
+def create_noise_matrix(k_indices, variances):
+    n_data = 4 # set to 4, 3 crosscorrelations and 1 bias
+
+    N = np.identity(n_data)
+    print
+
+    for i in range(3):
+        N[i,i] = variances[i][k_indices][0].value
+
+    N[-1,-1] = variances[-1]
+
+    return N
+
 def calc_errors(signal, specs):
     pass
 
@@ -168,3 +181,18 @@ def gen_spectra(r_vec, fields, runs=3, n_bins=20):
             counter += 1
 
     return k, pspecs, pspecs_dim
+
+def add_P(samples, k_indices, lines):
+    n, m = lines
+    n_samples = samples[:,0].size
+    n_params = samples[0].size + len(k_indices)
+
+    samples_with_P = np.zeros((n_samples, n_params))
+
+    for i in range(n_params - len(k_indices)):
+        samples_with_P[:,i] = samples[:,i]
+
+    for i in range(len(k_indices)):
+        samples_with_P[:, n_params - i - 1] = samples[:,n] * samples[:,m] * samples[:,(2 + len(k_indices) - i)]
+
+    return samples_with_P

@@ -20,11 +20,11 @@ Omega_m = 0.27
 Omega_r = 10e-4
 Omega_Lambda = 0.73
 
-nu_CII = 1.900539e12 # Hz
-nu_CO = 115.271203e9 # Hz
-nu_O_III = 1e9 # Hz
+nu_CII = 1.900539e12 * u.Hz # Hz
+nu_CO = 115.271203e9 * u.Hz # Hz
+nu_O_III = 1e9 * u.Hz # Hz
 
-lambda_CII = 158 # nanometers
+lambda_CII = 158 * u.nm # nanometers
 
 def gaussian(x, mean, sigma, normed=False):
     N = 1
@@ -60,28 +60,29 @@ def H(z, Omega_b=Omega_b, Omega_c=Omega_c, Omega_r=Omega_r, Omega_Lambda=Omega_L
 def mass2luminosity(masses, power=3./5, mass_0=1, normalize=True):
         N = 1 # np.mean(np.abs(masses.flatten())**2)
 
-        return (masses / mass_0)**power / N
+        return ((masses / mass_0)**power / N) * u.solLum
 
 def SFR(z):
-    return 134.39 * z**(-1.18)
+    return 134.39 * z**(-1.18) * u.solMass * u.yr**(-1)
 
 def phi(z):
-    return .00358 * z**(-0.85)
+    return .00358 * z**(-0.85) * u.Mpc**(-3)
 
-def emissivity(z, phi=phi, SFR=SFR, L_0=6e6, alpha=-1.96):
-    return  phi(z) * L_0 * L_solar * SFR(z) * scipy.special.gamma(2 + alpha)
+def emissivity(z, phi=phi, SFR=SFR, L_0=6e6 * u.solLum, alpha=-1.96):
+    L = L_0 * SFR(z) * u.solMass**(-1) * u.yr
 
-def specific_intensity(z, e=None, nu=nu_CII, L=None, ):
+    return  phi(z) * L * scipy.special.gamma(2 + alpha)
+
+def specific_intensity(z, e=None, nu=nu_CII, L=None):
     if L is None:
         e = emissivity(z)
 
     if L is not None:
-        e = phi(z) * L * L_solar
+        e = L * phi(z)
 
-    I = (e * c) / (4.0 * np.pi * nu * H(z))
+    I = (e * const.c) / (4.0 * np.pi * nu * Planck15.H(z))
 
-    # this factor here is to convert from Mpc^2 to m^2
-    return I / (3.0857e22)**2
+    return (I * u.steradian**(-1)).to(u.Jy * u.steradian**(-1))
 
 def mass2SFR(masses, power=5./3, mass_0=1, normalize=True):
     # using model Pullen et al. (2013)
@@ -359,6 +360,9 @@ def overdensity(density):
 
     return delta
 
+def calc_sigma_beam(z, lambda_i, D_j):
+    return (lambda_i * (1 + z) / D_j).decompose()
+
 def FWHM_to_sigma(FWHM):
     sigma = FWHM / np.sqrt(8 * np.log(2))
 
@@ -374,9 +378,9 @@ def calc_sigma_para(z, nu_obs, delta_nu):
 
     return sigma_para.decompose().decompose(bases=[u.Mpc])
 
-def set_sigma_para(sigma_para, z, nu_rest):
+def set_sigma_para(sigma_para, z, nu_obs):
     # finds the appropriate delta_nu to get specified sigma_parallel
-    delta_nu = (sigma_para * Planck15.H(z) * nu_rest) / (const.c * (1 + z))
+    delta_nu = (sigma_para * Planck15.H(z) * nu_obs) / (const.c * (1 + z))
 
     return delta_nu
 
