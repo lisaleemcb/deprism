@@ -110,9 +110,8 @@ def extract_bias(k_indices, lumens, P_m):
     return biases
 
 def fetch_data(k_bins, k_indices, spectra, b_0=0):
-    data = pop_data(k_bins, k_indices, [spectra[0], spectra[1], spectra[4],
+    data = pop_data(k_bins, k_indices, [spectra[3], spectra[1], spectra[4],
                              spectra[2]], b_0)
-
     return data
 
 def fetch_data2auto_3cross(k_bins, k_indices, lumens, b_0=0):
@@ -128,7 +127,7 @@ def fetch_data2auto_3cross(k_bins, k_indices, lumens, b_0=0):
     return data
 
 def pop_data(k_bins, k_indices, spectra, b_0):
-    P_00, P_01, P_12, P_02 = spectra
+    # P_00, P_01, P_02, P_11, P_12, P_22 = spectra
     data = np.zeros((len(k_bins[k_indices]) * 4 + 1))
     n_k = len(k_indices)
 

@@ -2,8 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import emcee
 import copy
+
 import utils
 import analysis
+import estimators
 
 from multiprocessing import Pool
 
@@ -11,7 +13,7 @@ def log_prior(param_guesses, params, k_indices, model, noise,
                 priors='uniform', priors_width=.25, positivity=False):
 
     P_m = param_guesses['P_m']
-    b_0 = 30 # params['b_i']
+    b_0 = params['b_i']
     b_i = param_guesses['b_i']
     b_j = param_guesses['b_j']
     b_k = param_guesses['b_k']
@@ -231,13 +233,16 @@ def many_realizations(params_initial, param_names, k_indices,
 
     return samples, log_prob
 
-def recover_params_mcmc(k, k_indices, lumen_pspecs, model, density,
+def recover_params_mcmc(k, k_indices, lumen_pspecs, model, density, variances,
             priors='uniform', priors_width=.25, noise=False, pdf='gaussian',
             positivity=False):
 
     data = utils.fetch_data(k, k_indices, lumen_pspecs)
-    N = analysis.estimate_errors(data, frac_error=.1)
+    #N = analysis.estimate_errors(data, frac_error=.1)
+    N = analysis.create_noise_matrix(k_indices, variances)
     biases = utils.extract_bias(k_indices, lumen_pspecs, density)
+
+    print(np.diag(N))
 
     p_names = np.asarray(['b_i','b_j', 'b_k', 'P_m'])
     pvals = np.zeros(len(p_names), dtype=object)
@@ -253,25 +258,31 @@ def recover_params_mcmc(k, k_indices, lumen_pspecs, model, density,
     if noise is True:
         data = data + utils.generate_noise(N)
 
-    results = start_mcmc(params, k_indices, data[:4*len(k_indices)],
-                            model, N[:4*len(k_indices),:4*len(k_indices)],
+    # lopping off the bias
+    data_size = model.pspec(k_indices).size + 1
+    #print('DATA: ', data)
+    print('NOISE: ', N[1:data_size*len(k_indices),1:data_size*len(k_indices)])
+
+    results = start_mcmc(params, k_indices, data[1:data_size*len(k_indices)],
+                            model, N[1:data_size*len(k_indices),1:data_size*len(k_indices)],
                             nwalkers=72, burn_in=5000, nsteps=1e4, parallel=False,
                             pdf=pdf, priors=priors, priors_width=priors_width,
                             positivity=positivity)
 
     return results, params, data
 
-def recover_params_LSE(k, k_indices, lumen_pspecs, model, density):
+def recover_params_LSE(k, k_indices, lumen_pspecs, model, density, variances):
     data = utils.fetch_data(k, k_indices, lumen_pspecs)
     biases = utils.extract_bias(k_indices, lumen_pspecs, density)
 
-    data[-1] = 1.0 # biases_HI_L_M[0]
-
+    data[-1] = biases[0]
+    print(data)
 
     # print('LSE data: ', data_HI_L_M)
     # print('LSE biases: ,', biases_HI_L_M)
 
-    N = analysis.estimate_errors(data, frac_error=.1)
+    #N = analysis.estimate_errors(data, frac_error=.1)
+    N = analysis.create_noise_matrix(k_indices, variances)
     N[4,4] = .25**2
 
     LSE = estimators.Estimators(k_indices, data, N)

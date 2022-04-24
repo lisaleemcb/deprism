@@ -58,7 +58,6 @@ def calc_pspec(r_vec, signals, n_bins=5, bin_scale='log'):
         pass
 
     bins = [ [] for i in range(n_bins) ]
-    bins_dimless = [[] for i in range(n_bins)]
 
     S_k1 = pixel_volume(r_vec) * np.fft.fftn(S_r1)
     S_k2 = pixel_volume(r_vec) * np.fft.fftn(S_r2)
@@ -69,28 +68,23 @@ def calc_pspec(r_vec, signals, n_bins=5, bin_scale='log'):
     two_point_k = np.abs(S_k1 * np.conj(S_k2))
 
     print('min resolution: k=', resolution(r_vec))
+    print('maximum k-mode:', max_k)
     for index, k in np.ndenumerate(K):
         if k <= max_k:
             if k > resolution(r_vec): # resolution scale of box
                 bindex = np.searchsorted(bin_edges,k) - 1
                 bins[bindex].append(two_point_k[index])
-                bins_dimless[bindex].append(k**(r_vec.shape[0]) * two_point_k[index])
 
     for i in range(len(bins)):
         if not bins[i]:
             bins[i] = 0
-            bins_dimless[i] = 0
 
     pspec = np.asarray([np.asarray(bins[i]).mean() for i in range(n_bins)]) / survey_volume
-    stds = np.asarray([np.asarray(bins[i]).std() for i in range(n_bins)]) / survey_volume
-    counts = np.asarray([np.asarray(bins[i]).size for i in range(n_bins)])
-    pspec_dimless = np.asarray([np.asarray(bins_dimless[i]).mean() for i in range(n_bins)]) / survey_volume
-    factor = 2 * np.pi**2
+    # stds = np.asarray([np.asarray(bins[i]).std() for i in range(n_bins)]) / survey_volume
+    # counts = np.asarray([np.asarray(bins[i]).size for i in range(n_bins)])
     # plt.plot(bin_edges, bin_avgs / survey_volume)
 
-    return bin_edges, pspec, pspec_dimless / factor  #, stds, counts #, two_point_k / survey_volume
-
-
+    return bin_edges, pspec #, stds, counts #, two_point_k / survey_volume
 
 # equal spaced in log(k)
 # arbitrary bins
@@ -139,12 +133,12 @@ def estimate_errors(signal, frac_error=.01):
     return N
 
 def create_noise_matrix(k_indices, variances):
-    n_data = 4 # set to 4, 3 crosscorrelations and 1 bias
+    n_data = 5 # set to 4, 3 crosscorrelations and 1 bias
 
     N = np.identity(n_data)
     print
 
-    for i in range(3):
+    for i in range(4):
         N[i,i] = variances[i][k_indices][0].value
 
     N[-1,-1] = variances[-1]
@@ -162,25 +156,23 @@ def N_pixel_thermal(T_sys, Delta_nu, t_int, f_cover):
 def gen_spectra(r_vec, fields, runs=3, n_bins=20):
     lines_indices = np.zeros((int(comb(runs, 2) + runs), 2))
     pspecs = np.zeros((int(comb(runs, 2) + runs), n_bins))
-    pspecs_dim = np.zeros((int(comb(runs, 2) + runs), n_bins))
 
     counter = 0
     for i in range(runs):
         for j in range(i, runs):
             print('Calculating correlation for Lines', i, ' and ', j)
-            k, pspec, pspec_dim = calc_pspec(r_vec,
+            k, pspec = calc_pspec(r_vec,
                             [fields[i], fields[j]],
                             n_bins=n_bins, bin_scale='log')
 
             pspecs[counter] = pspec
-            pspecs_dim[counter] = pspec_dim
 
             lines_indices[counter,0] = i
             lines_indices[counter,1] = j
 
             counter += 1
 
-    return k, pspecs, pspecs_dim
+    return k, pspecs
 
 def add_P(samples, k_indices, lines):
     n, m = lines
@@ -196,3 +188,26 @@ def add_P(samples, k_indices, lines):
         samples_with_P[:, n_params - i - 1] = samples[:,n] * samples[:,m] * samples[:,(2 + len(k_indices) - i)]
 
     return samples_with_P
+
+def var_Pii_Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes):
+    P_ii, P_ij, P_ik, P_jj, P_jk, P_kk = spectra
+
+    P_ii = P_ii[:-1]
+    P_jj = P_jj[:-1]
+    P_kk = P_kk[:-1]
+    P_ij = P_ij[:-1]
+    P_jk = P_jk[:-1]
+    P_ik = P_ik[:-1]
+
+    P_ii_tot = P_ii + P_N_i
+    P_jj_tot = P_jj + P_N_j
+    P_kk_tot = P_kk + P_N_k
+
+    var_P_ii = (P_ij / P_ik)**2 * (P_ik**2 + P_ii_tot * P_kk_tot) \
+        + (P_ik / P_ij)**2 * (P_ij**2 + P_ii_tot * P_jj_tot) \
+        + (P_ij * P_ik / P_jk**2)**2 * (P_jk**2 + P_jj_tot * P_kk_tot) \
+        + (P_ij * P_ik / P_jk**2) * (P_ii_tot * P_jk + P_ij * P_ik) \
+        - (P_ij**2 * P_ik / P_jk**3) * (P_kk_tot * P_ik + P_ik * P_jk) \
+        - (P_ij * P_ik**2 / P_jk**3) * (P_jj_tot * P_ik + P_ij * P_jk) \
+
+    return var_P_ii / N_modes
