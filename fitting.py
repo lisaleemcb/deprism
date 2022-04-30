@@ -238,11 +238,9 @@ def recover_params_mcmc(k, k_indices, lumen_pspecs, model, density, variances,
             positivity=False):
 
     data = utils.fetch_data(k, k_indices, lumen_pspecs)
-    #N = analysis.estimate_errors(data, frac_error=.1)
-    N = analysis.create_noise_matrix(k_indices, variances)
+    N = analysis.estimate_errors(data, frac_error=.50)
+    # N = analysis.create_noise_matrix(k_indices, variances)
     biases = utils.extract_bias(k_indices, lumen_pspecs, density)
-
-    print(np.diag(N))
 
     p_names = np.asarray(['b_i','b_j', 'b_k', 'P_m'])
     pvals = np.zeros(len(p_names), dtype=object)
@@ -253,39 +251,52 @@ def recover_params_mcmc(k, k_indices, lumen_pspecs, model, density, variances,
     pvals[-1] = density
     data[-1] = biases[0]
 
+    print(data)
+    print(np.diag(N))
+
     params = dict(zip(p_names, pvals))
 
     if noise is True:
         data = data + utils.generate_noise(N)
 
     # lopping off the bias
-    data_size = model.pspec(k_indices).size + 1
-    #print('DATA: ', data)
-    print('NOISE: ', N[1:data_size*len(k_indices),1:data_size*len(k_indices)])
+    data_size = model.pspec(k_indices).size
+    data = data[1:data_size*len(k_indices)+1]
+    N = N[1:data_size*len(k_indices)+1,1:data_size*len(k_indices)+1]
+    print('DATA SIZE: ', data_size)
+    print('DATA: ', data)
+    print('NOISE: ',np.diag(N))
 
-    results = start_mcmc(params, k_indices, data[1:data_size*len(k_indices)],
-                            model, N[1:data_size*len(k_indices),1:data_size*len(k_indices)],
+    results = start_mcmc(params, k_indices, data, model, N,
                             nwalkers=72, burn_in=5000, nsteps=1e4, parallel=False,
                             pdf=pdf, priors=priors, priors_width=priors_width,
                             positivity=positivity)
 
     return results, params, data
 
-def recover_params_LSE(k, k_indices, lumen_pspecs, model, density, variances):
+def recover_params_LSE(k, k_indices, lumen_pspecs, model, density, variances,
+                            noise=False):
     data = utils.fetch_data(k, k_indices, lumen_pspecs)
     biases = utils.extract_bias(k_indices, lumen_pspecs, density)
 
     data[-1] = biases[0]
     print(data)
 
+    N = analysis.estimate_errors(data, frac_error=.50)
+    # N = analysis.create_noise_matrix(k_indices, variances)
+    N[-1,-1] = (biases[0] * .1)**2
+
+    if noise is True:
+        'adding noise'
+        data = data + utils.generate_noise(N)
     # print('LSE data: ', data_HI_L_M)
     # print('LSE biases: ,', biases_HI_L_M)
 
-    #N = analysis.estimate_errors(data, frac_error=.1)
-    N = analysis.create_noise_matrix(k_indices, variances)
-    N[4,4] = .25**2
+    print('DATA: ', data[1:])
+    print('NOISE: ', np.diag(N[1:,1:]))
+    print('noise has shape ', N.shape)
 
-    LSE = estimators.Estimators(k_indices, data, N)
-    LSE_results = LSE.LSE_3CC_1PS_bias()
+    LSE = estimators.Estimators(k_indices, data[1:], N[1:,1:])
+    LSE_results = LSE.LSE_3cross_1bias()
 
     return LSE_results

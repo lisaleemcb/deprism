@@ -110,7 +110,7 @@ def extract_bias(k_indices, lumens, P_m):
     return biases
 
 def fetch_data(k_bins, k_indices, spectra, b_0=0):
-    data = pop_data(k_bins, k_indices, [spectra[3], spectra[1], spectra[4],
+    data = pop_data(k_bins, k_indices, [spectra[0], spectra[1], spectra[4],
                              spectra[2]], b_0)
     return data
 

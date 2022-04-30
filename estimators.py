@@ -32,6 +32,28 @@ class Estimators:
 
         return LSE_generic(self.data, self.noise, A)
 
+    def LSE_3cross_1bias(self, noise=None):
+        if self.data.shape is None:
+            raise Exception('data shape must be 4 observations')
+
+        if noise is not None:
+            self.noise = utils.log_noise(noise, self.data)
+            print(self.noise)
+
+        else:
+            self.noise = utils.log_noise(self.noise, self.data)
+
+        A = np.array([[1, 1, 0, 1],
+                    [0, 1, 1, 1],
+                    [1, 0, 1, 1],
+                    [1, 0, 0, 0]])
+
+        num_P_m = (self.data.size - 1) % 4
+
+        #A = np.zeros()
+        estimates, errors, e_inv = Estimators.LSE_generic(np.log(self.data), self.noise, A)
+        return estimates, errors
+
     def LSE_3CC_1PS_bias(self, noise=None, inject_noise=False):
         if self.data.shape is None:
             raise Exception('data shape must be 5 observations')

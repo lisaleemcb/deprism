@@ -38,13 +38,13 @@ class ScalarBias(Models):
             b_k = params['b_k']
             P_m = params['P_m'][k_indices]
 
-        #P_ii = b_i**2 * P_m
+        P_ii = b_i**2 * P_m
         P_jj = b_j**2 * P_m
         P_ij = b_i * b_j * P_m
         P_jk = b_j * b_k * P_m
         P_ki = b_k * b_i * P_m
 
-        pspec = np.asarray([*P_jj, *P_ij, *P_jk, *P_ki]).flatten() # np.zeros((int(comb(runs, 2) + runs), n_bins)
+        pspec = np.asarray([*P_ii, *P_ij, *P_jk, *P_ki]).flatten() # np.zeros((int(comb(runs, 2) + runs), n_bins)
         #pspec = np.asarray([*P_ii, *P_ij, *P_jk, *P_ki]).flatten() # np.zeros((int(comb(runs, 2) + runs), n_bins)
 
         if N is not None:
@@ -74,6 +74,35 @@ class ScalarBias_crossonly(Models):
         P_ki = b_k * b_i * P_m
 
         pspec = np.asarray([*P_ij, *P_jk, *P_ki]).flatten() # np.zeros((int(comb(runs, 2) + runs), n_bins)
+        #pspec = np.asarray([*P_ii, *P_ij, *P_jk, *P_ki]).flatten() # np.zeros((int(comb(runs, 2) + runs), n_bins)
+
+        if N is not None:
+            return pspec + utils.generate_noise(N)
+
+        return pspec
+
+class ScalarBias_crossonly_log(Models):
+    def __init__(self, *args, **kwargs):
+        super().__init__(**kwargs)
+
+    def pspec(self, k_indices, params=None, N=None):
+        if params is None:
+            eta_i = self.params['eta_i']
+            eta_j = self.params['eta_j']
+            eta_k = self.params['eta_k']
+            lnP_m = self.params['lnP_m'][k_indices]
+
+        else:
+            eta_i = params['eta_i']
+            eta_j = params['eta_j']
+            eta_k = params['eta_k']
+            lnP_m = params['lnP_m'][k_indices]
+
+        lnP_ij = eta_i * eta_j * lnP_m
+        lnP_jk = eta_j * eta_k * lnP_m
+        lnP_ki = eta_k * eta_i * lnP_m
+
+        pspec = np.asarray([*lnP_ij, *lnP_jk, *lnP_ki]).flatten() # np.zeros((int(comb(runs, 2) + runs), n_bins)
         #pspec = np.asarray([*P_ii, *P_ij, *P_jk, *P_ki]).flatten() # np.zeros((int(comb(runs, 2) + runs), n_bins)
 
         if N is not None:
