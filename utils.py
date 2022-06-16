@@ -3,6 +3,9 @@ import copy as cp
 import scipy
 import matplotlib.pyplot as plt
 
+import analysis
+import models
+
 from astropy.cosmology import Planck15
 from astropy import units as u
 from astropy import constants as const
@@ -428,3 +431,33 @@ def calc_V_surv_ij(z, lambda_i=lambda_CII, Omega_surv_j=1.7, B_nu_j=200):
     V_surv_ij = A * (lambda_i / 158) * np.sqrt((1 + z) / 8) * (Omega_surv_j / 16) * (B_nu_j / 20)
 
     return V_surv_ij
+
+def initialize_fits(k_indices, spectra, P_m, variances, N_frac_error=None):
+    biases = extract_bias(k_indices, spectra[1], P_m)
+    data = fetch_data(spectra[0], k_indices, spectra[1])
+
+    if N_frac_error is not None:
+        print('Noise level is: ', N_frac_error * 100, '% of specific_intensity')
+        N = analysis.estimate_errors(data, frac_error=N_frac_error)
+
+    if N_frac_error is None:
+        print('Noise level is set by instrumental specifications')
+        N = analysis.create_noise_matrix(k_indices, variances)
+
+    p_names = np.asarray(['b_i','b_j', 'b_k', 'P_m'])
+    p_vals = np.asarray([*biases, P_m], dtype=object)
+
+    params = dict(zip(p_names, p_vals))
+    model = models.ScalarBias(k=spectra[0], params=params)
+    model_cross = models.ScalarBias_crossonly(k=spectra[0], params=params)
+
+    return data, N, params, model_cross
+
+def delog_errors(results):
+    log_params, log_errors = results
+    log_var = np.diag(log_errors)
+    var = np.zeros_like(log_var)
+    var[:-1] = np.exp(log_params[:-1]) * log_var[:-1]
+    var[-1] = np.exp(log_params[-1]) * log_var[-1]
+
+    return var

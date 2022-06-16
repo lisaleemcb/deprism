@@ -141,7 +141,7 @@ def create_noise_matrix(k_indices, variances):
     for i in range(4):
         N[i,i] = variances[i][k_indices][0].value
 
-    N[-1,-1] = variances[-1]
+    N[-1,-1] = variances[-1][k_indices]
 
     return N
 
@@ -211,3 +211,57 @@ def var_Pii_Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes):
         - (P_ij * P_ik**2 / P_jk**3) * (P_jj_tot * P_ik + P_ij * P_jk) \
 
     return var_P_ii / N_modes
+
+def check_convergence(mcmc_data):
+    results, params, data = mcmc_data
+    samples, lnprob = results
+
+    pass
+
+def Fisher_analytic(params, N, k_indices, priors_width=.1):
+    b_i = params['b_i']
+    b_j = params['b_j']
+    b_k = params['b_k']
+    P_m = np.float64(params['P_m'][k_indices])
+
+    var_bi = (b_i * priors_width)**2
+    var_ii = N[0,0]
+    var_ij = N[1,1]
+    var_jk = N[2,2]
+    var_ik = N[3,3]
+
+    Fisher_matrix = np.array([[(b_j * P_m)**2 / var_ij + (b_k * P_m )**2/ var_ik + var_bi**-1,
+                                b_i * b_j * P_m**2 / var_ij,
+                                b_i * b_k * P_m**2 / var_ik,
+                                b_i * b_j**2 * P_m / var_ij + b_i * b_k**2 * P_m / var_ik],
+                     [b_i * b_j * P_m**2 / var_ij,
+                                (b_i * P_m)**2 / var_ij + (b_k * P_m)**2 / var_jk,
+                                b_j * b_k * P_m**2 / var_jk,
+                                b_i**2 * b_j * P_m / var_ij + b_j * b_k**2 * P_m / var_jk],
+                     [b_i * b_k * P_m**2 / var_ik,
+                                b_j * b_k * P_m**2 / var_jk,
+                                (b_i * P_m)**2 / var_ik + (b_j * P_m)**2 / var_jk,
+                                b_i**2 * b_k * P_m / var_ik + b_j**2 * b_k * P_m / var_jk],
+                     [b_i * b_j**2 * P_m / var_ij + b_i * b_k**2 * P_m / var_ik,
+                                b_i**2 * b_j * P_m / var_ij + b_j * b_k**2 * P_m / var_jk,
+                                b_i**2 * b_k * P_m / var_ik + b_j**2 * b_k * P_m / var_jk,
+                                (b_i * b_j)**2 / var_ij + (b_i * b_k)**2 / var_ik + (b_j * b_k)**2 / var_jk]])
+
+
+    return Fisher_matrix
+
+def Fisher_num(function, params, noise, k_indices):
+    sigma_squared = np.diag(noise)
+    n_params = len(params.keys())
+
+    Fisher_matrix = np.zeros((n_params, n_params))
+    for i, key_i in enumerate(list(params.keys())):
+        for j, key_j in enumerate(list(params.keys())):
+
+            arg = (utils.central_diff(function, params, key_i, k_indices)[:]
+                 * utils.central_diff(function, params, key_j, k_indices)[:] / sigma_squared[:])
+
+            Fisher_matrix[i][j] = arg.sum()
+
+
+    return Fisher_matrix
