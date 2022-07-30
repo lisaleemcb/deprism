@@ -1,6 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import emcee
+import corner
+
+import utils
 
 from functools import reduce # only in Python 3
 from scipy.special import comb
@@ -189,15 +192,15 @@ def add_P(samples, k_indices, lines):
 
     return samples_with_P
 
-def var_Pii_Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes):
-    P_ii, P_ij, P_ik, P_jj, P_jk, P_kk = spectra
+def var_Pii_Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices):
+    #P_ii, P_ij, P_ik, P_jj, P_jk, P_kk = spectra
 
-    P_ii = P_ii[:-1]
-    P_jj = P_jj[:-1]
-    P_kk = P_kk[:-1]
-    P_ij = P_ij[:-1]
-    P_jk = P_jk[:-1]
-    P_ik = P_ik[:-1]
+    P_ii = spectra[0][:-1]
+    P_jj = spectra[1][:-1]
+    P_kk = spectra[2][:-1]
+    P_ij = spectra[3][:-1]
+    P_jk = spectra[4][:-1]
+    P_ik = spectra[5][:-1]
 
     P_ii_tot = P_ii + P_N_i
     P_jj_tot = P_jj + P_N_j
@@ -234,18 +237,18 @@ def Fisher_analytic(params, N, k_indices, priors_width=.1):
                                 b_i * b_j * P_m**2 / var_ij,
                                 b_i * b_k * P_m**2 / var_ik,
                                 b_i * b_j**2 * P_m / var_ij + b_i * b_k**2 * P_m / var_ik],
-                     [b_i * b_j * P_m**2 / var_ij,
-                                (b_i * P_m)**2 / var_ij + (b_k * P_m)**2 / var_jk,
-                                b_j * b_k * P_m**2 / var_jk,
-                                b_i**2 * b_j * P_m / var_ij + b_j * b_k**2 * P_m / var_jk],
-                     [b_i * b_k * P_m**2 / var_ik,
-                                b_j * b_k * P_m**2 / var_jk,
-                                (b_i * P_m)**2 / var_ik + (b_j * P_m)**2 / var_jk,
-                                b_i**2 * b_k * P_m / var_ik + b_j**2 * b_k * P_m / var_jk],
-                     [b_i * b_j**2 * P_m / var_ij + b_i * b_k**2 * P_m / var_ik,
-                                b_i**2 * b_j * P_m / var_ij + b_j * b_k**2 * P_m / var_jk,
-                                b_i**2 * b_k * P_m / var_ik + b_j**2 * b_k * P_m / var_jk,
-                                (b_i * b_j)**2 / var_ij + (b_i * b_k)**2 / var_ik + (b_j * b_k)**2 / var_jk]])
+             [b_i * b_j * P_m**2 / var_ij,
+                        (b_i * P_m)**2 / var_ij + (b_k * P_m)**2 / var_jk,
+                        b_j * b_k * P_m**2 / var_jk,
+                        b_i**2 * b_j * P_m / var_ij + b_j * b_k**2 * P_m / var_jk],
+             [b_i * b_k * P_m**2 / var_ik,
+                        b_j * b_k * P_m**2 / var_jk,
+                        (b_i * P_m)**2 / var_ik + (b_j * P_m)**2 / var_jk,
+                        b_i**2 * b_k * P_m / var_ik + b_j**2 * b_k * P_m / var_jk],
+             [b_i * b_j**2 * P_m / var_ij + b_i * b_k**2 * P_m / var_ik,
+                        b_i**2 * b_j * P_m / var_ij + b_j * b_k**2 * P_m / var_jk,
+                        b_i**2 * b_k * P_m / var_ik + b_j**2 * b_k * P_m / var_jk,
+                        (b_i * b_j)**2 / var_ij + (b_i * b_k)**2 / var_ik + (b_j * b_k)**2 / var_jk]])
 
 
     return Fisher_matrix
@@ -263,5 +266,97 @@ def Fisher_num(function, params, noise, k_indices):
 
             Fisher_matrix[i][j] = arg.sum()
 
-
     return Fisher_matrix
+
+def get_noise(spectra, frac_error, k_indices):
+    std = spectra * frac_error
+
+    return std[k_indices]
+
+def initialize_data(spectra, params, N, k_indices):
+    data = utils.fetch_data(k_indices, spectra, b_0=params['b_i'])
+    data = data + utils.generate_noise(N)
+
+    return data
+
+def plot_corner(fig_name, MCMC, LSE, Beane, params, P_ii, k_indices):
+    # truth stuff
+    pvals = utils.get_pvals(params, k_indices)
+    ndim = len(pvals)
+
+    # MCMC stuff
+    samples = MCMC[0]
+    samples_00 = add_P(samples, [1], (0,0))
+
+    # LSE stuff
+    LSE_params, LSE_var = LSE
+    LSE_params, LSE_var = utils.add_P_ii([LSE_params, LSE_var])
+
+    # Beane et al stuff
+    Beane_params, Beane_var = Beane
+
+    # figure initialization
+    plt.style.use('seaborn-colorblind')
+    plt.rc('text', usetex=True)
+    plt.rc('font', family='serif')
+    colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
+
+    figure = corner.corner(samples_00,
+                               truths=[*pvals, *P_ii[k_indices]],
+                               labels=[r'$b_i$', r'$b_j$', r'$b_k$', r'$P_m$', r'$P_{ij}$'],
+                               label_kwargs={'fontsize': 30}, range=[.99,.99,.99,.99,.99])
+
+    axes = np.array(figure.axes).reshape((ndim+1, ndim+1))
+
+    # Loop over the diagonal
+    for i in range(ndim+1):
+        ax = axes[i, i]
+        ax.axvline(LSE_params[i], color=colors[1], alpha=.5, ls='--')
+        ax.axvline(LSE_params[i] - np.sqrt(LSE_var[i]), color=colors[1], ls=':', alpha=.5)
+        ax.axvline(LSE_params[i] + np.sqrt(LSE_var[i]), color=colors[1], ls=':', alpha=.5)
+
+    # Loop over the histograms
+    for yi in range(ndim+1):
+        for xi in range(yi):
+            ax = axes[yi, xi]
+            ax.axvline(LSE_params[xi], color=colors[1], alpha=.5)
+            ax.axvline(LSE_params[xi] - np.sqrt(LSE_var[xi]), color=colors[1], ls=':', alpha=.5)
+            ax.axvline(LSE_params[xi] + np.sqrt(LSE_var[xi]), color=colors[1], ls=':', alpha=.5)
+            #ax.axvline(value2[xi], color="r")
+            ax.axhline(LSE_params[yi], color=colors[1], alpha=.5)
+            ax.axhline(LSE_params[yi] - np.sqrt(LSE_var[yi]), color=colors[1], ls=':', alpha=.5)
+            ax.axhline(LSE_params[yi] + np.sqrt(LSE_var[yi]), color=colors[1], ls=':', alpha=.5)
+            #ax.axhline(value2[yi], color="r")
+            ax.plot(LSE_params[xi], LSE_params[yi], colors[1])
+           # ax.plot(value2[xi], value2[yi], "sr")
+
+    line2 = axes[-1,-1].axvline(Beane_params[k_indices], color=colors[2], ls='--', alpha=.5, dashes=(5, 5))
+    axes[-1,-1].axvline(Beane_params[k_indices] + np.sqrt(Beane_var[k_indices]),
+                                                                color=colors[2], ls=':', alpha=.5)
+    axes[-1,-1].axvline(Beane_params[k_indices] - np.sqrt(Beane_var[k_indices]),
+                                                                color=colors[2], ls=':', alpha=.5)
+
+    figure.legend()
+    figure.savefig(fig_name)
+
+def noisey_spectra(spectra, frac_error=1, noise='on'):
+    std_spectra = np.array(spectra) * frac_error
+
+    if noise is 'on':
+        noisey_spectra = np.array(spectra) + np.random.normal(scale=std_spectra, size=std_spectra.shape)
+
+    if noise is 'off':
+        noisey_spectra = np.array(spectra)
+
+    return noisey_spectra, std_spectra
+
+def get_noise(k_indices, std_spectra, b_0):
+    var = std_spectra**2
+    var_b_0 = (.25 * b_0)**2
+
+    n = np.array([var[0][k_indices][0], var[1][k_indices][0], var[4][k_indices][0], var[2][k_indices][0], var_b_0])
+    N = np.identity(n.size) * n
+
+    auto_n = np.array([var[0][k_indices][0], var[3][k_indices][0], var[5][k_indices][0]])
+
+    return N, np.sqrt(auto_n)

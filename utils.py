@@ -112,8 +112,8 @@ def extract_bias(k_indices, lumens, P_m):
 
     return biases
 
-def fetch_data(k_bins, k_indices, spectra, b_0=0):
-    data = pop_data(k_bins, k_indices, [spectra[0], spectra[1], spectra[4],
+def fetch_data(k_indices, spectra, b_0=0):
+    data = pop_data(k_indices, [spectra[0], spectra[1], spectra[4],
                              spectra[2]], b_0)
     return data
 
@@ -129,10 +129,10 @@ def fetch_data2auto_3cross(k_bins, k_indices, lumens, b_0=0):
 
     return data
 
-def pop_data(k_bins, k_indices, spectra, b_0):
+def pop_data(k_indices, spectra, b_0):
     # P_00, P_01, P_02, P_11, P_12, P_22 = spectra
-    data = np.zeros((len(k_bins[k_indices]) * 4 + 1))
     n_k = len(k_indices)
+    data = np.zeros(n_k * 4 + 1)
 
     for i in range(len(spectra)):
         data[i*n_k:i*n_k+n_k] = spectra[i][k_indices]
@@ -461,3 +461,27 @@ def delog_errors(results):
     var[-1] = np.exp(log_params[-1]) * log_var[-1]
 
     return var
+
+def get_pvals(params_dict, k_indices):
+    biases = [params_dict['b_i'], params_dict['b_j'], params_dict['b_k']]
+    P_m = params_dict['P_m'][k_indices]
+
+    pvals = [*biases, *P_m]
+
+    return pvals
+
+def add_P_ii(LSE):
+    LSE_params, LSE_errors = LSE
+
+    LSE_P_ii = np.zeros(len(LSE_params) + 1)
+    LSE_P_ii_var = np.zeros(len(LSE_params) + 1)
+
+    for i in range(len(LSE_params)):
+        LSE_P_ii[i] = LSE_params[i]
+        LSE_P_ii_var[i] = LSE_errors[i]
+
+    LSE_P_ii[-1] = LSE_params[0]**2 * LSE_params[-1]
+
+    LSE_P_ii_var[-1] = LSE_P_ii[-1]**2 * 2 * (LSE_errors[0] / LSE_params[0])**2 + (LSE_errors[-1] / LSE_params[-1])**2
+
+    return LSE_P_ii, LSE_P_ii_var

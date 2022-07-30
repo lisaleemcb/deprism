@@ -13,7 +13,7 @@ def log_prior(param_guesses, params, k_indices, model, N,
                 priors='uniform', priors_width=.25, positivity=False):
 
     P_m = param_guesses['P_m']
-    b_0 = params['b_i']
+    b_0 = params['b_i'] # 2660
     b_i = param_guesses['b_i']
     b_j = param_guesses['b_j']
     b_k = param_guesses['b_k']
@@ -203,19 +203,19 @@ def start_mcmc(params_init, k_indices, data, model, N,
 
         pre_state = sampler.run_mcmc(params0, burn_in)
 
-        print("Mean acceptance fraction during burnin: {0:.3f}".format(
-        np.mean(sampler.acceptance_fraction)))
+        #print("Mean acceptance fraction during burnin: {0:.3f}".format(
+        #np.mean(sampler.acceptance_fraction)))
 
         sampler.reset()
         state = sampler.run_mcmc(pre_state, nsteps)
 
-        print("Mean acceptance fraction: {0:.3f}".format(
-        np.mean(sampler.acceptance_fraction)))
+        #print("Mean acceptance fraction: {0:.3f}".format(
+        #np.mean(sampler.acceptance_fraction)))
 
-        print("Mean autocorrelation time: {0:.3f} steps".format(
-        np.mean(sampler.get_autocorr_time())))
+        #print("Mean autocorrelation time: {0:.3f} steps".format(
+        #np.mean(sampler.get_autocorr_time())))
 
-        return sampler.get_chain(flat=True), sampler.get_log_prob()
+        return sampler.get_chain(flat=True, thin=100), sampler.get_log_prob()
 
     if parallel is True:
         with Pool() as pool:
@@ -226,7 +226,7 @@ def start_mcmc(params_init, k_indices, data, model, N,
             sampler.reset()
             check = sampler.run_mcmc(state, nsteps)
 
-            return sampler.get_chain(flat=True), sampler.get_log_prob()
+            return sampler.get_chain(flat=True, thin=100), sampler.get_log_prob()
 
 def many_realizations(params_initial, param_names, k_indices,
                                 data, model, N, truths,
@@ -297,16 +297,18 @@ def recover_params_mcmc(k, k_indices, lumen_pspecs, model, density, variances,
     return results, params, data
 
 def recover_params_LSE(k, k_indices, lumen_pspecs, model, density, variances,
-                            inject_noise=False):
+                            N=None, inject_noise=False):
     data = utils.fetch_data(k, k_indices, lumen_pspecs)
     biases = utils.extract_bias(k_indices, lumen_pspecs, density)
 
     data[-1] = biases[0]
-    print(data)
 
-    N = analysis.estimate_errors(data, frac_error=.20)
+    if N is None:
+        N = analysis.estimate_errors(data, frac_error=.20)
     #N = analysis.create_noise_matrix(k_indices, variances)
+
     N[-1,-1] = (biases[0] * .1)**2
+    N = N[1:,1:]
 
     if inject_noise is True:
         'adding noise'
@@ -315,9 +317,18 @@ def recover_params_LSE(k, k_indices, lumen_pspecs, model, density, variances,
     # print('LSE biases: ,', biases_HI_L_M)
 
     print('DATA: ', data[1:])
-    print('NOISE: ', np.diag(N[1:,1:]))
+    print('NOISE: ', np.diag(N))
     print('noise has shape ', N.shape)
 
+    LSE = estimators.Estimators(k_indices, data[1:], N)
+    results = LSE.LSE_3cross_1bias()
+
+    params = np.exp(results[0])
+    errors = utils.delog_errors(results)
+
+    return params, errors
+
+def LSE_results(k_indices, data, N):
     LSE = estimators.Estimators(k_indices, data[1:], N[1:,1:])
     results = LSE.LSE_3cross_1bias()
 
@@ -325,3 +336,35 @@ def recover_params_LSE(k, k_indices, lumen_pspecs, model, density, variances,
     errors = utils.delog_errors(results)
 
     return params, errors
+
+def Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices):
+    P_ij = spectra[1]
+    P_jk = spectra[4]
+    P_ik = spectra[2]
+
+    P_ii = P_ij * P_ik / P_jk
+    var = analysis.var_Pii_Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices)
+
+    return P_ii, var
+
+def MCMC_results(params, k_indices, data, model, N,
+                priors='gaussian', priors_width=.25, positivity=False,
+                pdf='gaussian', backend_filename=None, nsteps=1e6, nwalkers=48,
+                burn_in=1000, parallel=False):
+    # lopping off the bias
+    data_size = model.pspec(k_indices).size
+    data = data[1:data_size*len(k_indices)+1]
+    N = N[1:data_size*len(k_indices)+1,1:data_size*len(k_indices)+1]
+    #print('DATA SIZE: ', data_size)
+
+    print('PARAMS: ', params)
+    print('DATA: ', data)
+    print('NOISE: ',np.diag(N))
+
+    results = start_mcmc(params, k_indices, data, model, N,
+                            burn_in=burn_in, nsteps=nsteps,
+                            nwalkers=nwalkers, parallel=False,
+                            pdf=pdf, priors=priors, priors_width=priors_width,
+                            positivity=positivity)
+
+    return results
