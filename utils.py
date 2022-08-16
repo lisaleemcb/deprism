@@ -231,7 +231,7 @@ def generate_noise(N):
 
     return noise
 
-def choose_params(params, k_indices):
+def get_params(params, k_indices):
     pvals = np.asarray(list(params.values()), dtype=object)
 
     ndim = len(pvals) - 1 + len(pvals[-1][k_indices])

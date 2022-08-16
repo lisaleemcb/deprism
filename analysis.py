@@ -339,8 +339,13 @@ def plot_corner(fig_name, MCMC, LSE, Beane, params, P_ii, k_indices):
     figure.legend()
     figure.savefig(fig_name)
 
-def noisey_spectra(spectra, frac_error=1, noise='on'):
-    std_spectra = np.array(spectra) * frac_error
+def noisey_spectra(spectra, std_spectra=None, frac_error=None, noise='on'):
+
+    if frac_error is not None and std_spectra is not None:
+        raise Exception("Both noise scenarios provided. Commit to one!")
+
+    if frac_error is not None:
+        std_spectra = np.array(spectra) * frac_error
 
     if noise is 'on':
         noisey_spectra = np.array(spectra) + np.random.normal(scale=std_spectra, size=std_spectra.shape)

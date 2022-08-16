@@ -57,8 +57,8 @@ def log_prior(param_guesses, params, k_indices, model, N,
             if np.any(np.asarray(b_k) < 0):
                 return -np.inf
 
-        if np.any(np.asarray(P_m) < 0):
-            return -np.inf
+        #if np.any(np.asarray(P_m) < 0):
+        #    return -np.inf
 
         return np.log(utils.gaussian(b_i, b_0, b_0 * priors_width))
 
@@ -141,10 +141,10 @@ def log_prob(guesses, params, k_indices, data, model, N,
     return lp + log_likelihood(param_guesses, k_indices, data, model, N,
                                 pdf=pdf)
 
-def start_mcmc(params_init, k_indices, data, model, N,
+def start_mcmc(params_init, k_indices, data, model, N, p0_in=None,
                 priors='gaussian', priors_width=.25, positivity=False,
                 pdf='gaussian', backend_filename=None, nsteps=1000, nwalkers=32,
-                burn_in=1000, parallel=False):
+                burn_in=5000, parallel=False):
 
     print('running mcmc with the following settings:')
     print('fitting data from k: ', k_indices)
@@ -173,7 +173,7 @@ def start_mcmc(params_init, k_indices, data, model, N,
 
     delta_p = np.zeros_like(p0)
     for i, val in enumerate(p0[0]):
-        std_dev = .01 * val
+        std_dev = .0001 * val
         delta_p[:,i] = np.random.normal(scale=std_dev, size=nwalkers)
 
     params0 = p0 + delta_p
@@ -198,10 +198,18 @@ def start_mcmc(params_init, k_indices, data, model, N,
         print('no backend initialized')
 
     if parallel is False:
-        sampler = emcee.EnsembleSampler(nwalkers, ndim, log_prob,
-                args=args)
+        if p0_in is not None:
+            sampler = emcee.EnsembleSampler(nwalkers, ndim, log_prob,
+                    args=args)
 
-        pre_state = sampler.run_mcmc(params0, burn_in)
+            pre_state = sampler.run_mcmc(p0_in, burn_in)
+
+        else:
+
+            sampler = emcee.EnsembleSampler(nwalkers, ndim, log_prob,
+                    args=args)
+
+            pre_state = sampler.run_mcmc(params0, burn_in)
 
         #print("Mean acceptance fraction during burnin: {0:.3f}".format(
         #np.mean(sampler.acceptance_fraction)))
@@ -215,7 +223,7 @@ def start_mcmc(params_init, k_indices, data, model, N,
         #print("Mean autocorrelation time: {0:.3f} steps".format(
         #np.mean(sampler.get_autocorr_time())))
 
-        return sampler.get_chain(flat=True, thin=100), sampler.get_log_prob()
+        return sampler.get_chain(flat=True), sampler.get_log_prob()
 
     if parallel is True:
         with Pool() as pool:
@@ -226,7 +234,7 @@ def start_mcmc(params_init, k_indices, data, model, N,
             sampler.reset()
             check = sampler.run_mcmc(state, nsteps)
 
-            return sampler.get_chain(flat=True, thin=100), sampler.get_log_prob()
+            return sampler.get_chain(flat=True), sampler.get_log_prob()
 
 def many_realizations(params_initial, param_names, k_indices,
                                 data, model, N, truths,
@@ -347,10 +355,10 @@ def Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices):
 
     return P_ii, var
 
-def MCMC_results(params, k_indices, data, model, N,
+def MCMC_results(params, k_indices, data, model, N, p0_in=None,
                 priors='gaussian', priors_width=.25, positivity=False,
                 pdf='gaussian', backend_filename=None, nsteps=1e6, nwalkers=48,
-                burn_in=1000, parallel=False):
+                burn_in=1e3, parallel=False):
     # lopping off the bias
     data_size = model.pspec(k_indices).size
     data = data[1:data_size*len(k_indices)+1]
@@ -360,8 +368,9 @@ def MCMC_results(params, k_indices, data, model, N,
     print('PARAMS: ', params)
     print('DATA: ', data)
     print('NOISE: ',np.diag(N))
+    print('PRIOR RANGE: ', priors_width)
 
-    results = start_mcmc(params, k_indices, data, model, N,
+    results = start_mcmc(params, k_indices, data, model, N, p0_in=p0_in,
                             burn_in=burn_in, nsteps=nsteps,
                             nwalkers=nwalkers, parallel=False,
                             pdf=pdf, priors=priors, priors_width=priors_width,
