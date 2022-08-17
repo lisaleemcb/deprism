@@ -211,17 +211,17 @@ def start_mcmc(params_init, k_indices, data, model, N, p0_in=None,
 
             pre_state = sampler.run_mcmc(params0, burn_in)
 
-        #print("Mean acceptance fraction during burnin: {0:.3f}".format(
-        #np.mean(sampler.acceptance_fraction)))
+        print("Mean acceptance fraction during burnin: {0:.3f}".format(
+        np.mean(sampler.acceptance_fraction)))
 
         sampler.reset()
         state = sampler.run_mcmc(pre_state, nsteps)
 
-        #print("Mean acceptance fraction: {0:.3f}".format(
-        #np.mean(sampler.acceptance_fraction)))
+        print("Mean acceptance fraction: {0:.3f}".format(
+        np.mean(sampler.acceptance_fraction)))
 
-        #print("Mean autocorrelation time: {0:.3f} steps".format(
-        #np.mean(sampler.get_autocorr_time())))
+        print("Mean autocorrelation time: {0:.3f} steps".format(
+        np.mean(sampler.get_autocorr_time())))
 
         return sampler.get_chain(thin=100, flat=True), sampler.get_log_prob(thin=100)
 
