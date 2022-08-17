@@ -157,7 +157,7 @@ def get_21cm_fields(z, zreion, delta):
 
     return ion_field, t21_field
 
-zreion = np.load(zreion.npy) # gen_21cm_fields(delta)
+zreion = np.load('zreion.npy') # gen_21cm_fields(delta)
 ion_field, t21_field = get_21cm_fields(redshift, zreion, delta)
 
 #### Checking unit conversion
