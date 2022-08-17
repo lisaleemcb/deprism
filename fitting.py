@@ -223,9 +223,10 @@ def start_mcmc(params_init, k_indices, data, model, N, p0_in=None,
         #print("Mean autocorrelation time: {0:.3f} steps".format(
         #np.mean(sampler.get_autocorr_time())))
 
-        return sampler.get_chain(flat=True), sampler.get_log_prob()
+        return sampler.get_chain(thin=100, flat=True), sampler.get_log_prob(thin=100)
 
     if parallel is True:
+        print('We are going parallelized! Wooooooo...')
         with Pool() as pool:
             sampler = emcee.EnsembleSampler(nwalkers, ndim, log_prob,
                     args=args, pool=pool)
@@ -234,7 +235,7 @@ def start_mcmc(params_init, k_indices, data, model, N, p0_in=None,
             sampler.reset()
             check = sampler.run_mcmc(state, nsteps)
 
-            return sampler.get_chain(flat=True), sampler.get_log_prob()
+            return sampler.get_chain(thin=100, flat=True), sampler.get_log_prob(thin=100)
 
 def many_realizations(params_initial, param_names, k_indices,
                                 data, model, N, truths,
@@ -358,7 +359,7 @@ def Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices):
 def MCMC_results(params, k_indices, data, model, N, p0_in=None,
                 priors='gaussian', priors_width=.25, positivity=False,
                 pdf='gaussian', backend_filename=None, nsteps=1e6, nwalkers=72,
-                burn_in=1e3, parallel=True):
+                burn_in=1e3, parallel=False):
     # lopping off the bias
     data_size = model.pspec(k_indices).size
     data = data[1:data_size*len(k_indices)+1]
@@ -372,7 +373,7 @@ def MCMC_results(params, k_indices, data, model, N, p0_in=None,
 
     results = start_mcmc(params, k_indices, data, model, N, p0_in=p0_in,
                             burn_in=burn_in, nsteps=nsteps,
-                            nwalkers=nwalkers, parallel=False,
+                            nwalkers=nwalkers, parallel=parallel,
                             pdf=pdf, priors=priors, priors_width=priors_width,
                             positivity=positivity)
 
