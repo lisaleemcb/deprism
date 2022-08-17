@@ -9,7 +9,7 @@ import models
 from astropy.cosmology import Planck15
 from astropy import units as u
 from astropy import constants as const
-from scipy.integrate import simpson
+from scipy.integrate import simps #simpson
 
 c = 2.99792e8 # m/s (kilometers per second)
 k_B = 1.381e-23 # J/K (joules per kelvin)
@@ -396,7 +396,7 @@ def calc_W_k(k, sigma_perp, sigma_para):
     mu = np.linspace(0,1,int(1e5))
 
     for i in range(len(k)):
-        W_k[i] = simpson(calc_sm_func(mu, k[i], sigma_perp, sigma_para), mu)
+        W_k[i] = simps(calc_sm_func(mu, k[i], sigma_perp, sigma_para), mu)
 
     return W_k
 
