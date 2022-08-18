@@ -751,7 +751,7 @@ biases_sf = utils.extract_bias(k_indices, spectra_sf[1], P_m)
 p_vals_sf = np.asarray([*biases_sf, P_m], dtype=object)
 
 params_sf = dict(zip(p_names, p_vals_sf))
-ndim = utils.choose_params(params_sf, k_indices).size
+ndim = utils.get_params(params_sf, k_indices).size
 
 spectra_sf_op, std_sf_op = analysis.noisey_spectra(spectra_sf[1], frac_error=frac_op)
 spectra_sf_con, std_sf_con = analysis.noisey_spectra(spectra_sf[1], frac_error=frac_con)
@@ -818,7 +818,7 @@ biases_pl = utils.extract_bias(k_indices, spectra_pl[1], P_m)
 p_vals_pl = np.asarray([*biases_pl, P_m], dtype=object)
 
 params_pl = dict(zip(p_names, p_vals_pl))
-ndim = utils.choose_params(params_pl, k_indices).size
+ndim = utils.get_params(params_pl, k_indices).size
 
 spectra_pl_op, std_pl_op = analysis.noisey_spectra(spectra_pl[1], frac_error=frac_op)
 spectra_pl_con, std_pl_con = analysis.noisey_spectra(spectra_pl[1], frac_error=frac_con)
@@ -889,7 +889,7 @@ biases_bt = utils.extract_bias(k_indices, spectra_bt[1], P_m)
 p_vals_bt = np.asarray([*biases_bt, P_m], dtype=object)
 
 params_bt = dict(zip(p_names, p_vals_bt))
-ndim = utils.choose_params(params_bt, k_indices).size
+ndim = utils.get_params(params_bt, k_indices).size
 
 spectra_bt_op, std_bt_op = analysis.noisey_spectra(spectra_bt[1], frac_error=frac_op)
 spectra_bt_con, std_bt_con = analysis.noisey_spectra(spectra_bt[1], frac_error=frac_con)
