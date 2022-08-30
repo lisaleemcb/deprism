@@ -35,7 +35,7 @@ def gaussian(x, mean, sigma, normed=False):
     if normed is True:
         N = 1 / np.sqrt(2 * np.pi * sigma**2)
 
-    return N * np.exp(- (x - mean)**2 / (2 * sigma**2))
+    return N * np.exp(-(x - mean)**2 / (2 * sigma**2))
 
 def SI2Jansky(I):
     return I / 1e-26

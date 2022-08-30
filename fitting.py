@@ -136,6 +136,7 @@ def log_prob(guesses, params, k_indices, data, model, N,
     if not np.isfinite(lp):
         return -np.inf
 
+    print(lp)
     #print('param_guesses', param_guesses)
 
     return lp + log_likelihood(param_guesses, k_indices, data, model, N,

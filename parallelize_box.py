@@ -7,6 +7,7 @@ import emcee
 #import scipy.integrate
 import astropy.constants as const
 
+from multiprocessing import Pool
 from scipy.special import comb
 from astropy import units as u
 from astropy.cosmology import Planck15
@@ -122,52 +123,38 @@ def log_prob(params):
     model = np.array([b_i * b_j * P_m, b_j * b_k * P_m, b_i * b_k * P_m])
     diff = model - data
 
-    lp = np.log(utils.gaussian(b_i, b_0, b_0 * priors_width))
+    lp = -(b_i - b_0)**2 / (2 * (b_0 * priors_width)**2)
 
     return -0.5 * np.dot(diff, np.linalg.solve(N, diff)) + lp
 
 b_0=biases_sf[0]
-priors_width = .1
+priors_width = .15
 frac_error=.001
 ndim = truths.size
-burn_in = 1e3
+burn_in = 1e2
 nwalkers = 48
-nsteps = 1e6
+nsteps = 2e7
 p0 = truths + np.random.rand(nwalkers, ndim) * .01
-
 N = analysis.estimate_errors(data, frac_error=frac_error)
-
+print('BEFORE IT ALL:', log_prob(truths))
 print('DATA: ', data)
 print('NOISE: ', np.diag(N))
-
 ### MCMC's
 print('running MCMC with a priors width of', priors_width, 'and', frac_error, 'fractional error')
 print('and', nwalkers, 'walkers running', nsteps, 'steps')
 
-start = time.time()
-
 sampler = emcee.EnsembleSampler(nwalkers, ndim, log_prob)
 
-state = sampler.run_mcmc(p0, burn_in)
+start = time.time()
+state = sampler.run_mcmc(p0, burn_in, progress=True)
 sampler.reset()
-
-#print("Mean acceptance fraction during burnin: {0:.3f}".format(
-#np.mean(sampler.acceptance_fraction)))
-
-sampler.run_mcmc(state, nsteps)
-
-print("Mean acceptance fraction: {0:.3f}".format(
-np.mean(sampler.acceptance_fraction)))
-
-print("Mean autocorrelation time: {0:.3f} steps".format(
-np.mean(sampler.get_autocorr_time())))
+sampler.run_mcmc(state, nsteps, progress=True)
 
 end = time.time()
-multi_data_time = end - start
-
-print("MCMC took {0:.1f} seconds".format(multi_data_time))
+serial_data_time = end - start
+print("Serial took {0:.1f} seconds".format(serial_data_time))
 
 samples = sampler.get_chain(flat=True, thin=100)
 logs_p = sampler.get_log_prob(flat=True, thin=100)
 
-np.savez('sf_results_p1_N001', samples=samples, logs_p=logs_p)
+np.savez('sf_results_p15_N001', samples=samples, logs_p=logs_p)
