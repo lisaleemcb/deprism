@@ -32,7 +32,7 @@ colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
 print('loading simulations')
 
 which_box = 'little'
-print('running analysis on ', which_box, ' box')
+print('running analysis on', which_box, 'box')
 
 if which_box is 'little':
     rez = 512
@@ -83,12 +83,12 @@ print('generating underlying matter density spectrum')
 #print('loading underlying matter density spectrum')
 
 delta = utils.overdensity(density)
-k, P_m = analysis.calc_pspec(r_vec, [delta], n_bins=n_bins, bin_scale='log')
-np.savez('matter_pspec_6.0155', k=k, P_m=P_m)
+#k, P_m = analysis.calc_pspec(r_vec, [delta], n_bins=n_bins, bin_scale='log')
+#np.savez('matter_pspec_6.0155', k=k, P_m=P_m)
 
-#matter_pspec = np.load('matter_pspec_6.0155.npz')
-#k = matter_pspec['k']
-#P_m = matter_pspec['P_m']
+matter_pspec = np.load('matter_pspec_6.0155.npz')
+k = matter_pspec['k']
+P_m = matter_pspec['P_m']
 
 print('yay! finished the matter stuff')
 
@@ -782,9 +782,9 @@ N_sf_pess, n_sf_pess = analysis.get_noise(k_indices, std_sf_pess, params_sf['b_i
 
 #### Superfake - Beane et al.
 
-Beane_sf_op = fitting.Beane_et_al(spectra_sf_op, n_sf_op[0], n_sf_op[1], n_sf_op[2], N_modes, k_indices)
-Beane_sf_con = fitting.Beane_et_al(spectra_sf_con, n_sf_con[0], n_sf_con[1], n_sf_con[2], N_modes, k_indices)
-Beane_sf_pess = fitting.Beane_et_al(spectra_sf_pess, n_sf_pess[0], n_sf_pess[1], n_sf_pess[2], N_modes, k_indices)
+Beane_sf_op = fitting.Beane_et_al(spectra_sf[1], n_sf_op[0], n_sf_op[1], n_sf_op[2], N_modes, k_indices)
+Beane_sf_con = fitting.Beane_et_al(spectra_sf[1], n_sf_con[0], n_sf_con[1], n_sf_con[2], N_modes, k_indices)
+Beane_sf_pess = fitting.Beane_et_al(spectra_sf[1], n_sf_pess[0], n_sf_pess[1], n_sf_pess[2], N_modes, k_indices)
 
 #### Superfake - LSE
 
@@ -849,9 +849,9 @@ N_pl_pess, n_pl_pess = analysis.get_noise(k_indices, std_pl_pess, params_pl['b_i
 
 #### Power Law - Beane et al
 
-Beane_pl_op = fitting.Beane_et_al(spectra_pl_op, n_pl_op[0], n_pl_op[1], n_pl_op[2], N_modes, k_indices)
-Beane_pl_con = fitting.Beane_et_al(spectra_pl_con, n_pl_con[0], n_pl_con[1], n_pl_con[2], N_modes, k_indices)
-Beane_pl_pess = fitting.Beane_et_al(spectra_pl_pess, n_pl_pess[0], n_pl_pess[1], n_pl_pess[2], N_modes, k_indices)
+Beane_pl_op = fitting.Beane_et_al(spectra_pl[1], n_pl_op[0], n_pl_op[1], n_pl_op[2], N_modes, k_indices)
+Beane_pl_con = fitting.Beane_et_al(spectra_pl[1], n_pl_con[0], n_pl_con[1], n_pl_con[2], N_modes, k_indices)
+Beane_pl_pess = fitting.Beane_et_al(spectra_pl[1], n_pl_pess[0], n_pl_pess[1], n_pl_pess[2], N_modes, k_indices)
 
 
 #### Power Law - LSE
@@ -920,9 +920,9 @@ N_bt_pess, n_bt_pess = analysis.get_noise(k_indices, std_bt_pess, params_bt['b_i
 
 #### Brightness Temperature - Beane et al
 
-Beane_bt_op = fitting.Beane_et_al(spectra_bt_op, n_bt_op[0], n_bt_op[1], n_bt_op[2], N_modes, k_indices)
-Beane_bt_con = fitting.Beane_et_al(spectra_bt_con, n_bt_con[0], n_bt_con[1], n_bt_con[2], N_modes, k_indices)
-Beane_bt_pess = fitting.Beane_et_al(spectra_bt_pess, n_bt_pess[0], n_bt_pess[1], n_bt_pess[2], N_modes, k_indices)
+Beane_bt_op = fitting.Beane_et_al(spectra_bt[1], n_bt_op[0], n_bt_op[1], n_bt_op[2], N_modes, k_indices)
+Beane_bt_con = fitting.Beane_et_al(spectra_bt[1], n_bt_con[0], n_bt_con[1], n_bt_con[2], N_modes, k_indices)
+Beane_bt_pess = fitting.Beane_et_al(spectra_bt[1], n_bt_pess[0], n_bt_pess[1], n_bt_pess[2], N_modes, k_indices)
 
 #### Brightness Temperature - LSE
 

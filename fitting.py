@@ -358,7 +358,7 @@ def Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices):
     return P_ii, var
 
 def MCMC_results(params, k_indices, data, model, N, p0_in=None,
-                priors='gaussian', priors_width=.25, positivity=False,
+                priors='gaussian', priors_width=.1, positivity=False,
                 pdf='gaussian', backend_filename=None, nsteps=1e8, nwalkers=72,
                 burn_in=1e3, parallel=False):
     # lopping off the bias
