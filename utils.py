@@ -485,3 +485,17 @@ def add_P_ii(LSE):
     LSE_P_ii_var[-1] = LSE_P_ii[-1]**2 * 2 * (LSE_errors[0] / LSE_params[0])**2 + (LSE_errors[-1] / LSE_params[-1])**2
 
     return LSE_P_ii, LSE_P_ii_var
+
+def set_bias_scale(bias_scaled, bias_unscaled):
+    return bias_scaled / bias_unscaled
+
+def add_noise_to_fields(fields, noise_frac):
+    I_mean = np.asarray([np.mean(fields[i]) for i in range(len(fields))])
+    sigmas = I_mean * noise_frac
+
+    noise = np.zeros_like(fields)
+
+    for i, s in enumerate(sigmas):
+        noise[i] = np.random.normal(scale=s, size=fields[i].shape)
+
+    return noise

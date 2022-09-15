@@ -84,7 +84,12 @@ print('generating underlying matter density spectrum')
 
 delta = utils.overdensity(density)
 k, P_m = analysis.calc_pspec(r_vec, [delta], n_bins=n_bins, bin_scale='log')
-np.savez('matter_pspec_7.9589', k=k, P_m=P_m)
+
+if which_box is 'little':
+    np.savez('matter_pspec_6.0155.npz')
+
+if which_box is 'big':
+    np.savez('matter_pspec_7.9589', k=k, P_m=P_m)
 
 #matter_pspec = np.load('matter_pspec_6.0155.npz')
 #k = matter_pspec['k']
@@ -114,7 +119,7 @@ intensities_M = utils.specific_intensity(redshift, L=luminosities_M)
 intensities_H = utils.specific_intensity(redshift, L=luminosities_H)
 
 I_fields = np.zeros((runs, rez, rez, rez))
-scalings = [.007, 7.5**4, 2.8]
+scalings = np.array([3.76387000e-04, 1.06943379e+05, 6.86553108e+01])
 
 for i, power in enumerate(power_indices):
     print('power =', power)

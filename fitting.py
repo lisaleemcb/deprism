@@ -13,7 +13,7 @@ def log_prior(param_guesses, params, k_indices, model, N,
                 priors='uniform', priors_width=.25, positivity=False):
 
     P_m = param_guesses['P_m']
-    b_0 = params['b_i'] #* .9 # 2660
+    b_0 = params['b_i'] #* .92 # 2660
     b_i = param_guesses['b_i']
     b_j = param_guesses['b_j']
     b_k = param_guesses['b_k']
@@ -136,15 +136,15 @@ def log_prob(guesses, params, k_indices, data, model, N,
     if not np.isfinite(lp):
         return -np.inf
 
-    print(lp)
+    #print(lp)
     #print('param_guesses', param_guesses)
 
     return lp + log_likelihood(param_guesses, k_indices, data, model, N,
                                 pdf=pdf)
 
 def start_mcmc(params_init, k_indices, data, model, N, p0_in=None,
-                priors='gaussian', priors_width=.25, positivity=False,
-                pdf='gaussian', backend_filename=None, nsteps=1000, nwalkers=32,
+                priors='gaussian', priors_width=.1, positivity=False,
+                pdf='gaussian', backend_filename=None, nsteps=1000, nwalkers=48,
                 burn_in=5000, parallel=False):
 
     print('running mcmc with the following settings:')
@@ -212,17 +212,17 @@ def start_mcmc(params_init, k_indices, data, model, N, p0_in=None,
 
             pre_state = sampler.run_mcmc(params0, burn_in)
 
-        print("Mean acceptance fraction during burnin: {0:.3f}".format(
-        np.mean(sampler.acceptance_fraction)))
+        #print("Mean acceptance fraction during burnin: {0:.3f}".format(
+        #np.mean(sampler.acceptance_fraction)))
 
         sampler.reset()
-        state = sampler.run_mcmc(pre_state, nsteps)
+        state = sampler.run_mcmc(pre_state, nsteps, progress=True)
 
-        print("Mean acceptance fraction: {0:.3f}".format(
-        np.mean(sampler.acceptance_fraction)))
+        #print("Mean acceptance fraction: {0:.3f}".format(
+        #np.mean(sampler.acceptance_fraction)))
 
-        print("Mean autocorrelation time: {0:.3f} steps".format(
-        np.mean(sampler.get_autocorr_time())))
+        #print("Mean autocorrelation time: {0:.3f} steps".format(
+        #np.mean(sampler.get_autocorr_time())))
 
         return sampler.get_chain(thin=100, flat=True), sampler.get_log_prob(thin=100)
 
@@ -347,10 +347,10 @@ def LSE_results(k_indices, data, N):
 
     return params, errors
 
-def Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices):
-    P_ij = spectra[1]
-    P_jk = spectra[4]
-    P_ik = spectra[2]
+def Beane_et_al(data, spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices):
+    P_ij = data[1]
+    P_jk = data[4]
+    P_ik = data[2]
 
     P_ii = P_ij * P_ik / P_jk
     var = analysis.var_Pii_Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices)
@@ -359,7 +359,7 @@ def Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices):
 
 def MCMC_results(params, k_indices, data, model, N, p0_in=None,
                 priors='gaussian', priors_width=.1, positivity=False,
-                pdf='gaussian', backend_filename=None, nsteps=5e6, nwalkers=48,
+                pdf='gaussian', backend_filename=None, nsteps=1e6, nwalkers=48,
                 burn_in=1e2, parallel=False):
     # lopping off the bias
     data_size = model.pspec(k_indices).size

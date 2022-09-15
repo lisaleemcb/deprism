@@ -268,10 +268,10 @@ def Fisher_num(function, params, noise, k_indices):
 
     return Fisher_matrix
 
-def get_noise(spectra, frac_error, k_indices):
+def get_std(spectra, frac_error, k_indices):
     std = spectra * frac_error
 
-    return std[k_indices]
+    return std
 
 def initialize_data(spectra, params, N, k_indices):
     data = utils.fetch_data(k_indices, spectra, b_0=params['b_i'])
@@ -339,15 +339,16 @@ def plot_corner(fig_name, MCMC, LSE, Beane, params, P_ii, k_indices):
     figure.legend()
     figure.savefig(fig_name)
 
-def noisey_spectra(spectra, std_spectra=None, frac_error=None, noise='on'):
+def noisey_spectra(spectra, N=None, frac_error=None, noise='on'):
 
-    if frac_error is not None and std_spectra is not None:
+    if frac_error is not None and N is not None:
         raise Exception("Both noise scenarios provided. Commit to one!")
 
     if frac_error is not None:
         std_spectra = np.array(spectra) * frac_error
 
     if noise is 'on':
+        std_spectra = np.sqrt(np.diag(N))
         noisey_spectra = np.array(spectra) + np.random.normal(scale=std_spectra, size=std_spectra.shape)
 
     if noise is 'off':
@@ -355,13 +356,55 @@ def noisey_spectra(spectra, std_spectra=None, frac_error=None, noise='on'):
 
     return noisey_spectra, std_spectra
 
-def get_noise(k_indices, std_spectra, b_0):
-    var = std_spectra**2
+def calc_var(P_ii, P_jj, P_ij, N_i, N_j, N_modes):
+    # var_ij = P_ii * P_jj + P_ii * N_j + P_jj * N_i + N_i * N_j - P_ij**2
+
+    var_ij =((P_ii + N_i) * (P_jj + N_j) + P_ij**2) / (2 * N_modes)
+
+    return var_ij
+
+def get_noise(k_indices, spectra, b_0, N_modes, frac_error=.1):
+    k_indices = k_indices[0]
+
+    std = (np.asarray(spectra) * frac_error)
     var_b_0 = (.25 * b_0)**2
 
-    n = np.array([var[0][k_indices][0], var[1][k_indices][0], var[4][k_indices][0], var[2][k_indices][0], var_b_0])
-    N = np.identity(n.size) * n
+    P_ii = spectra[0][k_indices]
+    P_jj = spectra[1][k_indices]
+    P_kk = spectra[2][k_indices]
+    P_ij = spectra[3][k_indices]
+    P_jk = spectra[4][k_indices]
+    P_ik = spectra[5][k_indices]
 
-    auto_n = np.array([var[0][k_indices][0], var[3][k_indices][0], var[5][k_indices][0]])
+    n = np.asarray([std[0][k_indices], std[1][k_indices], std[4][k_indices], std[2][k_indices], np.sqrt(var_b_0)])
+    N = np.identity(n.size)
 
-    return N, np.sqrt(auto_n)
+    N_i, N_j, N_k = std[0][k_indices], std[3][k_indices], std[5][k_indices]
+
+    N_ii = calc_var(P_ii, P_ii, P_ii, N_i, N_i, N_modes[k_indices])
+    N_ij = calc_var(P_ii, P_jj, P_ij, N_i, N_j, N_modes[k_indices])
+    N_jk = calc_var(P_jj, P_kk, P_jk, N_j, N_k, N_modes[k_indices])
+    N_ik = calc_var(P_ii, P_kk, P_ik, N_i, N_k, N_modes[k_indices])
+
+    N = np.array([N_ii, N_ij, N_jk, N_ik, var_b_0]) * N
+
+    return N, np.sqrt(np.asarray([N_i, N_j, N_k]))
+
+def inject_noise(data, N):
+    std = np.sqrt(np.diag(N))
+    n = np.random.normal(scale=std)
+
+    noisey_data = data + n
+
+    return noisey_data
+
+def run_analysis(k_indices, spectra, params_dict, N_modes, frac_error, model):
+    N, n = analysis.get_noise(k_indices, spectra, params['b_i'], N_modes, frac_error=frac_error)
+    data = utils.fetch_data(k_indices, spectra, b_0=params['b_i'])
+    data_noise = analysis.inject_noise(data, N)
+
+    Beane = fitting.Beane_et_al(data, spectra, n[0], n[1], n[2], N_modes, k_indices)
+    LSE = fitting.LSE_results(k_indices, data, N)
+    MCMC = fitting.MCMC_results(params, k_indices, data, model, N)
+
+    return Beane, LSE, MCMC
