@@ -403,8 +403,8 @@ def run_analysis(k_indices, spectra, params_dict, N_modes, frac_error, model):
     data = utils.fetch_data(k_indices, spectra, b_0=params['b_i'])
     data_noise = analysis.inject_noise(data, N)
 
-    Beane = fitting.Beane_et_al(data, spectra, n[0], n[1], n[2], N_modes, k_indices)
-    LSE = fitting.LSE_results(k_indices, data, N)
-    MCMC = fitting.MCMC_results(params, k_indices, data, model, N)
+    Beane = fitting.Beane_et_al(data_noise, spectra, n[0], n[1], n[2], N_modes, k_indices)
+    LSE = fitting.LSE_results(k_indices, data_noise, N)
+    MCMC = fitting.MCMC_results(params, k_indices, data_noise, model, N)
 
     return Beane, LSE, MCMC
