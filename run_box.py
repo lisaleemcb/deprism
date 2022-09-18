@@ -724,7 +724,6 @@ def calc_V_surv_generic_check(redshift, nu_rest, Omega_surv, B_nu):
 # Fitting
 
 p_names = np.asarray(['b_i','b_j', 'b_k', 'P_m'])
-model = models.ScalarBias_crossonly(k=spectra_sf[0], params=params_sf)
 
 frac_op = .005
 frac_con = .01
@@ -753,6 +752,8 @@ p_vals_sf = np.asarray([*biases_sf, P_m], dtype=object)
 
 params_sf = dict(zip(p_names, p_vals_sf))
 ndim = utils.get_params(params_sf, k_indices).size
+model = models.ScalarBias_crossonly(k=spectra_sf[0], params=params_sf)
+
 
 Beane_sf_op, LSE_sf_op, MCMC_sf_op = run_analysis(k_indices, spectra_sf[1], params_sf,
                                                                 N_modes, frac_op, model)
