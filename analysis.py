@@ -399,12 +399,20 @@ def inject_noise(data, N):
     return noisey_data
 
 def run_analysis(k_indices, spectra, params_dict, N_modes, frac_error, model):
-    N, n = analysis.get_noise(k_indices, spectra, params['b_i'], N_modes, frac_error=frac_error)
+    N, n = get_noise(k_indices, spectra, params['b_i'], N_modes, frac_error=frac_error)
     data = utils.fetch_data(k_indices, spectra, b_0=params['b_i'])
-    data_noise = analysis.inject_noise(data, N)
+    data_noise = inject_noise(data, N)
 
     Beane = fitting.Beane_et_al(data_noise, spectra, n[0], n[1], n[2], N_modes, k_indices)
     LSE = fitting.LSE_results(k_indices, data_noise, N)
     MCMC = fitting.MCMC_results(params, k_indices, data_noise, model, N)
 
     return Beane, LSE, MCMC
+
+def plot_all(samples, k_indices):
+    samples_00 = add_P(samples, k_indices, (0,0))
+    samples_01 = add_P(samples_00, k_indices, (0,1))
+    samples_02 = add_P(samples_01, k_indices, (0,2))
+    samples_12 = add_P(samples_02, k_indices, (1,2))
+
+    return samples_12

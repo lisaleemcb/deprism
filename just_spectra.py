@@ -70,7 +70,7 @@ if which_box is 'big':
     runs = 3
     n_bins = 20
 
-    box_size = 160 # in Mpc
+    box_size = 160 # in Mpc/h
     r = np.linspace(0, box_size, rez)
     r_vec = np.stack((r, r, r))
 
@@ -119,7 +119,7 @@ intensities_M = utils.specific_intensity(redshift, L=luminosities_M)
 intensities_H = utils.specific_intensity(redshift, L=luminosities_H)
 
 I_fields = np.zeros((runs, rez, rez, rez))
-scalings = np.array([3.76387000e-04, 1.06943379e+05, 6.86553108e+01])
+scalings = np.ones(3) # np.array([3.76387000e-04, 1.06943379e+05, 6.86553108e+01])
 
 for i, power in enumerate(power_indices):
     print('power =', power)
@@ -204,14 +204,14 @@ spectra_bt = analysis.gen_spectra(r_vec, I_fields_bt)
 
 ### Datasets
 
-np.savez('pspecs_sf', P_21cm_21cm=spectra_sf[1][0], P_21cm_CII=spectra_sf[1][1],
+np.savez('pspecs_sf_z7.9589', P_21cm_21cm=spectra_sf[1][0], P_21cm_CII=spectra_sf[1][1],
                     P_21cm_OIII=spectra_sf[1][2], P_CII_CII=spectra_sf[1][3],
                     P_CII_OIII=spectra_sf[1][4], P_OIII_OIII=spectra_sf[1][5])
 
-np.savez('pspecs_pl', P_21cm_21cm=spectra_pl[1][0], P_21cm_CII=spectra_pl[1][1],
+np.savez('pspecs_pl_z7.9589', P_21cm_21cm=spectra_pl[1][0], P_21cm_CII=spectra_pl[1][1],
                     P_21cm_OIII=spectra_pl[1][2], P_CII_CII=spectra_pl[1][3],
                     P_CII_OIII=spectra_pl[1][4], P_OIII_OIII=spectra_pl[1][5])
 
-np.savez('pspecs_bt', P_21cm_21cm=spectra_bt[1][0], P_21cm_CII=spectra_bt[1][1],
+np.savez('pspecs_bt_z7.9589', P_21cm_21cm=spectra_bt[1][0], P_21cm_CII=spectra_bt[1][1],
                     P_21cm_OIII=spectra_bt[1][2], P_CII_CII=spectra_bt[1][3],
                     P_CII_OIII=spectra_bt[1][4], P_OIII_OIII=spectra_bt[1][5])
