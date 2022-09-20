@@ -164,54 +164,51 @@ def get_21cm_fields(z, zreion, delta):
 
 zreion = gen_21cm_fields(delta)
 ion_field, t21_field = get_21cm_fields(redshift, zreion, delta)
+np.save('zreion_z7.9589.npy')
 
-#### Checking unit conversion
-
-def set_I_mean(Lidz_pspec_log, P_x):
-    return np.sqrt(Lidz_pspec_log / P_x)
 
 ### Power law data
-print('generating power law data')
-# power law
-spectra_pl = analysis.gen_spectra(r_vec, I_fields)
+# print('generating power law data')
+# # power law
+# spectra_pl = analysis.gen_spectra(r_vec, I_fields)
+#
+# print('generating superfake data')
+# # indices
+#
+# ### Superfake data
+# k_indices = [6]
+# spectra_sf = cp.deepcopy(spectra_pl)
+#
+# b_i = np.sqrt(spectra_sf[1][0][k_indices] / P_m[k_indices])
+# b_j = np.sqrt(spectra_sf[1][3][k_indices] / P_m[k_indices])
+# b_k = np.sqrt(spectra_sf[1][5][k_indices] / P_m[k_indices])
 
-print('generating superfake data')
-# indices
-
-### Superfake data
-k_indices = [6]
-spectra_sf = cp.deepcopy(spectra_pl)
-
-b_i = np.sqrt(spectra_sf[1][0][k_indices] / P_m[k_indices])
-b_j = np.sqrt(spectra_sf[1][3][k_indices] / P_m[k_indices])
-b_k = np.sqrt(spectra_sf[1][5][k_indices] / P_m[k_indices])
-
-biases = [b_i, b_j, b_k]
-indices = utils.lines_indices()
-
-for i in range(len(indices)):
-    print(indices[i][0], indices[i][1])
-    spectra_sf[1][i] = biases[int(indices[i][0])] * biases[int(indices[i][1])] * P_m
-
-### Brightness temperature data
-
-I_fields_bt = cp.deepcopy(I_fields)
-I_fields_bt[0] = t21_field
-
-print('generating brightness temperature data')
-# full simulation
-spectra_bt = analysis.gen_spectra(r_vec, I_fields_bt)
-
-### Datasets
-
-np.savez('pspecs_sf_z7.9589', P_21cm_21cm=spectra_sf[1][0], P_21cm_CII=spectra_sf[1][1],
-                    P_21cm_OIII=spectra_sf[1][2], P_CII_CII=spectra_sf[1][3],
-                    P_CII_OIII=spectra_sf[1][4], P_OIII_OIII=spectra_sf[1][5])
-
-np.savez('pspecs_pl_z7.9589', P_21cm_21cm=spectra_pl[1][0], P_21cm_CII=spectra_pl[1][1],
-                    P_21cm_OIII=spectra_pl[1][2], P_CII_CII=spectra_pl[1][3],
-                    P_CII_OIII=spectra_pl[1][4], P_OIII_OIII=spectra_pl[1][5])
-
-np.savez('pspecs_bt_z7.9589', P_21cm_21cm=spectra_bt[1][0], P_21cm_CII=spectra_bt[1][1],
-                    P_21cm_OIII=spectra_bt[1][2], P_CII_CII=spectra_bt[1][3],
-                    P_CII_OIII=spectra_bt[1][4], P_OIII_OIII=spectra_bt[1][5])
+# biases = [b_i, b_j, b_k]
+# indices = utils.lines_indices()
+#
+# for i in range(len(indices)):
+#     print(indices[i][0], indices[i][1])
+#     spectra_sf[1][i] = biases[int(indices[i][0])] * biases[int(indices[i][1])] * P_m
+#
+# ### Brightness temperature data
+#
+# I_fields_bt = cp.deepcopy(I_fields)
+# I_fields_bt[0] = t21_field
+#
+# print('generating brightness temperature data')
+# # full simulation
+# spectra_bt = analysis.gen_spectra(r_vec, I_fields_bt)
+#
+# ### Datasets
+#
+# np.savez('pspecs_sf_z7.9589', P_21cm_21cm=spectra_sf[1][0], P_21cm_CII=spectra_sf[1][1],
+#                     P_21cm_OIII=spectra_sf[1][2], P_CII_CII=spectra_sf[1][3],
+#                     P_CII_OIII=spectra_sf[1][4], P_OIII_OIII=spectra_sf[1][5])
+#
+# np.savez('pspecs_pl_z7.9589', P_21cm_21cm=spectra_pl[1][0], P_21cm_CII=spectra_pl[1][1],
+#                     P_21cm_OIII=spectra_pl[1][2], P_CII_CII=spectra_pl[1][3],
+#                     P_CII_OIII=spectra_pl[1][4], P_OIII_OIII=spectra_pl[1][5])
+#
+# np.savez('pspecs_bt_z7.9589', P_21cm_21cm=spectra_bt[1][0], P_21cm_CII=spectra_bt[1][1],
+#                     P_21cm_OIII=spectra_bt[1][2], P_CII_CII=spectra_bt[1][3],
+#                     P_CII_OIII=spectra_bt[1][4], P_OIII_OIII=spectra_bt[1][5])
