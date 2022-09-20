@@ -164,7 +164,7 @@ def get_21cm_fields(z, zreion, delta):
 
 zreion = gen_21cm_fields(delta)
 ion_field, t21_field = get_21cm_fields(redshift, zreion, delta)
-np.save('zreion_z7.9589.npy')
+np.save('zreion_z7.9589.npy', zreion)
 
 
 ### Power law data
