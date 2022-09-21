@@ -145,25 +145,25 @@ for i, power in enumerate(power_indices):
 # k_0 = 0.185 # Mpc/h
 
 # global temperature as a function of redshift
-def t0(z):
-    return 38.6 * hubble0.value * (omegab / 0.045) * np.sqrt(0.27 / omegam * (1 + z) / 10)
-
-def gen_21cm_fields(delta, box_size= 80.0, zmean=7, alpha=0.11, k0=0.05):
-    # compute zreion field
-    print("computing zreion...")
-    zreion = apply_zreion_fast(delta, zmean, alpha, k0, box_size, deconvolve=False)
-
-    return zreion
-
-def get_21cm_fields(z, zreion, delta):
-    #print("computing t21 at z=", z, "...")
-    ion_field = np.where(zreion > z, 1.0, 0.0)
-    t21_field = t0(z) * (1 + delta) * (1 - ion_field)
-
-    return ion_field, t21_field
-
-zreion = np.load('zreion_z7.9589.npy') #gen_21cm_fields(delta)
-ion_field, t21_field = get_21cm_fields(redshift, zreion, delta)
+# def t0(z):
+#     return 38.6 * hubble0.value * (omegab / 0.045) * np.sqrt(0.27 / omegam * (1 + z) / 10)
+#
+# def gen_21cm_fields(delta, box_size= 80.0, zmean=7, alpha=0.11, k0=0.05):
+#     # compute zreion field
+#     print("computing zreion...")
+#     zreion = apply_zreion_fast(delta, zmean, alpha, k0, box_size, deconvolve=False)
+#
+#     return zreion
+#
+# def get_21cm_fields(z, zreion, delta):
+#     #print("computing t21 at z=", z, "...")
+#     ion_field = np.where(zreion > z, 1.0, 0.0)
+#     t21_field = t0(z) * (1 + delta) * (1 - ion_field)
+#
+#     return ion_field, t21_field
+#
+# zreion = np.load('zreion_z7.9589.npy') #gen_21cm_fields(delta)
+# ion_field, t21_field = get_21cm_fields(redshift, zreion, delta)
 #np.save('zreion_z7.9589.npy', zreion)
 
 
@@ -201,14 +201,14 @@ spectra_pl = analysis.gen_spectra(r_vec, I_fields)
 #
 # ### Datasets
 #
- np.savez('pspecs_sf_z7.9589', P_21cm_21cm=spectra_sf[1][0], P_21cm_CII=spectra_sf[1][1],
-                     P_21cm_OIII=spectra_sf[1][2], P_CII_CII=spectra_sf[1][3],
-                     P_CII_OIII=spectra_sf[1][4], P_OIII_OIII=spectra_sf[1][5])
+#np.savez('pspecs_sf_z7.9589', P_21cm_21cm=spectra_sf[1][0], P_21cm_CII=spectra_sf[1][1],
+#                     P_21cm_OIII=spectra_sf[1][2], P_CII_CII=spectra_sf[1][3],
+#                     P_CII_OIII=spectra_sf[1][4], P_OIII_OIII=spectra_sf[1][5])
 #
-# np.savez('pspecs_pl_z7.9589', P_21cm_21cm=spectra_pl[1][0], P_21cm_CII=spectra_pl[1][1],
-#                     P_21cm_OIII=spectra_pl[1][2], P_CII_CII=spectra_pl[1][3],
-#                     P_CII_OIII=spectra_pl[1][4], P_OIII_OIII=spectra_pl[1][5])
-#
+np.savez('pspecs_pl_z7.9589', P_21cm_21cm=spectra_pl[1][0], P_21cm_CII=spectra_pl[1][1],
+                    P_21cm_OIII=spectra_pl[1][2], P_CII_CII=spectra_pl[1][3],
+                    P_CII_OIII=spectra_pl[1][4], P_OIII_OIII=spectra_pl[1][5])
+
 # np.savez('pspecs_bt_z7.9589', P_21cm_21cm=spectra_bt[1][0], P_21cm_CII=spectra_bt[1][1],
 #                     P_21cm_OIII=spectra_bt[1][2], P_CII_CII=spectra_bt[1][3],
 #                     P_CII_OIII=spectra_bt[1][4], P_OIII_OIII=spectra_bt[1][5])

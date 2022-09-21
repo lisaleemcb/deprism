@@ -201,13 +201,13 @@ np.save('zreion_z7.9589.npy', zreion)
 #
 # ### Datasets
 #
-# np.savez('pspecs_sf_z7.9589', P_21cm_21cm=spectra_sf[1][0], P_21cm_CII=spectra_sf[1][1],
+#np.savez('pspecs_sf_z7.9589', P_21cm_21cm=spectra_sf[1][0], P_21cm_CII=spectra_sf[1][1],
 #                     P_21cm_OIII=spectra_sf[1][2], P_CII_CII=spectra_sf[1][3],
 #                     P_CII_OIII=spectra_sf[1][4], P_OIII_OIII=spectra_sf[1][5])
 #
-# np.savez('pspecs_pl_z7.9589', P_21cm_21cm=spectra_pl[1][0], P_21cm_CII=spectra_pl[1][1],
-#                     P_21cm_OIII=spectra_pl[1][2], P_CII_CII=spectra_pl[1][3],
-#                     P_CII_OIII=spectra_pl[1][4], P_OIII_OIII=spectra_pl[1][5])
+np.savez('pspecs_pl_z7.9589', P_21cm_21cm=spectra_pl[1][0], P_21cm_CII=spectra_pl[1][1],
+                     P_21cm_OIII=spectra_pl[1][2], P_CII_CII=spectra_pl[1][3],
+                     P_CII_OIII=spectra_pl[1][4], P_OIII_OIII=spectra_pl[1][5])
 #
 # np.savez('pspecs_bt_z7.9589', P_21cm_21cm=spectra_bt[1][0], P_21cm_CII=spectra_bt[1][1],
 #                     P_21cm_OIII=spectra_bt[1][2], P_CII_CII=spectra_bt[1][3],

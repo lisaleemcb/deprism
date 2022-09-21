@@ -4,6 +4,7 @@ import emcee
 import corner
 
 import utils
+import fitting
 
 from functools import reduce # only in Python 3
 from scipy.special import comb
