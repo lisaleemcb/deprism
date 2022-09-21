@@ -89,6 +89,7 @@ if which_box is 'little':
     np.savez('matter_pspec_6.0155.npz')
 
 if which_box is 'big':
+    pass
     #np.savez('matter_pspec_7.9589', k=k, P_m=P_m)
 
 matter_pspec = np.load('matter_pspec_7.9589.npz')
