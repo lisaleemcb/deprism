@@ -62,13 +62,13 @@ if which_box is 'big':
     #density.max()
 
     redshift = 7.9589
-    # masses = np.array(box[('m')])
-    # x = np.array(box[('x')])
-    # y = np.array(box[('y')])
-    # z = np.array(box[('z')])
-    #
-    # runs = 3
-    # n_bins = 20
+    masses = np.array(box[('m')])
+    x = np.array(box[('x')])
+    y = np.array(box[('y')])
+    z = np.array(box[('z')])
+
+    runs = 3
+    n_bins = 20
 
     box_size = 160 # in Mpc/h
     # r = np.linspace(0, box_size, rez)
