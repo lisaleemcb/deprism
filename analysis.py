@@ -332,10 +332,10 @@ def plot_corner(fig_name, MCMC, LSE, Beane, params, P_ii, k_indices):
            # ax.plot(value2[xi], value2[yi], "sr")
 
     line2 = axes[-1,-1].axvline(Beane_params[k_indices], color=colors[2], ls='--', alpha=.5, dashes=(5, 5))
-    axes[-1,-1].axvline(Beane_params[k_indices] + np.sqrt(Beane_var[k_indices]),
-                                                                color=colors[2], ls=':', alpha=.5)
-    axes[-1,-1].axvline(Beane_params[k_indices] - np.sqrt(Beane_var[k_indices]),
-                                                                color=colors[2], ls=':', alpha=.5)
+#    axes[-1,-1].axvline(Beane_params[k_indices] + np.sqrt(Beane_var[k_indices]),
+#                                                                color=colors[2], ls=':', alpha=.5)
+#    axes[-1,-1].axvline(Beane_params[k_indices] - np.sqrt(Beane_var[k_indices]),
+#                                                                color=colors[2], ls=':', alpha=.5)
 
     figure.legend()
     figure.savefig(fig_name)
