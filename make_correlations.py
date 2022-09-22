@@ -71,14 +71,14 @@ if which_box is 'big':
     n_bins = 20
 
     box_size = 160 # in Mpc/h
-    # r = np.linspace(0, box_size, rez)
-    # r_vec = np.stack((r, r, r))
+    r = np.linspace(0, box_size, rez)
+    r_vec = np.stack((r, r, r))
 
-# mass_voxels, mass_edges = np.histogramdd([x,y,z], bins=rez,
-#                                                 weights=masses)
-#
-# masses_hist = plt.hist(np.log(masses), bins=50)
-#
+mass_voxels, mass_edges = np.histogramdd([x,y,z], bins=rez,
+                                                weights=masses)
+
+masses_hist = plt.hist(np.log(masses), bins=50)
+
 # print('generating underlying matter density spectrum')
 print('loading underlying matter density spectrum')
 
