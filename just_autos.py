@@ -83,7 +83,7 @@ print('generating underlying matter density spectrum')
 #print('loading underlying matter density spectrum')
 
 delta = utils.overdensity(density)
-k, P_m = analysis.calc_pspec(r_vec, [delta], n_bins=n_bins, bin_scale='log')
+#k, P_m = analysis.calc_pspec(r_vec, [delta], n_bins=n_bins, bin_scale='log')
 
 if which_box is 'little':
     #np.savez('matter_pspec_6.0155.npz')
