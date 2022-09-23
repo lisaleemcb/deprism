@@ -86,10 +86,16 @@ delta = utils.overdensity(density)
 k, P_m = analysis.calc_pspec(r_vec, [delta], n_bins=n_bins, bin_scale='log')
 
 if which_box is 'little':
-    np.savez('matter_pspec_6.0155.npz')
+    #np.savez('matter_pspec_6.0155.npz')
+    matter_pspec = np.load('matter_pspec_6.0155.npz')
+    k = matter_pspec['k']
+    P_m = matter_pspec['P_m']
 
 if which_box is 'big':
-    np.savez('matter_pspec_7.9589', k=k, P_m=P_m)
+    #np.savez('matter_pspec_7.9589', k=k, P_m=P_m)
+    matter_pspec = np.load('matter_pspec_7.9589.npz')
+    k = matter_pspec['k']
+    P_m = matter_pspec['P_m']
 
 #matter_pspec = np.load('matter_pspec_6.0155.npz')
 #k = matter_pspec['k']
