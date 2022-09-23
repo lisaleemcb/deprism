@@ -225,7 +225,7 @@ def start_mcmc(params_init, k_indices, data, model, N, b0_guess, p0_in=None,
         #print("Mean autocorrelation time: {0:.3f} steps".format(
         #np.mean(sampler.get_autocorr_time())))
 
-        return sampler.get_chain(thin=100, flat=True), sampler.get_log_prob(thin=100)
+        return sampler.get_chain(thin=100, flat=True), sampler.get_log_prob(thin=100, flat=True)
 
     if parallel is True:
         print('We are going parallelized! Wooooooo...')
@@ -237,7 +237,7 @@ def start_mcmc(params_init, k_indices, data, model, N, b0_guess, p0_in=None,
             sampler.reset()
             check = sampler.run_mcmc(state, nsteps)
 
-            return sampler.get_chain(thin=100, flat=True), sampler.get_log_prob(thin=100)
+            return sampler.get_chain(thin=100, flat=True), sampler.get_log_prob(thin=100, flat=True)
 
 def many_realizations(params_initial, param_names, k_indices,
                                 data, model, N, truths,
