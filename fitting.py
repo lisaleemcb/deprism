@@ -350,11 +350,11 @@ def LSE_results(k_indices, data, N):
 
 def Beane_et_al(data, spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices):
     P_ij = data[1]
-    P_jk = data[4]
-    P_ik = data[2]
+    P_jk = data[2]
+    P_ik = data[3]
 
     P_ii = P_ij * P_ik / P_jk
-    var = analysis.var_Pii_Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices)
+    var = analysis.var_Pii_Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices)[k_indices]
 
     return P_ii, var
 

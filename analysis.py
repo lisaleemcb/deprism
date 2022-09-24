@@ -332,11 +332,9 @@ def plot_corner(fig_name, MCMC, LSE, Beane, params, P_ii, k_indices):
             ax.plot(LSE_params[xi], LSE_params[yi], colors[1])
            # ax.plot(value2[xi], value2[yi], "sr")
 
-    line2 = axes[-1,-1].axvline(Beane_params[k_indices], color=colors[2], ls='--', alpha=.5, dashes=(5, 5))
-#    axes[-1,-1].axvline(Beane_params[k_indices] + np.sqrt(Beane_var[k_indices]),
-#                                                                color=colors[2], ls=':', alpha=.5)
-#    axes[-1,-1].axvline(Beane_params[k_indices] - np.sqrt(Beane_var[k_indices]),
-#                                                                color=colors[2], ls=':', alpha=.5)
+    line2 = axes[-1,-1].axvline(Beane_params, color=colors[2], ls='--', alpha=.5, dashes=(5, 5))
+#    axes[-1,-1].axvline(Beane_params + np.sqrt(Beane_var), color=colors[2], ls=':', alpha=.5)
+#    axes[-1,-1].axvline(Beane_params - np.sqrt(Beane_var), color=colors[2], ls=':', alpha=.5)
 
     figure.legend()
     figure.savefig(fig_name)
@@ -415,7 +413,7 @@ def run_analysis(k_indices, spectra, params_dict, N_modes, frac_error, model,
 
     Beane = fitting.Beane_et_al(data_noise, spectra, n[0], n[1], n[2], N_modes, k_indices)
     LSE = fitting.LSE_results(k_indices, data_noise, N)
-    MCMC = fitting.MCMC_results(params_dict, k_indices, data_noise, model, N, params['b_i'])
+    MCMC = fitting.MCMC_results(params_dict, k_indices, data_noise, model, N, params_dict['b_i'])
 
     return Beane, LSE, MCMC
 
