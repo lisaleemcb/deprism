@@ -180,15 +180,15 @@ def get_21cm_fields(z, zreion, delta):
 # # power law
 # spectra_pl = analysis.gen_spectra(r_vec, I_fields)
 
-k, P_21cm_21cm = calc_pspec(r_vec,
+k, P_21cm_21cm = analysis.calc_pspec(r_vec,
                 [I_fields[0], fields[0]],
                 n_bins=n_bins, bin_scale='log')
 
-k, P_CII_CII = calc_pspec(r_vec,
+k, P_CII_CII = analysis.calc_pspec(r_vec,
                 [I_fields[1], fields[1]],
                 n_bins=n_bins, bin_scale='log')
 
-k, P_OIII_OIII = calc_pspec(r_vec,
+k, P_OIII_OIII = analysis.calc_pspec(r_vec,
                 [I_fields[2], fields[2]],
                 n_bins=n_bins, bin_scale='log')
 #
