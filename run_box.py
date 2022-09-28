@@ -772,7 +772,7 @@ analysis.plot_corner('sf_pess.pdf', MCMC_sf_pess, LSE_sf_pess, Beane_sf_pess, pa
 
 np.savez('sf_results', Beane_sf_op=Beane_sf_op, Beane_sf_con=Beane_sf_con, Beane_sf_pess=Beane_sf_pess,
                      LSE_sf_op=LSE_sf_op, LSE_sf_con=LSE_sf_con, LSE_sf_pess=LSE_sf_pess,
-                     MCMC_sf_op=MCMC_sf_op, MCMC_sf_con=MCMC_sf_con, MCMC_sf_pess=MCMC_sf_pess)
+                     MCMC_sf_op=MCMC_sf_op[0], MCMC_sf_con=MCMC_sf_con[0], MCMC_sf_pess=MCMC_sf_pess[0])
 
 ### Simulated power law data and fractional noise error
 print('power law analysis')
@@ -800,7 +800,7 @@ analysis.plot_corner('pl_pess.pdf', MCMC_pl_pess, LSE_pl_pess, Beane_pl_pess, pa
 
 np.savez('pl_results', Beane_pl_op=Beane_pl_op, Beane_pl_con=Beane_pl_con, Beane_pl_pess=Beane_pl_pess,
                      LSE_pl_op=LSE_pl_op, LSE_pl_con=LSE_pl_con, LSE_pl_pess=LSE_pl_pess,
-                     MCMC_pl_op=MCMC_pl_op, MCMC_pl_con=MCMC_pl_con, MCMC_pl_pess=MCMC_pl_pess)
+                     MCMC_pl_op=MCMC_pl_op[0], MCMC_pl_con=MCMC_pl_con[0], MCMC_pl_pess=MCMC_pl_pess[0])
 ### Simulated brightness temperature data and fractional noise error
 print('brightness temperature analysis')
 
@@ -827,6 +827,6 @@ analysis.plot_corner('bt_pess.pdf', MCMC_bt_pess, LSE_bt_pess, Beane_bt_pess, pa
 
 np.savez('bt_results', Beane_bt_op=Beane_bt_op, Beane_bt_con=Beane_bt_con, Beane_bt_pess=Beane_bt_pess,
                      LSE_bt_op=LSE_bt_op, LSE_bt_con=LSE_bt_con, LSE_bt_pess=LSE_bt_pess,
-                     MCMC_bt_op=MCMC_bt_op, MCMC_bt_con=MCMC_bt_con, MCMC_bt_pess=MCMC_bt_pess)
+                     MCMC_bt_op=MCMC_bt_op[0], MCMC_bt_con=MCMC_bt_con[0], MCMC_bt_pess=MCMC_bt_pess[0])
 
 ### Fisher analysis

@@ -304,7 +304,7 @@ def plot_corner(fig_name, MCMC, LSE, Beane, params, P_ii, k_indices):
     colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
     figure = corner.corner(samples_00,
-                               truths=[*pvals, *P_ii[k_indices]],
+                               truths=[*pvals, *P_ii[k_indices]], truth_color=colors[3],
                                labels=[r'$b_i$', r'$b_j$', r'$b_k$', r'$P_m$', r'$P_{ij}$'],
                                label_kwargs={'fontsize': 30}, range=[.99,.99,.99,.99,.99])
 
@@ -321,11 +321,11 @@ def plot_corner(fig_name, MCMC, LSE, Beane, params, P_ii, k_indices):
     for yi in range(ndim+1):
         for xi in range(yi):
             ax = axes[yi, xi]
-            ax.axvline(LSE_params[xi], color=colors[1], alpha=.5)
+            ax.axvline(LSE_params[xi], color=colors[1], alpha=.5, ls='--')
             ax.axvline(LSE_params[xi] - np.sqrt(LSE_var[xi]), color=colors[1], ls=':', alpha=.5)
             ax.axvline(LSE_params[xi] + np.sqrt(LSE_var[xi]), color=colors[1], ls=':', alpha=.5)
             #ax.axvline(value2[xi], color="r")
-            ax.axhline(LSE_params[yi], color=colors[1], alpha=.5)
+            ax.axhline(LSE_params[yi], color=colors[1], alpha=.5, ls='--')
             ax.axhline(LSE_params[yi] - np.sqrt(LSE_var[yi]), color=colors[1], ls=':', alpha=.5)
             ax.axhline(LSE_params[yi] + np.sqrt(LSE_var[yi]), color=colors[1], ls=':', alpha=.5)
             #ax.axhline(value2[yi], color="r")
@@ -336,7 +336,7 @@ def plot_corner(fig_name, MCMC, LSE, Beane, params, P_ii, k_indices):
 #    axes[-1,-1].axvline(Beane_params + np.sqrt(Beane_var), color=colors[2], ls=':', alpha=.5)
 #    axes[-1,-1].axvline(Beane_params - np.sqrt(Beane_var), color=colors[2], ls=':', alpha=.5)
 
-    figure.legend()
+    #figure.legend()
     figure.savefig(fig_name)
 
 def noisey_spectra(spectra, N=None, frac_error=None, noise='on'):
