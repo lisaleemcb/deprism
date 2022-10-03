@@ -754,6 +754,8 @@ params_sf = dict(zip(p_names, p_vals_sf))
 ndim = utils.get_params(params_sf, k_indices).size
 model = models.ScalarBias_crossonly(k=spectra_sf[0], params=params_sf)
 
+Beane_sf_nl, LSE_sf_nl, MCMC_sf_nl = analysis.run_analysis(k_indices, spectra_sf[1], params_sf,
+                                                                N_modes, frac_pess, model, noiseless=True)
 
 Beane_sf_op, LSE_sf_op, MCMC_sf_op = analysis.run_analysis(k_indices, spectra_sf[1], params_sf,
                                                                 N_modes, frac_op, model)
@@ -764,15 +766,15 @@ Beane_sf_con, LSE_sf_con, MCMC_sf_con = analysis.run_analysis(k_indices, spectra
 Beane_sf_pess, LSE_sf_pess, MCMC_sf_pess = analysis.run_analysis(k_indices, spectra_sf[1], params_sf,
                                                                 N_modes, frac_pess, model)
 
-analysis.plot_corner('sf_op.pdf', MCMC_sf_op, LSE_sf_op, Beane_sf_op, params_sf, spectra_sf[1][0], k_indices)
+#analysis.plot_corner('sf_op.pdf', MCMC_sf_op, LSE_sf_op, Beane_sf_op, params_sf, spectra_sf[1][0], k_indices)
+#analysis.plot_corner('sf_con.pdf', MCMC_sf_con, LSE_sf_con, Beane_sf_con, params_sf, spectra_sf[1][0], k_indices)
+#analysis.plot_corner('sf_pess.pdf', MCMC_sf_pess, LSE_sf_pess, Beane_sf_pess, params_sf, spectra_sf[1][0], k_indices)
 
-analysis.plot_corner('sf_con.pdf', MCMC_sf_con, LSE_sf_con, Beane_sf_con, params_sf, spectra_sf[1][0], k_indices)
-
-analysis.plot_corner('sf_pess.pdf', MCMC_sf_pess, LSE_sf_pess, Beane_sf_pess, params_sf, spectra_sf[1][0], k_indices)
-
-np.savez('sf_results', Beane_sf_op=Beane_sf_op, Beane_sf_con=Beane_sf_con, Beane_sf_pess=Beane_sf_pess,
-                     LSE_sf_op=LSE_sf_op, LSE_sf_con=LSE_sf_con, LSE_sf_pess=LSE_sf_pess,
-                     MCMC_sf_op=MCMC_sf_op[0], MCMC_sf_con=MCMC_sf_con[0], MCMC_sf_pess=MCMC_sf_pess[0])
+np.savez('sf_results', Beane_sf_nl=Beane_sf_nl, Beane_sf_op=Beane_sf_op, Beane_sf_con=Beane_sf_con, Beane_sf_pess=Beane_sf_pess,
+                     LSE_sf_nl=LSE_sf_nl, LSE_sf_op=LSE_sf_op, LSE_sf_con=LSE_sf_con, LSE_sf_pess=LSE_sf_pess,
+                     MCMC_op_samples=MCMC_sf_op[0], MCMC_con_samples=MCMC_sf_con[0], MCMC_pess_samples=MCMC_sf_pess[0],
+                     MCMC_op_logp=MCMC_sf_op[1], MCMC_con_logp=MCMC_sf_con[1], MCMC_pess_logp=MCMC_sf_pess[1],
+                     MCMC_nl_samples=MCMC_sf_nl[0], MCMC_nl_lopg=MCMC_sf_nl[1])
 
 ### Simulated power law data and fractional noise error
 print('power law analysis')
@@ -783,6 +785,9 @@ p_vals_pl = np.asarray([*biases_pl, P_m], dtype=object)
 params_pl = dict(zip(p_names, p_vals_pl))
 ndim = utils.get_params(params_pl, k_indices).size
 
+Beane_pl_nl, LSE_pl_nl, MCMC_pl_nl = analysis.run_analysis(k_indices, spectra_pl[1], params_pl,
+                                                                N_modes, frac_pess, model, noiseless=True)
+
 Beane_pl_op, LSE_pl_op, MCMC_pl_op = analysis.run_analysis(k_indices, spectra_pl[1], params_pl,
                                                                 N_modes, frac_op, model)
 
@@ -792,15 +797,16 @@ Beane_pl_con, LSE_pl_con, MCMC_pl_con = analysis.run_analysis(k_indices, spectra
 Beane_pl_pess, LSE_pl_pess, MCMC_pl_pess = analysis.run_analysis(k_indices, spectra_pl[1], params_pl,
                                                                 N_modes, frac_pess, model)
 
-analysis.plot_corner('pl_op.pdf', MCMC_pl_op, LSE_pl_op, Beane_pl_op, params_pl, spectra_pl[1][0], k_indices)
+#analysis.plot_corner('pl_op.pdf', MCMC_pl_op, LSE_pl_op, Beane_pl_op, params_pl, spectra_pl[1][0], k_indices)
+#analysis.plot_corner('pl_con.pdf', MCMC_pl_con, LSE_pl_con, Beane_pl_con, params_pl, spectra_pl[1][0], k_indices)
+#analysis.plot_corner('pl_pess.pdf', MCMC_pl_pess, LSE_pl_pess, Beane_pl_pess, params_pl, spectra_pl[1][0], k_indices)
 
-analysis.plot_corner('pl_con.pdf', MCMC_pl_con, LSE_pl_con, Beane_pl_con, params_pl, spectra_pl[1][0], k_indices)
+np.savez('pl_results', Beane_pl_nl=Beane_pl_nl, Beane_pl_op=Beane_pl_op, Beane_pl_con=Beane_pl_con, Beane_pl_pess=Beane_pl_pess,
+                     LSE_pl_nl=LSE_pl_nl, LSE_pl_op=LSE_pl_op, LSE_pl_con=LSE_pl_con, LSE_pl_pess=LSE_pl_pess,
+                     MCMC_op_samples=MCMC_pl_op[0], MCMC_con_samples=MCMC_pl_con[0], MCMC_pess_samples=MCMC_pl_pess[0],
+                     MCMC_op_logp=MCMC_pl_op[1], MCMC_con_logp=MCMC_pl_con[1], MCMC_pess_logp=MCMC_pl_pess[1],
+                     MCMC_nl_samples=MCMC_pl_nl[0], MCMC_nl_lopg=MCMC_pl_nl[1])
 
-analysis.plot_corner('pl_pess.pdf', MCMC_pl_pess, LSE_pl_pess, Beane_pl_pess, params_pl, spectra_pl[1][0], k_indices)
-
-np.savez('pl_results', Beane_pl_op=Beane_pl_op, Beane_pl_con=Beane_pl_con, Beane_pl_pess=Beane_pl_pess,
-                     LSE_pl_op=LSE_pl_op, LSE_pl_con=LSE_pl_con, LSE_pl_pess=LSE_pl_pess,
-                     MCMC_pl_op=MCMC_pl_op[0], MCMC_pl_con=MCMC_pl_con[0], MCMC_pl_pess=MCMC_pl_pess[0])
 ### Simulated brightness temperature data and fractional noise error
 print('brightness temperature analysis')
 
@@ -809,6 +815,9 @@ p_vals_bt = np.asarray([*biases_bt, P_m], dtype=object)
 
 params_bt = dict(zip(p_names, p_vals_bt))
 ndim = utils.get_params(params_bt, k_indices).size
+
+Beane_bt_nl, LSE_bt_nl, MCMC_bt_nl = analysis.run_analysis(k_indices, spectra_bt[1], params_bt,
+                                                                N_modes, frac_pess, model, noiseless=True)
 
 Beane_bt_op, LSE_bt_op, MCMC_bt_op = analysis.run_analysis(k_indices, spectra_bt[1], params_bt,
                                                                 N_modes, frac_op, model)
@@ -819,14 +828,14 @@ Beane_bt_con, LSE_bt_con, MCMC_bt_con = analysis.run_analysis(k_indices, spectra
 Beane_bt_pess, LSE_bt_pess, MCMC_bt_pess = analysis.run_analysis(k_indices, spectra_bt[1], params_bt,
                                                                 N_modes, frac_pess, model)
 
-analysis.plot_corner('bt_op.pdf', MCMC_bt_op, LSE_bt_op, Beane_bt_op, params_bt, spectra_bt[1][0], k_indices)
+#analysis.plot_corner('bt_op.pdf', MCMC_bt_op, LSE_bt_op, Beane_bt_op, params_bt, spectra_bt[1][0], k_indices)
+#analysis.plot_corner('bt_con.pdf', MCMC_bt_con, LSE_bt_con, Beane_bt_con, params_bt, spectra_bt[1][0], k_indices)
+#analysis.plot_corner('bt_pess.pdf', MCMC_bt_pess, LSE_bt_pess, Beane_bt_pess, params_bt, spectra_bt[1][0], k_indices)
 
-analysis.plot_corner('bt_con.pdf', MCMC_bt_con, LSE_bt_con, Beane_bt_con, params_bt, spectra_bt[1][0], k_indices)
-
-analysis.plot_corner('bt_pess.pdf', MCMC_bt_pess, LSE_bt_pess, Beane_bt_pess, params_bt, spectra_bt[1][0], k_indices)
-
-np.savez('bt_results', Beane_bt_op=Beane_bt_op, Beane_bt_con=Beane_bt_con, Beane_bt_pess=Beane_bt_pess,
-                     LSE_bt_op=LSE_bt_op, LSE_bt_con=LSE_bt_con, LSE_bt_pess=LSE_bt_pess,
-                     MCMC_bt_op=MCMC_bt_op[0], MCMC_bt_con=MCMC_bt_con[0], MCMC_bt_pess=MCMC_bt_pess[0])
+np.savez('bt_results', Beane_bt_nl=Beane_bt_nl, Beane_bt_op=Beane_bt_op, Beane_bt_con=Beane_bt_con, Beane_bt_pess=Beane_bt_pess,
+                     LSE_bt_nl=LSE_bt_nl, LSE_bt_op=LSE_bt_op, LSE_bt_con=LSE_bt_con, LSE_bt_pess=LSE_bt_pess,
+                     MCMC_op_samples=MCMC_bt_op[0], MCMC_con_samples=MCMC_bt_con[0], MCMC_pess_samples=MCMC_bt_pess[0],
+                     MCMC_op_logp=MCMC_bt_op[1], MCMC_con_logp=MCMC_bt_con[1], MCMC_pess_logp=MCMC_bt_pess[1],
+                     MCMC_nl_samples=MCMC_bt_nl[0], MCMC_nl_lopg=MCMC_bt_nl[1])
 
 ### Fisher analysis
