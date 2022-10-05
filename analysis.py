@@ -405,23 +405,21 @@ def run_analysis(k_indices, spectra, params_dict, N_modes, frac_error, model,
     N, n = get_noise(k_indices, spectra, params_dict['b_i'], N_modes,
                                             frac_error=frac_error, priors_width=priors_width)
 
-    data_noise = inject_noise(data, N)
-
     if error_x is True:
         N = estimate_errors(data, frac_error=frac_error, priors_width=priors_width)
-        data_noise = inject_noise(data, N)
-
-    if noiseless:
-        Beane = fitting.Beane_et_al(data, spectra, n[0], n[1], n[2], N_modes, k_indices)
-        LSE = fitting.LSE_results(k_indices, data, N)
-        MCMC = fitting.MCMC_results(params_dict, k_indices, data, model, N, params_dict['b_i'])
 
     if not noiseless:
-        Beane = fitting.Beane_et_al(data_noise, spectra, n[0], n[1], n[2], N_modes, k_indices)
-        LSE = fitting.LSE_results(k_indices, data_noise, N)
-        MCMC = fitting.MCMC_results(params_dict, k_indices, data_noise, model, N, params_dict['b_i'])
+        print('adding noise to simulation...')
+        data = inject_noise(data, N)
 
-    return Beane, LSE, MCMC
+    else:
+        print('noiseless run, easy breezy!')
+
+    Beane = fitting.Beane_et_al(data, spectra, n[0], n[1], n[2], N_modes, k_indices)
+    LSE = fitting.LSE_results(k_indices, data, N)
+    MCMC = fitting.MCMC_results(params_dict, k_indices, data, model, N, params_dict['b_i'])
+
+    return data, Beane, LSE, MCMC
 
 def plot_all(samples, k_indices):
     samples_00 = add_P(samples, k_indices, (0,0))
