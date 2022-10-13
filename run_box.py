@@ -775,7 +775,7 @@ np.savez('sf_results_z6.0155', data_sf_nl=data_sf_nl, data_sf_op=data_sf_op, dat
                     LSE_sf_nl=LSE_sf_nl, LSE_sf_op=LSE_sf_op, LSE_sf_con=LSE_sf_con, LSE_sf_pess=LSE_sf_pess,
                     MCMC_op_samples=MCMC_sf_op[0], MCMC_con_samples=MCMC_sf_con[0], MCMC_pess_samples=MCMC_sf_pess[0],
                     MCMC_op_logp=MCMC_sf_op[1], MCMC_con_logp=MCMC_sf_con[1], MCMC_pess_logp=MCMC_sf_pess[1],
-                    MCMC_nl_samples=MCMC_sf_nl[0], MCMC_nl_lopg=MCMC_sf_nl[1])
+                    MCMC_nl_samples=MCMC_sf_nl[0], MCMC_nl_logp=MCMC_sf_nl[1])
 
 ### Simulated power law data and fractional noise error
 print('power law analysis')
@@ -807,7 +807,7 @@ np.savez('pl_results_z6.0155', data_pl_nl=data_pl_nl, data_pl_op=data_pl_op, dat
                     LSE_pl_nl=LSE_pl_nl, LSE_pl_op=LSE_pl_op, LSE_pl_con=LSE_pl_con, LSE_pl_pess=LSE_pl_pess,
                     MCMC_op_samples=MCMC_pl_op[0], MCMC_con_samples=MCMC_pl_con[0], MCMC_pess_samples=MCMC_pl_pess[0],
                     MCMC_op_logp=MCMC_pl_op[1], MCMC_con_logp=MCMC_pl_con[1], MCMC_pess_logp=MCMC_pl_pess[1],
-                    MCMC_nl_samples=MCMC_pl_nl[0], MCMC_nl_lopg=MCMC_pl_nl[1])
+                    MCMC_nl_samples=MCMC_pl_nl[0], MCMC_nl_logp=MCMC_pl_nl[1])
 
 ### Simulated brightness temperature data and fractional noise error
 print('brightness temperature analysis')
@@ -839,6 +839,6 @@ np.savez('bt_results_z6.0155', data_bt_nl=data_bt_nl, data_bt_op=data_bt_op, dat
                     LSE_bt_nl=LSE_bt_nl, LSE_bt_op=LSE_bt_op, LSE_bt_con=LSE_bt_con, LSE_bt_pess=LSE_bt_pess,
                     MCMC_op_samples=MCMC_bt_op[0], MCMC_con_samples=MCMC_bt_con[0], MCMC_pess_samples=MCMC_bt_pess[0],
                     MCMC_op_logp=MCMC_bt_op[1], MCMC_con_logp=MCMC_bt_con[1], MCMC_pess_logp=MCMC_bt_pess[1],
-                    MCMC_nl_samples=MCMC_bt_nl[0], MCMC_nl_lopg=MCMC_bt_nl[1])
+                    MCMC_nl_samples=MCMC_bt_nl[0], MCMC_nl_logp=MCMC_bt_nl[1])
 
 ### Fisher analysis

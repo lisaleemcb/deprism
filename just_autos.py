@@ -179,31 +179,19 @@ def get_21cm_fields(z, zreion, delta):
 # print('generating power law data')
 # # power law
 # spectra_pl = analysis.gen_spectra(r_vec, I_fields)
-
-k, P_21cm_21cm = analysis.calc_pspec(r_vec,
-                [I_fields[0], I_fields[0]],
-                n_bins=n_bins, bin_scale='log')
-
-k, P_CII_CII = analysis.calc_pspec(r_vec,
-                [I_fields[1], I_fields[1]],
-                n_bins=n_bins, bin_scale='log')
-
-k, P_OIII_OIII = analysis.calc_pspec(r_vec,
-                [I_fields[2], I_fields[2]],
-                n_bins=n_bins, bin_scale='log')
 #
 # print('generating superfake data')
 # # indices
 #
-# ### Superfake data
+### Superfake data
 # k_indices = [6]
 # spectra_sf = cp.deepcopy(spectra_pl)
 #
 # b_i = np.sqrt(spectra_sf[1][0][k_indices] / P_m[k_indices])
 # b_j = np.sqrt(spectra_sf[1][3][k_indices] / P_m[k_indices])
 # b_k = np.sqrt(spectra_sf[1][5][k_indices] / P_m[k_indices])
-
-# biases = [b_i, b_j, b_k]
+#
+# biases = [16, 3 * 1.1e3, 3 * 1.08e3 ] # [b_i, b_j, b_k]
 # indices = utils.lines_indices()
 #
 # for i in range(len(indices)):
@@ -224,6 +212,18 @@ k, P_OIII_OIII = analysis.calc_pspec(r_vec,
 #np.savez('pspecs_sf_z7.9589', P_21cm_21cm=spectra_sf[1][0], P_21cm_CII=spectra_sf[1][1],
 #                     P_21cm_OIII=spectra_sf[1][2], P_CII_CII=spectra_sf[1][3],
 #                     P_CII_OIII=spectra_sf[1][4], P_OIII_OIII=spectra_sf[1][5])
+
+k, P_21cm_21cm = analysis.calc_pspec(r_vec,
+                [I_fields[0], I_fields[0]],
+                n_bins=n_bins, bin_scale='log')
+
+k, P_CII_CII = analysis.calc_pspec(r_vec,
+                [I_fields[1], I_fields[1]],
+                n_bins=n_bins, bin_scale='log')
+
+k, P_OIII_OIII = analysis.calc_pspec(r_vec,
+                [I_fields[2], I_fields[2]],
+                n_bins=n_bins, bin_scale='log')
 #
 np.savez('autos_pl_z7.9589', P_21cm_21cm=P_21cm_21cm,
                                 P_CII_CII=P_CII_CII,

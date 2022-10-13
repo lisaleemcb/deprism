@@ -281,13 +281,13 @@ def initialize_data(spectra, params, N, k_indices):
 
     return data
 
-def plot_corner(fig_name, MCMC, LSE, Beane, params, P_ii, k_indices):
+def plot_corner(MCMC, LSE, Beane, params, P_ii, k_indices, color, fig=None, limits=None):
     # truth stuff
     pvals = utils.get_pvals(params, k_indices)
     ndim = len(pvals)
 
     # MCMC stuff
-    samples = MCMC[0]
+    samples = MCMC
     samples_00 = add_P(samples, [1], (0,0))
 
     # LSE stuff
@@ -303,41 +303,53 @@ def plot_corner(fig_name, MCMC, LSE, Beane, params, P_ii, k_indices):
     plt.rc('font', family='serif')
     colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
-    figure = corner.corner(samples_00,
-                               truths=[*pvals, *P_ii[k_indices]], truth_color=colors[3],
-                               labels=[r'$b_i$', r'$b_j$', r'$b_k$', r'$P_m$', r'$P_{ij}$'],
-                               label_kwargs={'fontsize': 30}, range=[.99,.99,.99,.99,.99])
+    if fig:
+        fig = corner.corner(samples_00,
+                                   truths=[*pvals, *P_ii[k_indices]], truth_color='black',
+                                   plot_datapoints=False, color=color,
+                                   labels=[r'$b_i$', r'$b_j$', r'$b_k$', r'$P_m$', r'$P_{ij}$'],
+                                   label_kwargs={'fontsize': 30}, range=limits, fig=fig)
 
-    axes = np.array(figure.axes).reshape((ndim+1, ndim+1))
+    if fig is None:
+        fig = corner.corner(samples_00,
+                                   truths=[*pvals, *P_ii[k_indices]], truth_color='black',
+                                   plot_datapoints=False, color=color,
+                                   labels=[r'$b_i$', r'$b_j$', r'$b_k$', r'$P_m$', r'$P_{ij}$'],
+                                   label_kwargs={'fontsize': 30}, range=[.99,.99,.99,.99,.99])
+
+
+
+    axes = np.array(fig.axes).reshape((ndim+1, ndim+1))
+    limits = [axes[i,i].get_xlim() for i in range(ndim+1)]
 
     # Loop over the diagonal
     for i in range(ndim+1):
         ax = axes[i, i]
-        ax.axvline(LSE_params[i], color=colors[1], alpha=.5, ls='--')
-        ax.axvline(LSE_params[i] - np.sqrt(LSE_var[i]), color=colors[1], ls=':', alpha=.5)
-        ax.axvline(LSE_params[i] + np.sqrt(LSE_var[i]), color=colors[1], ls=':', alpha=.5)
+        ax.axvline(LSE_params[i], color=color, alpha=.5)
+        ax.axvline(LSE_params[i] - np.sqrt(LSE_var[i]), color=color, ls=':', alpha=.5)
+        ax.axvline(LSE_params[i] + np.sqrt(LSE_var[i]), color=color, ls=':', alpha=.5)
 
     # Loop over the histograms
     for yi in range(ndim+1):
         for xi in range(yi):
             ax = axes[yi, xi]
-            ax.axvline(LSE_params[xi], color=colors[1], alpha=.5, ls='--')
-            ax.axvline(LSE_params[xi] - np.sqrt(LSE_var[xi]), color=colors[1], ls=':', alpha=.5)
-            ax.axvline(LSE_params[xi] + np.sqrt(LSE_var[xi]), color=colors[1], ls=':', alpha=.5)
+            ax.axvline(LSE_params[xi], color=color, alpha=.5)
+            ax.axvline(LSE_params[xi] - np.sqrt(LSE_var[xi]), color=color, ls=':', alpha=.5)
+            ax.axvline(LSE_params[xi] + np.sqrt(LSE_var[xi]), color=color, ls=':', alpha=.5)
             #ax.axvline(value2[xi], color="r")
-            ax.axhline(LSE_params[yi], color=colors[1], alpha=.5, ls='--')
-            ax.axhline(LSE_params[yi] - np.sqrt(LSE_var[yi]), color=colors[1], ls=':', alpha=.5)
-            ax.axhline(LSE_params[yi] + np.sqrt(LSE_var[yi]), color=colors[1], ls=':', alpha=.5)
+            ax.axhline(LSE_params[yi], color=color, alpha=.5)
+            ax.axhline(LSE_params[yi] - np.sqrt(LSE_var[yi]), color=color, ls=':', alpha=.5)
+            ax.axhline(LSE_params[yi] + np.sqrt(LSE_var[yi]), color=color, ls=':', alpha=.5)
             #ax.axhline(value2[yi], color="r")
-            ax.plot(LSE_params[xi], LSE_params[yi], colors[1])
+            #ax.plot(LSE_params[xi], LSE_params[yi], color=color)
            # ax.plot(value2[xi], value2[yi], "sr")
 
-    line2 = axes[-1,-1].axvline(Beane_params, color=colors[2], ls='--', alpha=.5, dashes=(5, 5))
+    #line2 = axes[-1,-1].axvline(Beane_params, color=colors[2], ls='--', alpha=.5, dashes=(5, 5))
 #    axes[-1,-1].axvline(Beane_params + np.sqrt(Beane_var), color=colors[2], ls=':', alpha=.5)
 #    axes[-1,-1].axvline(Beane_params - np.sqrt(Beane_var), color=colors[2], ls=':', alpha=.5)
 
     #figure.legend()
-    figure.savefig(fig_name)
+    return fig, limits
 
 def noisey_spectra(spectra, N=None, frac_error=None, noise='on'):
 
@@ -404,6 +416,7 @@ def run_analysis(k_indices, spectra, params_dict, N_modes, frac_error, model,
     data = utils.fetch_data(k_indices, spectra, b_0=params_dict['b_i'])
     N, n = get_noise(k_indices, spectra, params_dict['b_i'], N_modes,
                                             frac_error=frac_error, priors_width=priors_width)
+    print('data1:',data)
 
     if error_x is True:
         N = estimate_errors(data, frac_error=frac_error, priors_width=priors_width)
@@ -414,6 +427,7 @@ def run_analysis(k_indices, spectra, params_dict, N_modes, frac_error, model,
 
     else:
         print('noiseless run, easy breezy!')
+        print('data2:',data)
 
     Beane = fitting.Beane_et_al(data, spectra, n[0], n[1], n[2], N_modes, k_indices)
     LSE = fitting.LSE_results(k_indices, data, N)
