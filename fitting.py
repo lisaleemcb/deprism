@@ -155,6 +155,9 @@ def start_mcmc(params_init, k_indices, data, model, N, b0_guess, p0_in=None,
     print('positivity prior is: ', positivity)
     print('pdf is: ', pdf)
     print('nsteps: ', nsteps)
+    print('logp of truths is:', log_prob(utils.get_params(params_init, k_indices), params_init, k_indices, data, model, N, b0_guess,
+                            priors='gaussian', priors_width=.25,
+                            positivity=False, pdf='gaussian'))
 
     pvals = np.asarray(list(params_init.values()), dtype=object)
 

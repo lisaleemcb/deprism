@@ -131,7 +131,9 @@ def log_prob(x, mu, cov):
     return -0.5 * np.dot(diff, np.linalg.solve(cov, diff))
 
 def estimate_errors(signal, frac_error=.01, priors_width=.10):
-    sigma =  frac_error * signal
+    print(signal)
+    sigma = frac_error * signal
+    print(sigma)
     sigma[-1] = priors_width * signal[-1]
     N = sigma**2 * np.identity(signal.size)
 
@@ -281,14 +283,15 @@ def initialize_data(spectra, params, N, k_indices):
 
     return data
 
-def plot_corner(MCMC, LSE, Beane, params, P_ii, k_indices, color, fig=None, limits=None):
+def plot_corner(MCMC, LSE, Beane, params, logp, P_ii, k_indices, ccolor=None, fig=None, limits=None):
     # truth stuff
     pvals = utils.get_pvals(params, k_indices)
     ndim = len(pvals)
+    print([*pvals, *P_ii[k_indices]])
 
     # MCMC stuff
     samples = MCMC
-    samples_00 = add_P(samples, [1], (0,0))
+    samples_00 = add_P(samples, k_indices, (0,0))
 
     # LSE stuff
     LSE_params, LSE_var = LSE
@@ -306,14 +309,14 @@ def plot_corner(MCMC, LSE, Beane, params, P_ii, k_indices, color, fig=None, limi
     if fig:
         fig = corner.corner(samples_00,
                                    truths=[*pvals, *P_ii[k_indices]], truth_color='black',
-                                   plot_datapoints=False, color=color,
+                                   plot_datapoints=False, color=ccolor, bins=30,
                                    labels=[r'$b_i$', r'$b_j$', r'$b_k$', r'$P_m$', r'$P_{ij}$'],
                                    label_kwargs={'fontsize': 30}, range=limits, fig=fig)
 
     if fig is None:
         fig = corner.corner(samples_00,
                                    truths=[*pvals, *P_ii[k_indices]], truth_color='black',
-                                   plot_datapoints=False, color=color,
+                                   plot_datapoints=False, color=ccolor, bins=30,
                                    labels=[r'$b_i$', r'$b_j$', r'$b_k$', r'$P_m$', r'$P_{ij}$'],
                                    label_kwargs={'fontsize': 30}, range=[.99,.99,.99,.99,.99])
 
@@ -325,21 +328,24 @@ def plot_corner(MCMC, LSE, Beane, params, P_ii, k_indices, color, fig=None, limi
     # Loop over the diagonal
     for i in range(ndim+1):
         ax = axes[i, i]
-        ax.axvline(LSE_params[i], color=color, alpha=.5)
-        ax.axvline(LSE_params[i] - np.sqrt(LSE_var[i]), color=color, ls=':', alpha=.5)
-        ax.axvline(LSE_params[i] + np.sqrt(LSE_var[i]), color=color, ls=':', alpha=.5)
+        ax.axvline(LSE_params[i], color=ccolor, alpha=.5)
+        ax.axvline(LSE_params[i] - np.sqrt(LSE_var[i]), color=ccolor, ls=':', alpha=.5)
+        ax.axvline(LSE_params[i] + np.sqrt(LSE_var[i]), color=ccolor, ls=':', alpha=.5)
+
+        ax.axvline(samples_00[logp.argmax(), i], color='red', alpha=.5)
+
 
     # Loop over the histograms
     for yi in range(ndim+1):
         for xi in range(yi):
             ax = axes[yi, xi]
-            ax.axvline(LSE_params[xi], color=color, alpha=.5)
-            ax.axvline(LSE_params[xi] - np.sqrt(LSE_var[xi]), color=color, ls=':', alpha=.5)
-            ax.axvline(LSE_params[xi] + np.sqrt(LSE_var[xi]), color=color, ls=':', alpha=.5)
+            ax.axvline(LSE_params[xi], color=ccolor, alpha=.5)
+            ax.axvline(LSE_params[xi] - np.sqrt(LSE_var[xi]), color=ccolor, ls=':', alpha=.5)
+            ax.axvline(LSE_params[xi] + np.sqrt(LSE_var[xi]), color=ccolor, ls=':', alpha=.5)
             #ax.axvline(value2[xi], color="r")
-            ax.axhline(LSE_params[yi], color=color, alpha=.5)
-            ax.axhline(LSE_params[yi] - np.sqrt(LSE_var[yi]), color=color, ls=':', alpha=.5)
-            ax.axhline(LSE_params[yi] + np.sqrt(LSE_var[yi]), color=color, ls=':', alpha=.5)
+            ax.axhline(LSE_params[yi], color=ccolor, alpha=.5)
+            ax.axhline(LSE_params[yi] - np.sqrt(LSE_var[yi]), color=ccolor, ls=':', alpha=.5)
+            ax.axhline(LSE_params[yi] + np.sqrt(LSE_var[yi]), color=ccolor, ls=':', alpha=.5)
             #ax.axhline(value2[yi], color="r")
             #ax.plot(LSE_params[xi], LSE_params[yi], color=color)
            # ax.plot(value2[xi], value2[yi], "sr")
@@ -410,24 +416,24 @@ def inject_noise(data, N):
 
     return noisey_data
 
-def run_analysis(k_indices, spectra, params_dict, N_modes, frac_error, model,
+def run_analysis(k_indices, spectra, params_dict, N_modes, frac_error, model, data=None,
                     error_x=True, priors_width=.10, noiseless=False):
 
-    data = utils.fetch_data(k_indices, spectra, b_0=params_dict['b_i'])
+    if data is None:
+        data = utils.fetch_data(k_indices, spectra, b_0=params_dict['b_i'])
+
     N, n = get_noise(k_indices, spectra, params_dict['b_i'], N_modes,
                                             frac_error=frac_error, priors_width=priors_width)
-    print('data1:',data)
-
     if error_x is True:
         N = estimate_errors(data, frac_error=frac_error, priors_width=priors_width)
 
     if not noiseless:
         print('adding noise to simulation...')
         data = inject_noise(data, N)
+        data[-1] = params_dict['b_i']
 
     else:
         print('noiseless run, easy breezy!')
-        print('data2:',data)
 
     Beane = fitting.Beane_et_al(data, spectra, n[0], n[1], n[2], N_modes, k_indices)
     LSE = fitting.LSE_results(k_indices, data, N)
