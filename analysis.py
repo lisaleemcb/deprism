@@ -332,7 +332,7 @@ def plot_corner(MCMC, LSE, Beane, params, logp, P_ii, k_indices, ccolor=None, fi
         ax.axvline(LSE_params[i] - np.sqrt(LSE_var[i]), color=ccolor, ls=':', alpha=.5)
         ax.axvline(LSE_params[i] + np.sqrt(LSE_var[i]), color=ccolor, ls=':', alpha=.5)
 
-        ax.axvline(samples_00[logp.argmax(), i], color='red', alpha=.5)
+        #ax.axvline(samples_00[logp.argmax(), i], color='red', alpha=.5)
 
 
     # Loop over the histograms

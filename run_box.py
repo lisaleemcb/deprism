@@ -134,7 +134,7 @@ for i, power in enumerate(power_indices):
 #box = 80.0  # Mpc/h
 omegam = Planck15.Om0
 omegab = Planck15.Ob0
-hubble0 = Planck15.H0
+hubble0 = Planck15.h
 
 alpha = 0.564
 k_0 = 0.185 # Mpc/h
@@ -157,7 +157,9 @@ def get_21cm_fields(z, zreion, delta):
 
     return ion_field, t21_field
 
-zreion = np.load('zreion.npy') # gen_21cm_fields(delta)
+zreion = gen_21cm_fields(delta)
+np.save('zreion_z6.0155', zreion)
+
 ion_field, t21_field = get_21cm_fields(redshift, zreion, delta)
 
 #### Checking unit conversion
