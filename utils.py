@@ -362,44 +362,6 @@ def overdensity(density):
 
     return delta
 
-def calc_sigma_beam(z, lambda_i, D_j):
-    return (lambda_i * (1 + z) / D_j).decompose()
-
-def FWHM_to_sigma(FWHM):
-    sigma = FWHM / np.sqrt(8 * np.log(2))
-
-    return sigma.to(u.radian)
-
-def calc_sigma_perp(z, sigma_beam):
-    sigma_perp = Planck15.comoving_distance(z) * sigma_beam
-
-    return sigma_perp.to(u.Mpc, equivalencies=u.dimensionless_angles())
-
-def calc_sigma_para(z, nu_obs, delta_nu):
-    sigma_para = (const.c / Planck15.H(z)) * delta_nu * (1 + z) / nu_obs
-
-    return sigma_para.decompose().decompose(bases=[u.Mpc])
-
-def set_sigma_para(sigma_para, z, nu_obs):
-    # finds the appropriate delta_nu to get specified sigma_parallel
-    delta_nu = (sigma_para * Planck15.H(z) * nu_obs) / (const.c * (1 + z))
-
-    return delta_nu
-
-def calc_sm_func(mu, k, sigma_perp, sigma_para):
-    sm_func = np.exp(-k**2 * sigma_perp**2) * np.exp(-mu**2 * k**2 * (sigma_para**2 - sigma_perp**2))
-
-    return sm_func
-
-def calc_W_k(k, sigma_perp, sigma_para):
-    W_k = np.zeros(len(k))
-    mu = np.linspace(0,1,int(1e5))
-
-    for i in range(len(k)):
-        W_k[i] = simps(calc_sm_func(mu, k[i], sigma_perp, sigma_para), mu)
-
-    return W_k
-
 def nu_to_wavelength(nu):
     return (const.c / nu)
 
@@ -413,24 +375,6 @@ def calc_nu_obs(nu_rest, z):
 
 def calc_z_of_nu_obs(nu_obs, nu_rest):
     nu_obs / nu_rest - 1
-
-def angular_res(wavelength, D):
- # in meters
-    angular_res = wavelength / D
-
-    return angular_res
-
-def calc_N_modes(k, delta_k, V_surv):
-    N_modes = k**2 * delta_k * V_surv / (4 * np.pi**2)
-
-    return N_modes
-
-def calc_V_surv_ij(z, lambda_i=lambda_CII, Omega_surv_j=1.7, B_nu_j=200):
-    # units in nanometers, GHz
-    A = 3.7e7 # just a random prefactor (c Mpc / h)^3
-    V_surv_ij = A * (lambda_i / 158) * np.sqrt((1 + z) / 8) * (Omega_surv_j / 16) * (B_nu_j / 20)
-
-    return V_surv_ij
 
 def initialize_fits(k_indices, spectra, P_m, variances, N_frac_error=None):
     biases = extract_bias(k_indices, spectra[1], P_m)

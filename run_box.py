@@ -166,6 +166,7 @@ ion_field, t21_field = get_21cm_fields(redshift, zreion, delta)
 
 def set_I_mean(Lidz_pspec_log, P_x):
     return np.sqrt(Lidz_pspec_log / P_x)
+    
 
 ### Power law data
 print('generating power law data')
@@ -179,11 +180,11 @@ print('generating superfake data')
 k_indices = [6]
 spectra_sf = cp.deepcopy(spectra_pl)
 
-b_i = np.sqrt(spectra_sf[1][0][k_indices] / P_m[k_indices])
-b_j = np.sqrt(spectra_sf[1][3][k_indices] / P_m[k_indices])
-b_k = np.sqrt(spectra_sf[1][5][k_indices] / P_m[k_indices])
+b_21cm = 1
+b_CII = 3 * 1.1e3   # Jy/str
+b_OIII = 5 * 1.1e3  # Jy/str
 
-biases = [b_i, b_j, b_k]
+biases = [b_21cm, b_CII, b_OIII]
 indices = utils.lines_indices()
 
 for i in range(len(indices)):
