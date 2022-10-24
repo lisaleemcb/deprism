@@ -141,7 +141,7 @@ k_0 = 0.185 # Mpc/h
 
 # global temperature as a function of redshift
 def t0(z):
-    return 38.6 * hubble0.value * (omegab / 0.045) * np.sqrt(0.27 / omegam * (1 + z) / 10)
+    return 38.6 * hubble0 * (omegab / 0.045) * np.sqrt(0.27 / omegam * (1 + z) / 10)
 
 def gen_21cm_fields(delta, box_size= 80.0, zmean=7, alpha=0.11, k0=0.05):
     # compute zreion field
@@ -166,7 +166,7 @@ ion_field, t21_field = get_21cm_fields(redshift, zreion, delta)
 
 def set_I_mean(Lidz_pspec_log, P_x):
     return np.sqrt(Lidz_pspec_log / P_x)
-    
+
 
 ### Power law data
 print('generating power law data')
