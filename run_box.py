@@ -388,18 +388,18 @@ B_21cm = set_L_para(k_para_min_box, redshift, nu_21cm)
 B_CII = set_L_para(k_para_min_box, redshift, nu_CII)
 B_OIII = set_L_para(k_para_min_box, redshift, nu_OIII)
 
-sigma_perp_21cm = utils.calc_sigma_perp(redshift, sigma_beam)
-sigma_perp_CII = utils.calc_sigma_perp(redshift, sigma_beam)
-sigma_perp_OIII = utils.calc_sigma_perp(redshift, sigma_beam)
+sigma_perp_21cm = survey.calc_sigma_perp(redshift, sigma_beam)
+sigma_perp_CII = survey.calc_sigma_perp(redshift, sigma_beam)
+sigma_perp_OIII = survey.calc_sigma_perp(redshift, sigma_beam)
 
 delta_nu_CII = 10 * u.MHz
-sigma_para_CII = utils.calc_sigma_para(redshift, nu_CII_obs, delta_nu_CII)
+sigma_para_CII = survey.calc_sigma_para(redshift, nu_CII_obs, delta_nu_CII)
 
-delta_nu_21cm = utils.set_sigma_para(sigma_para_CII, redshift, nu_21cm_obs)
-sigma_para_21cm = utils.calc_sigma_para(redshift, nu_21cm_obs, delta_nu_21cm)
+delta_nu_21cm = survey.set_sigma_para(sigma_para_CII, redshift, nu_21cm_obs)
+sigma_para_21cm = survey.calc_sigma_para(redshift, nu_21cm_obs, delta_nu_21cm)
 
-delta_nu_OIII = utils.set_sigma_para(sigma_para_CII, redshift, nu_OIII_obs)
-sigma_para_OIII = utils.calc_sigma_para(redshift, nu_OIII_obs, delta_nu_OIII)
+delta_nu_OIII = survey.set_sigma_para(sigma_para_CII, redshift, nu_OIII_obs)
+sigma_para_OIII = survey.calc_sigma_para(redshift, nu_OIII_obs, delta_nu_OIII)
 
 L_perp_21cm = calc_L_perp(redshift, Omega_surv_21cm)
 L_para_21cm = calc_L_para(redshift, nu_21cm, B_21cm)
@@ -428,13 +428,13 @@ k_para_max_OIII = 1 / sigma_para_OIII
 
 print('initializing window function stuff')
 ### Weighting function for smoothing power spectrum
-W_k_21cm = utils.calc_W_k(k_units, sigma_perp_21cm, sigma_para_21cm)
+W_k_21cm = survey.calc_W_k(k_units, sigma_perp_21cm, sigma_para_21cm)
 W_k_21cm
 
-W_k_CII = utils.calc_W_k(k_units, sigma_perp_CII, sigma_para_CII)
+W_k_CII = survey.calc_W_k(k_units, sigma_perp_CII, sigma_para_CII)
 W_k_CII
 
-W_k_OIII = utils.calc_W_k(k_units, sigma_perp_OIII, sigma_para_OIII)
+W_k_OIII = survey.calc_W_k(k_units, sigma_perp_OIII, sigma_para_OIII)
 W_k_OIII
 
 #plt.axvline(1 / sigma_para_CCATp.to_value(), color='red', ls='--', alpha=.2)
@@ -550,7 +550,7 @@ sig_t_pix_CCATp = specs_CCATp['sigma_pix'] / np.sqrt(t_pix_CCATp)
 
 #### CCAT-p specifications
 
-sigma_beam_CCATp = utils.FWHM_to_sigma(specs_CCATp['theta_FWMH'])
+sigma_beam_CCATp = survey.FWHM_to_sigma(specs_CCATp['theta_FWMH'])
 V_surv_CCATp = calc_V_survey(redshift, specs_CCATp['Omega_surv'],
                                specs_CCATp['nu_obs_max'] - specs_CCATp['nu_obs_min'],
                                 nu_CII)
@@ -561,11 +561,11 @@ t_pix_CCATp = calc_t_pix(specs_CCATp['N_det'], specs_CCATp['t_obs'],
 
 N_modes_CCATp = calc_N_modes(k, V_surv_CCATp, align='left')
 
-sigma_perp_CCATp = utils.calc_sigma_perp(redshift, sigma_beam_CCATp)
-sigma_para_CCATp = utils.calc_sigma_para(redshift, nu_CII_obs, specs_CCATp['delta_nu'])
+sigma_perp_CCATp = survey.calc_sigma_perp(redshift, sigma_beam_CCATp)
+sigma_para_CCATp = survey.calc_sigma_para(redshift, nu_CII_obs, specs_CCATp['delta_nu'])
 
 P_N_CCATp = calc_P_N(specs_CCATp['sigma_pix'], V_vox_CCATp, t_pix_CCATp)
-W_k_CCATp = utils.calc_W_k(k_units, sigma_perp_CCATp, sigma_para_CCATp)
+W_k_CCATp = survey.calc_W_k(k_units, sigma_perp_CCATp, sigma_para_CCATp)
 
 var_auto_CCATp = var_auto(P_CII_CII[:-1], W_k_CCATp[:-1], P_N_CCATp, N_modes_CCATp)
 var_x_CCATp = var_x(P_21cm_21cm[:-1], W_k_21cm[:-1], P_CII_CII[:-1], W_k_CCATp[:-1], P_N_21cm,
@@ -574,7 +574,7 @@ var_x_CCATp = var_x(P_21cm_21cm[:-1], W_k_21cm[:-1], P_CII_CII[:-1], W_k_CCATp[:
 
 #### FYST (or Stage II) specifications
 
-sigma_beam_StageII = utils.FWHM_to_sigma(specs_StageII['theta_FWMH'])
+sigma_beam_StageII = survey.FWHM_to_sigma(specs_StageII['theta_FWMH'])
 V_surv_StageII = calc_V_survey(redshift, specs_StageII['Omega_surv'],
                                specs_StageII['nu_obs_max'] - specs_StageII['nu_obs_min'],
                                 nu_CII)
@@ -585,11 +585,11 @@ t_pix_StageII = calc_t_pix(specs_StageII['N_det'], specs_StageII['t_obs'],
 
 N_modes_StageII = calc_N_modes(k, V_surv_StageII, align='left')
 
-sigma_perp_StageII = utils.calc_sigma_perp(redshift, sigma_beam_StageII)
-sigma_para_StageII = utils.calc_sigma_para(redshift, nu_CII_obs, specs_StageII['delta_nu'])
+sigma_perp_StageII = survey.calc_sigma_perp(redshift, sigma_beam_StageII)
+sigma_para_StageII = survey.calc_sigma_para(redshift, nu_CII_obs, specs_StageII['delta_nu'])
 
 P_N_StageII = calc_P_N(specs_StageII['sigma_pix'], V_vox_StageII, t_pix_StageII)
-W_k_StageII = utils.calc_W_k(k_units, sigma_perp_StageII, sigma_para_StageII)
+W_k_StageII = survey.calc_W_k(k_units, sigma_perp_StageII, sigma_para_StageII)
 
 var_auto_StageII = var_auto(P_CII_CII[:-1], W_k_StageII[:-1], P_N_StageII, N_modes_StageII)
 var_x_StageII = var_x(P_21cm_21cm[:-1], W_k_21cm[:-1], P_CII_CII[:-1], W_k_StageII[:-1],
@@ -607,11 +607,11 @@ t_pix_EXCLAIM = calc_t_pix(specs_EXCLAIM['N_det'], specs_EXCLAIM['t_obs'],
                                         specs_EXCLAIM['sigma_beam'])
 N_modes_EXCLAIM = calc_N_modes(k, V_surv_EXCLAIM, align='left')
 
-sigma_perp_EXCLAIM = utils.calc_sigma_perp(redshift, specs_EXCLAIM['sigma_beam'])
-sigma_para_EXCLAIM = utils.calc_sigma_para(redshift, nu_OIII_obs, specs_EXCLAIM['delta_nu'])
+sigma_perp_EXCLAIM = survey.calc_sigma_perp(redshift, specs_EXCLAIM['sigma_beam'])
+sigma_para_EXCLAIM = survey.calc_sigma_para(redshift, nu_OIII_obs, specs_EXCLAIM['delta_nu'])
 
 P_N_EXCLAIM = calc_P_N(specs_EXCLAIM['sigma_pix'], V_vox_EXCLAIM, t_pix_EXCLAIM)
-W_k_EXCLAIM = utils.calc_W_k(k_units, sigma_perp_EXCLAIM, sigma_para_EXCLAIM)
+W_k_EXCLAIM = survey.calc_W_k(k_units, sigma_perp_EXCLAIM, sigma_para_EXCLAIM)
 
 var_auto_EXCLAIM = var_auto(P_OIII_OIII[:-1], W_k_EXCLAIM[:-1], P_N_EXCLAIM, N_modes_EXCLAIM)
 var_x_EXCLAIM = var_x(P_21cm_21cm[:-1], W_k_21cm[:-1], P_OIII_OIII[:-1], W_k_EXCLAIM[:-1], P_N_21cm,
@@ -619,23 +619,23 @@ var_x_EXCLAIM = var_x(P_21cm_21cm[:-1], W_k_21cm[:-1], P_OIII_OIII[:-1], W_k_EXC
 
 N_modes_EXCLAIM
 ### Current and upcoming surveys
-sigma_beam_CCATp = utils.FWHM_to_sigma(specs_CCATp['theta_FWMH']) # FWHM_to_sigma(46) #arcsec
-sigma_perp_CCATp = utils.calc_sigma_perp(redshift, sigma_beam_CCATp)
-sigma_para_CCATp = utils.calc_sigma_para(redshift, nu_CII_obs, specs_CCATp['delta_nu'])
+sigma_beam_CCATp = survey.FWHM_to_sigma(specs_CCATp['theta_FWMH']) # FWHM_to_sigma(46) #arcsec
+sigma_perp_CCATp = survey.calc_sigma_perp(redshift, sigma_beam_CCATp)
+sigma_para_CCATp = survey.calc_sigma_para(redshift, nu_CII_obs, specs_CCATp['delta_nu'])
 
 sigma_beam_FYST = 1.22 * lambda_CII / (3 * u.m)
 
-sigma_perp_FYST = utils.calc_sigma_perp(redshift, sigma_beam_FYST.decompose())
-sigma_perp_HERA = utils.calc_sigma_perp(redshift, sigma_beam_FYST.decompose())
-sigma_perp_CCATp = utils.calc_sigma_perp(redshift, utils.FWHM_to_sigma(specs_CCATp['theta_FWMH']))
-sigma_perp_StageII = utils.calc_sigma_perp(redshift, utils.FWHM_to_sigma(specs_StageII['theta_FWMH']))
-sigma_perp_EXCLAIM_1 = utils.calc_sigma_perp(redshift, specs_EXCLAIM['sigma_beam'])
+sigma_perp_FYST = survey.calc_sigma_perp(redshift, sigma_beam_FYST.decompose())
+sigma_perp_HERA = survey.calc_sigma_perp(redshift, sigma_beam_FYST.decompose())
+sigma_perp_CCATp = survey.calc_sigma_perp(redshift, utils.FWHM_to_sigma(specs_CCATp['theta_FWMH']))
+sigma_perp_StageII = survey.calc_sigma_perp(redshift, utils.FWHM_to_sigma(specs_StageII['theta_FWMH']))
+sigma_perp_EXCLAIM_1 = survey.calc_sigma_perp(redshift, specs_EXCLAIM['sigma_beam'])
 
-sigma_para_FYST = utils.calc_sigma_para(redshift, nu_CII_obs, 300 * u.MHz)
-sigma_para_HERA = utils.calc_sigma_para(redshift, nu_21cm_obs, specs_HERA['delta_nu'])
-sigma_para_CCATp = utils.calc_sigma_para(redshift, nu_CII_obs, specs_CCATp['delta_nu'])
-sigma_para_StageII = utils.calc_sigma_para(redshift, nu_CII_obs, specs_StageII['delta_nu'])
-sigma_perp_EXCLAIM_1 = utils.calc_sigma_perp(redshift, specs_EXCLAIM['sigma_beam'])
+sigma_para_FYST = survey.calc_sigma_para(redshift, nu_CII_obs, 300 * u.MHz)
+sigma_para_HERA = survey.calc_sigma_para(redshift, nu_21cm_obs, specs_HERA['delta_nu'])
+sigma_para_CCATp = survey.calc_sigma_para(redshift, nu_CII_obs, specs_CCATp['delta_nu'])
+sigma_para_StageII = survey.calc_sigma_para(redshift, nu_CII_obs, specs_StageII['delta_nu'])
+sigma_perp_EXCLAIM_1 = survey.calc_sigma_perp(redshift, specs_EXCLAIM['sigma_beam'])
 
 L_perp_CCATp = (np.sqrt(Planck15.comoving_distance(redshift)**2 \
             * specs_CCATp['Omega_surv'])).to(u.Mpc, equivalencies=u.dimensionless_angles())
