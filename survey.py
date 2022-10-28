@@ -1,5 +1,33 @@
 import numpy as np
+import copy as cp
+import scipy
+import matplotlib.pyplot as plt
 
+import analysis
+import models
+
+from astropy.cosmology import Planck15
+from astropy import units as u
+from astropy import constants as const
+from scipy.integrate import simps #simpson
+
+c = 2.99792e8 # m/s (kilometers per second)
+k_B = 1.381e-23 # J/K (joules per kelvin)
+
+L_solar=3.828e26
+
+H_0 = 70e3 # m/s/Mpc (meters per second per Megaparsec)
+Omega_b = 0.046
+Omega_c = 0.2589
+Omega_m = 0.27
+Omega_r = 10e-4
+Omega_Lambda = 0.73
+
+nu_CII = 1.900539e12 * u.Hz # Hz
+nu_CO = 115.271203e9 * u.Hz # Hz
+nu_O_III = 1e9 * u.Hz # Hz
+
+lambda_CII = 158 * u.nm # nanometers
 
 def error_bars(P_x, P_line1, P_line2, P_N, W_k, N_modes):
     sigma = (1 / np.sqrt(N_modes)) * np.sqrt(P_x**2
