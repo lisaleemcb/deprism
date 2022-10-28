@@ -21,6 +21,7 @@ import estimators
 import fitting
 import models
 import utils
+import survey
 
 plt.style.use('seaborn-colorblind')
 plt.rc('text', usetex=True)
