@@ -429,13 +429,13 @@ k_para_max_OIII = 1 / sigma_para_OIII
 
 print('initializing window function stuff')
 ### Weighting function for smoothing power spectrum
-W_k_21cm = survey.calc_W_k(k_units, sigma_perp_21cm, sigma_para_21cm)
+W_k_21cm = survey.calc_W_beam(k_units, sigma_perp_21cm, sigma_para_21cm)
 W_k_21cm
 
-W_k_CII = survey.calc_W_k(k_units, sigma_perp_CII, sigma_para_CII)
+W_k_CII = survey.calc_W_beam(k_units, sigma_perp_CII, sigma_para_CII)
 W_k_CII
 
-W_k_OIII = survey.calc_W_k(k_units, sigma_perp_OIII, sigma_para_OIII)
+W_k_OIII = survey.calc_W_beam(k_units, sigma_perp_OIII, sigma_para_OIII)
 W_k_OIII
 
 #plt.axvline(1 / sigma_para_CCATp.to_value(), color='red', ls='--', alpha=.2)
@@ -566,7 +566,7 @@ sigma_perp_CCATp = survey.calc_sigma_perp(redshift, sigma_beam_CCATp)
 sigma_para_CCATp = survey.calc_sigma_para(redshift, nu_CII_obs, specs_CCATp['delta_nu'])
 
 P_N_CCATp = calc_P_N(specs_CCATp['sigma_pix'], V_vox_CCATp, t_pix_CCATp)
-W_k_CCATp = survey.calc_W_k(k_units, sigma_perp_CCATp, sigma_para_CCATp)
+W_k_CCATp = survey.calc_W_beam(k_units, sigma_perp_CCATp, sigma_para_CCATp)
 
 var_auto_CCATp = var_auto(P_CII_CII[:-1], W_k_CCATp[:-1], P_N_CCATp, N_modes_CCATp)
 var_x_CCATp = var_x(P_21cm_21cm[:-1], W_k_21cm[:-1], P_CII_CII[:-1], W_k_CCATp[:-1], P_N_21cm,
@@ -590,7 +590,7 @@ sigma_perp_StageII = survey.calc_sigma_perp(redshift, sigma_beam_StageII)
 sigma_para_StageII = survey.calc_sigma_para(redshift, nu_CII_obs, specs_StageII['delta_nu'])
 
 P_N_StageII = calc_P_N(specs_StageII['sigma_pix'], V_vox_StageII, t_pix_StageII)
-W_k_StageII = survey.calc_W_k(k_units, sigma_perp_StageII, sigma_para_StageII)
+W_k_StageII = survey.calc_W_beam(k_units, sigma_perp_StageII, sigma_para_StageII)
 
 var_auto_StageII = var_auto(P_CII_CII[:-1], W_k_StageII[:-1], P_N_StageII, N_modes_StageII)
 var_x_StageII = var_x(P_21cm_21cm[:-1], W_k_21cm[:-1], P_CII_CII[:-1], W_k_StageII[:-1],
@@ -612,7 +612,7 @@ sigma_perp_EXCLAIM = survey.calc_sigma_perp(redshift, specs_EXCLAIM['sigma_beam'
 sigma_para_EXCLAIM = survey.calc_sigma_para(redshift, nu_OIII_obs, specs_EXCLAIM['delta_nu'])
 
 P_N_EXCLAIM = calc_P_N(specs_EXCLAIM['sigma_pix'], V_vox_EXCLAIM, t_pix_EXCLAIM)
-W_k_EXCLAIM = survey.calc_W_k(k_units, sigma_perp_EXCLAIM, sigma_para_EXCLAIM)
+W_k_EXCLAIM = survey.calc_W_beam(k_units, sigma_perp_EXCLAIM, sigma_para_EXCLAIM)
 
 var_auto_EXCLAIM = var_auto(P_OIII_OIII[:-1], W_k_EXCLAIM[:-1], P_N_EXCLAIM, N_modes_EXCLAIM)
 var_x_EXCLAIM = var_x(P_21cm_21cm[:-1], W_k_21cm[:-1], P_OIII_OIII[:-1], W_k_EXCLAIM[:-1], P_N_21cm,
