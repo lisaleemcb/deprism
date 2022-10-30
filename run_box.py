@@ -542,7 +542,7 @@ var_CII_OIII = var_x(P_CII_CII[:-1], W_k_CII[:-1], P_OIII_OIII[:-1], W_k_OIII[:-
 
 t_pix_CCATp = calc_t_pix(specs_CCATp['N_det'], specs_CCATp['t_obs'],
                                         specs_CCATp['Omega_surv'],
-                                        utils.FWHM_to_sigma(specs_CCATp['theta_FWMH']))
+                                        survey.FWHM_to_sigma(specs_CCATp['theta_FWMH']))
 
 
 sig_t_pix_Chung = 6.2e3 * u.Jy / u.steradian
@@ -628,8 +628,8 @@ sigma_beam_FYST = 1.22 * lambda_CII / (3 * u.m)
 
 sigma_perp_FYST = survey.calc_sigma_perp(redshift, sigma_beam_FYST.decompose())
 sigma_perp_HERA = survey.calc_sigma_perp(redshift, sigma_beam_FYST.decompose())
-sigma_perp_CCATp = survey.calc_sigma_perp(redshift, utils.FWHM_to_sigma(specs_CCATp['theta_FWMH']))
-sigma_perp_StageII = survey.calc_sigma_perp(redshift, utils.FWHM_to_sigma(specs_StageII['theta_FWMH']))
+sigma_perp_CCATp = survey.calc_sigma_perp(redshift, survey.FWHM_to_sigma(specs_CCATp['theta_FWMH']))
+sigma_perp_StageII = survey.calc_sigma_perp(redshift, survey.FWHM_to_sigma(specs_StageII['theta_FWMH']))
 sigma_perp_EXCLAIM_1 = survey.calc_sigma_perp(redshift, specs_EXCLAIM['sigma_beam'])
 
 sigma_para_FYST = survey.calc_sigma_para(redshift, nu_CII_obs, 300 * u.MHz)
