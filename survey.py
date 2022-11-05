@@ -186,11 +186,6 @@ def angular_res(wavelength, D):
 
     return angular_res
 
-def calc_N_modes(k, delta_k, V_surv):
-    N_modes = k**2 * delta_k * V_surv / (4 * np.pi**2)
-
-    return N_modes
-
 def calc_V_surv_ij(z, lambda_i=lambda_CII, Omega_surv_j=1.7, B_nu_j=200):
     # units in nanometers, GHz
     A = 3.7e7 # just a random prefactor (c Mpc / h)^3

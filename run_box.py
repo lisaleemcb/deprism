@@ -729,9 +729,9 @@ def calc_V_surv_generic_check(redshift, nu_rest, Omega_surv, B_nu):
 
 p_names = np.asarray(['b_i','b_j', 'b_k', 'P_m'])
 
-frac_op = .001
-frac_con = .01
-frac_pess = .1
+frac_op = .01
+frac_con = .05
+frac_pess = .15
 
 var_21cm_21cm = var_x(P_21cm_21cm[:-1], W_k_21cm[:-1], P_21cm_21cm[:-1], W_k_21cm[:-1],
                      P_N_21cm, P_N_21cm, P_21cm_21cm[:-1], N_modes)

@@ -16,7 +16,10 @@ specs_HERA = {'sigma_pix': None,
                'delta_nu': 97.8 * u.kHz,
                't_obs': None,
                'Omega_surv': 1440 * u.degree**2,
-               'AGN Source': None}
+               'AGN Source': None,
+               'N_pol': 2,
+               'T_sys': 400,
+               't_int': 1000}
 
 specs_StageII = {'sigma_pix': 0.21 * (u.MJy * u.s**(1/2) / u.steradian),
                'N_det': 16**4 * u.dimensionless_unscaled,
@@ -39,3 +42,13 @@ specs_EXCLAIM = {'sigma_pix': 0.2 * (u.MJy * u.s**(1/2) / u.steradian),
                't_obs': 8.0 * u.hr,
                'Omega_surv': 100.0 * u.degree**2,
                'AGN Source': 'DESI'}
+
+specs_future = {'D_dish': 3 * u.m,
+                'delta_nu': 300 * u.MHz,
+                'N_spec_eff': 50,
+                'S_A': 16 * u.degree**2,
+                'sigma_N': 1.6e5 * u.Jy * u.s**(.5) / u.steradian,
+                'B_nu': 100 * u.GHz,
+                't_obs': 4000 * u.hr,
+                'Survey_Bandwidth_start': 250 * u.GHz,
+                'Survey_Bandwidth_finish': 900 * u.GHz}
