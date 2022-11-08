@@ -1,3 +1,19 @@
+import survey
+
+from astropy.cosmology import Planck18
+from astropy import units as u
+from astropy import constants as const
+
+nu_21cm = 1420 * u.MHz
+nu_CII = 1.900539e12 * u.Hz # Hz
+nu_CO = 115.271203e9 * u.Hz # Hz
+nu_OIII = 1e9 * u.Hz # Hz
+
+lambda_21cm = nu_21cm.to(u.cm, equivalencies=u.spectral())
+lambda_CII = nu_CII.to(u.um, equivalencies=u.spectral()) #158 um micrometers
+lambda_CO = nu_CO.to(u.mm, equivalencies=u.spectral())
+lambda_OIII = nu_OIII.to(u.cm, equivalencies=u.spectral())
+
 specs_CCATp = {'sigma_pix': 0.86 * (u.MJy * u.s**(1/2) / u.steradian),
                'N_det': 20 * u.dimensionless_unscaled,
                'theta_FWMH': 46.0 * u.arcsec,
@@ -34,7 +50,7 @@ specs_StageII = {'sigma_pix': 0.21 * (u.MJy * u.s**(1/2) / u.steradian),
 specs_EXCLAIM = {'sigma_pix': 0.2 * (u.MJy * u.s**(1/2) / u.steradian),
                'N_det': 30 * u.dimensionless_unscaled,
                'theta_FWMH': None,
-               'sigma_beam': utils.calc_sigma_beam(6, lambda_OIII, 3.0 * u.m),
+               'sigma_beam': survey.calc_theta_beam(3 * u.m, 7, lambda_OIII),
                'B_nu': 40.0 * u.GHz,
                'nu_obs_min': 420.0 * u.GHz,
                'nu_obs_max': 540.0 * u.GHz,

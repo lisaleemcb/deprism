@@ -37,28 +37,8 @@ def gaussian(x, mean, sigma, normed=False):
 
     return N * np.exp(-(x - mean)**2 / (2 * sigma**2))
 
-def SI2Jansky(I):
-    return I / 1e-26
-
-def Jansky2SI(I):
-    return I * 1e-26
-
-def m2Mpc(m):
-    return m / 3.086e22
-
-def Mpc2m(Mpc):
-    return Mpc * 3.086e22
-
 def a(z):
     return 1 / (1 + z)
-
-def H(z, Omega_b=Omega_b, Omega_c=Omega_c, Omega_r=Omega_r, Omega_Lambda=Omega_Lambda,
-                H_0=H_0):
-
-    Omega_m = Omega_c + Omega_b
-    Omega_0 = Omega_r + Omega_m + Omega_Lambda
-
-    return H_0 * np.sqrt(Omega_r / a(z)**4 + Omega_m / a(z)**3 + Omega_Lambda)
 
 def mass2luminosity(masses, power=3./5, mass_0=1, normalize=True):
         N = 1 # np.mean(np.abs(masses.flatten())**2)
@@ -362,14 +342,8 @@ def overdensity(density):
 
     return delta
 
-def nu_to_wavelength(nu):
-    return (const.c / nu)
-
-def wavelength_to_nu(wavelength):
-    return (const.c / wavelength )
-
-def calc_nu_obs(nu_rest, z):
-    nu_obs = nu_rest / (1 + z)
+def calc_nu_obs(nu_rest, redshift):
+    nu_obs = nu_rest / (1 + redshift)
 
     return nu_obs
 
