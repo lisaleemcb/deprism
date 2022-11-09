@@ -364,20 +364,24 @@ k_para_min_box = (2 * np.pi) / (box_size * u.Mpc)
 k_perp_max_box = (2 * np.pi) / ((box_size * u.Mpc) / 512)
 k_para_max_box = (2 * np.pi) / ((box_size * u.Mpc) / 512)
 
-nu_21cm = 1420.4 * u.MHz
-nu_21cm_obs = utils.calc_nu_obs(nu_21cm, redshift)
+lambda_OIII = 88 * u.um # micrometers
+lambda_CII = 158 * u.um
+lambda_21cm = 21 * u.cm # centimeters, of course!
 
-lambda_21cm = utils.nu_to_wavelength(nu_21cm)
+# nu_21cm = 1420 * u.MHz
+# nu_CII = 1.900539e12 * u.Hz # Hz
+# nu_CO = 115.271203e9 * u.Hz # Hz
+# nu_OIII = 88 * u.Hz # Hz
 
-nu_CII = 1.9 * u.THz
-nu_CII_obs = utils.calc_nu_obs(nu_CII, redshift)
+nu_21cm = lambda_21cm.to(u.MHz, equivalencies=u.spectral())
+nu_CII = lambda_CII.to(u.GHz, equivalencies=u.spectral()) #158 um micrometers
+nu_OIII = lambda_OIII.to(u.GHz, equivalencies=u.spectral())
 
-lambda_CII = utils.nu_to_wavelength(nu_CII).to(u.micron) # micrometers
+nu_21cm_obs = nu_21cm * (1 + redshift)
+nu_CII_obs = nu_CII * (1 + redshift)
+nu_OIII_obs = nu_OII * (1 + redshift)
 
-lambda_OIII = 88 * u.micron ## micrometers
-
-nu_OIII = utils.wavelength_to_nu(lambda_OIII)
-nu_OIII_obs = utils.calc_nu_obs(nu_OIII, redshift)
+#lambda_CO = nu_CO.to(u.mm, equivalencies=u.spectral())
 
 sigma_beam = 1.22 * lambda_CII / (3 * u.m)
 

@@ -202,7 +202,6 @@ def calc_L_perp_min(survey_specs, redshift, rest_wavelength):
                                 rest_wavelength).to(u.arcmin)
     sigma_beam = theta_to_sigma(theta_beam)
 
-    print(R_z, sigma_beam)
     return (R_z * sigma_beam).to(u.Mpc, equivalencies=u.dimensionless_angles())
 
 def calc_L_perp_max(survey_specs, redshift, rest_wavelength):
@@ -217,7 +216,7 @@ def set_L_perp(k_perp_min, redshift):
 
     return Omega_surv.to(u.degree**2)
 
-def set_L_para(k_para_min, redshift, nu_obs):
+def set_L_para(k_para_min, redshift, nu_rest):
     B_nu = (2 * np.pi * Planck18.H(redshift) * nu_rest) / \
             (const.c * k_para_min * (1 + redshift)**2) * Planck18.h
 
@@ -255,6 +254,7 @@ def calc_W_k(mu, k, sigma_perp, sigma_para):
     return W_k
 
 def calc_W_beam(k, survey_specs, redshift, rest_wavelength):
+    k = k / u.Mpc
     W_beam = np.zeros(len(k))
     mu = np.linspace(0,1,int(1e5))
     nu_rest = rest_wavelength.to(u.Hz, equivalencies=u.spectral())
@@ -263,17 +263,24 @@ def calc_W_beam(k, survey_specs, redshift, rest_wavelength):
     sigma_perp = calc_sigma_perp(survey_specs, redshift, rest_wavelength)
     sigma_para = calc_sigma_para(survey_specs, redshift, nu_obs)
 
-    print(sigma_perp)
-    print(sigma_para)
     for i in range(len(k)):
         W_beam[i] = simps(calc_W_k(mu, k[i], sigma_perp, sigma_para), mu)
 
     return W_beam
 
 def calc_W_volume(k, k_perp_min, k_para_min):
+    k = k / u.Mpc
     W_volume = 1 - (np.sqrt(np.pi) * k_para_min) / (2 * k) * scipy.special.erf(k / k_para_min)
 
     return W_volume
+
+def calc_W(k, k_perp_min, k_para_min, survey_specs, redshift, rest_wavelength):
+    W_beam = calc_W_beam(k, survey_specs, redshift, rest_wavelength)
+    W_volume = calc_W_volume(k, k_perp_min, k_para_min)
+
+    W = np.sqrt(W_beam * W_volume)
+
+    return W
 
 """
 others
