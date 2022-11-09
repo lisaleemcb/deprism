@@ -379,7 +379,7 @@ nu_OIII = lambda_OIII.to(u.GHz, equivalencies=u.spectral())
 
 nu_21cm_obs = nu_21cm * (1 + redshift)
 nu_CII_obs = nu_CII * (1 + redshift)
-nu_OIII_obs = nu_OII * (1 + redshift)
+nu_OIII_obs = nu_OIII * (1 + redshift)
 
 #lambda_CO = nu_CO.to(u.mm, equivalencies=u.spectral())
 
