@@ -245,18 +245,6 @@ frac_op = .01
 frac_con = .10
 frac_pess = .25
 
-var_21cm_21cm = var_x(P_21cm_21cm[:-1], W_k_21cm[:-1], P_21cm_21cm[:-1], W_k_21cm[:-1],
-                     P_N_21cm, P_N_21cm, P_21cm_21cm[:-1], N_modes)
-var_CII_CII = var_x(P_CII_CII[:-1], W_k_CII[:-1], P_CII_CII[:-1], W_k_CII[:-1],
-                     P_N_CII, P_N_CII, P_CII_CII[:-1], N_modes)
-var_OIII_OIII = var_x(P_OIII_OIII[:-1], W_k_OIII[:-1], P_OIII_OIII[:-1], W_k_OIII[:-1],
-                     P_N_OIII, P_N_OIII, P_OIII_OIII[:-1], N_modes)
-
-var_21cm_CII = var_x(P_21cm_21cm[:-1], W_k_21cm[:-1], P_CII_CII[:-1], W_k_CII[:-1],
-                     P_N_21cm, P_N_CII, P_21cm_CII[:-1], N_modes)
-var_21cm_OIII = var_x(P_21cm_21cm[:-1], W_k_21cm[:-1], P_OIII_OIII[:-1], W_k_OIII[:-1],
-                     P_N_21cm, P_N_OIII, P_21cm_OIII[:-1], N_modes)
-
 #variances = [var_21cm_21cm, var_21cm_CII, var_21cm_OIII, var_CII_OIII, model_params_sf['b_i'] * .25]
 
 print('superfake analysis')
