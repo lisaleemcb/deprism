@@ -179,7 +179,7 @@ def gen_spectra(r_vec, fields, runs=3, n_bins=20):
 
             counter += 1
 
-    return k, pspecs
+    return pspecs
 
 def add_P(samples, k_indices, lines):
     n, m = lines
@@ -416,16 +416,19 @@ def inject_noise(data, N):
 
     return noisey_data
 
-def run_analysis(k_indices, spectra, params_dict, N_modes, frac_error, model, data=None,
+def run_analysis(k_indices, spectra, params_dict, frac_error, model, N_modes=None, data=None,
                     error_x=True, priors_width=.10, noiseless=False):
 
     if data is None:
         data = utils.fetch_data(k_indices, spectra, b_0=params_dict['b_i'])
 
-    N, n = get_noise(k_indices, spectra, params_dict['b_i'], N_modes,
+    if error_x is False:
+        N, n = get_noise(k_indices, spectra, params_dict['b_i'], N_modes,
                                             frac_error=frac_error, priors_width=priors_width)
     if error_x is True:
         N = estimate_errors(data, frac_error=frac_error, priors_width=priors_width)
+        n = [spectra[0] * frac_error, spectra[3] * frac_error, spectra[5] * frac_error]
+        N_modes = 1
 
     if not noiseless:
         print('adding noise to simulation...')
