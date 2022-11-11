@@ -159,7 +159,7 @@ def lines_indices(runs=3):
 
     return lines_indices
 
-def plot_spectra(k, density, lumens):
+def plot_spectra(k, density, spectra):
     fig, ax = plt.subplots()
     pc = 0
     sc = 0
@@ -172,7 +172,7 @@ def plot_spectra(k, density, lumens):
         if val[0] == val[1]:
             # biases[pc] = np.sqrt(lumens[i,k_index] / density_pspec_dim[k_index])
 
-            ax.loglog(k, lumens[i],
+            ax.loglog(k, spectra[i],
             #label="autocorrelation between line {} and line {}".format(str(line_names[int(val[0])]),
                     #           str(line_names[int(val[1])])), lw=1.5, alpha=.9)
             label="autocorrelation between line {} and line {}".format(int(indices[i,0]),
@@ -187,7 +187,7 @@ def plot_spectra(k, density, lumens):
         idx2 = int(val[1])
 
         if val[0] != val[1]:
-            ax.loglog(k, lumens[i],
+            ax.loglog(k, spectra[i],
             label="crosscorrelation between line {} and line {}".format(int(indices[i,0]),
                                                 int(indices[i,1])), lw=1.5, alpha=.9, ls='--')
             # label="crosscorrelation between line {} and line {}".format(str(line_names[int(val[0])]),

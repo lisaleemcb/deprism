@@ -251,7 +251,7 @@ print('superfake analysis')
 
 ### Superfake data and superfake noise levels
 
-biases_sf = utils.extract_bias(k_indices, spectra_sf[1], P_m)
+biases_sf = utils.extract_bias(k_indices, spectra_sf, P_m)
 p_vals_sf = np.asarray([*biases_sf, P_m], dtype=object)
 
 params_sf = dict(zip(p_names, p_vals_sf))
