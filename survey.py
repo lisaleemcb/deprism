@@ -95,8 +95,6 @@ def calc_t_pix(survey_specs, redshift, rest_wavelength):
                                 rest_wavelength).to(u.arcmin)
     Omega_beam = calc_Omega_beam(theta_beam)
 
-    print(Omega_beam)
-
     t_pix = (survey_specs['t_obs'] * survey_specs['N_spec_eff']
             * Omega_beam / survey_specs['S_A'])
 
@@ -222,6 +220,23 @@ def set_L_para(k_para_min, redshift, nu_rest):
 
     return B_nu
 
+def calc_survey_extents(survey_specs, redshift, rest_wavelength):
+    L_perp_min = calc_L_perp_min(survey_specs, redshift, rest_wavelength)
+    L_perp_max = calc_L_perp_max(survey_specs, redshift, rest_wavelength)
+    L_para_min = calc_L_para_min(survey_specs, redshift, rest_wavelength)
+    L_para_max = calc_L_para_max(survey_specs, redshift, rest_wavelength)
+
+    k_perp_min = (2 * np.pi) / L_perp_max
+    k_perp_max = (2 * np.pi) / L_perp_min
+    k_para_min = (2 * np.pi) / L_para_max
+    k_para_max = (2 * np.pi) / L_para_min
+
+    L_extent = [L_perp_min, L_perp_max, L_para_min, L_para_max]
+    k_extent = [k_perp_min, k_perp_max, k_para_min, k_para_max]
+
+    return L_extent, k_extent
+
+
 """
 functions for calculating the windowing functions that sets the survey resolution
 """
@@ -274,7 +289,8 @@ def calc_W_volume(k, k_perp_min, k_para_min):
 
     return W_volume
 
-def calc_W(k, k_perp_min, k_para_min, survey_specs, redshift, rest_wavelength):
+def calc_W(k, k_extent, survey_specs, redshift, rest_wavelength):
+    k_perp_min, k_perp_max, k_para_min, k_para_max = k_extent
     W_beam = calc_W_beam(k, survey_specs, redshift, rest_wavelength)
     W_volume = calc_W_volume(k, k_perp_min, k_para_min)
 

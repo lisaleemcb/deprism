@@ -41,27 +41,56 @@ specs_HERA = {'sigma_pix': None,
                'T_sys': 400,
                't_int': 1000}
 
-specs_StageII = {'sigma_pix': 0.21 * (u.MJy * u.s**(1/2) / u.steradian),
-               'N_det': 16**4 * u.dimensionless_unscaled,
-               'theta_FWMH': 30.1 * u.arcsec,
-               'nu_obs_min': 200.0 * u.GHz,
-               'nu_obs_max': 300.0 * u.GHz,
-               'delta_nu': 0.4 * u.GHz,
-               't_obs': 2000 * u.hr,
-               'Omega_surv': 100.0 * u.degree**2,
-               'AGN Source': 'DESI'}
-
-specs_EXCLAIM = {'sigma_pix': 0.2 * (u.MJy * u.s**(1/2) / u.steradian),
-               'N_det': 30 * u.dimensionless_unscaled,
+# D_dish is specified due to coding laziness. Should be max_baseline
+specs_HERA_future = {'sigma_pix': None,
+               'N_det': None,
                'theta_FWMH': None,
-               'sigma_beam': survey.calc_theta_beam(3 * u.m, 7, lambda_OIII),
-               'B_nu': 40.0 * u.GHz,
-               'nu_obs_min': 420.0 * u.GHz,
-               'nu_obs_max': 540.0 * u.GHz,
-               'delta_nu': 1000 * u.MHz,
-               't_obs': 8.0 * u.hr,
-               'Omega_surv': 100.0 * u.degree**2,
-               'AGN Source': 'DESI'}
+               'min_baseline': 14.6 * u.m,
+               'max_baseline': 5000 * u.m,
+               'D_dish': 5000 * u.m,
+               'nu_obs_min': 100.0 * u.GHz,
+               'nu_obs_max': 200.0 * u.GHz,
+               'delta_nu': 97.8 * u.kHz,
+               'B_nu': 100 * u.GHz,
+               't_obs': None,
+               'S_A': 1440 * u.degree**2,
+               'AGN Source': None,
+               'N_pol': 2,
+               'T_sys': 400,
+               't_int': 1000}
+
+# FYST-like Stage II (formerly CCAT-prime) from Padmanabhan et al. (2021)
+specs_StageII = {'D_dish': 9 * u.m,
+                'delta_nu': 400 * u.MHz,
+                'N_spec_eff': 1,
+                'S_A': 100 * u.degree**2,
+                'sigma_N': 4.84e4 * u.Jy * u.s**(.5) / u.steradian,
+                'B_nu': 40 * u.GHz,
+                't_obs': 2000 * u.hr,
+                'Survey_Bandwidth_start': 212 * u.GHz,
+                'Survey_Bandwidth_finish': 428 * u.GHz}
+
+# FYST-like State III/IV from Padmanabhan et al. (2021)
+specs_StageIII = {'D_dish': 9 * u.m,
+                'delta_nu': 400 * u.MHz,
+                'N_spec_eff': 16000,
+                'S_A': 100 * u.degree**2,
+                'sigma_N': 2.1e5 * u.Jy * u.s**(.5) / u.steradian,
+                'B_nu': 40 * u.GHz,
+                't_obs': 2000 * u.hr,
+                'Survey_Bandwidth_start': 212 * u.GHz,
+                'Survey_Bandwidth_finish': 428 * u.GHz}
+
+# EXCLAIM-like from Padmanabhan et al. (2021)
+specs_EXCLAIM = {'D_dish': .74 * u.m,
+                'delta_nu': 1000 * u.MHz,
+                'N_spec_eff': 30,
+                'S_A': 100 * u.degree**2,
+                'sigma_N': 3.0e5 * u.Jy * u.s**(.5) / u.steradian,
+                'B_nu': 40 * u.GHz,
+                't_obs': 72 * u.hr,
+                'Survey_Bandwidth_start': 420 * u.GHz,
+                'Survey_Bandwidth_finish': 540 * u.GHz}
 
 specs_future = {'D_dish': 3 * u.m,
                 'delta_nu': 300 * u.MHz,

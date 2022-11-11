@@ -181,6 +181,9 @@ def gen_spectra(r_vec, fields, runs=3, n_bins=20):
 
     return pspecs
 
+def dimless(k, P):
+    return (k**3 / (2 * np.pi**2)) * P
+
 def add_P(samples, k_indices, lines):
     n, m = lines
     n_samples = samples[:,0].size
