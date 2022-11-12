@@ -1,8 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import emcee
-import copy
-
+import copy as cp
 import utils
 import analysis
 import estimators
