@@ -446,7 +446,8 @@ def run_analysis(k_indices, spectra, params_dict, frac_error, model, N_modes=Non
 
     return data, Beane, LSE, MCMC
 
-def keep_P_21(k_indices, spectra, params, noise, model, N_modes=None, noiseless=False):
+def keep_P_21(k_indices, spectra, params, noise, model, N_modes=None, nsteps=1e6,
+                                        noiseless=False):
 
     data, Beane, LSE, MCMC = run_analysis(k_indices, spectra, params, noise, model,
                                         N_modes=N_modes,
