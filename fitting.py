@@ -119,7 +119,7 @@ def log_prob(guesses, params, k_indices, data, model, N, b0_guess,
                     priors='gaussian', priors_width=.25,
                     positivity=False, pdf='gaussian'):
 
-    param_guesses = copy.deepcopy(params)
+    param_guesses = cp.deepcopy(params)
 
     for i, (names, vals) in enumerate(params.items()):
         if names != 'P_m':
