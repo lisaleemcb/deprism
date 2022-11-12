@@ -145,6 +145,7 @@ var_21_MCMC = np.zeros(noise.size, 2)
 
 # MCMC has three values: median, max logp, and std
 for i, n in enumerate(noise):
+    print('Now on noise level',n,'%')
     nsteps = 1e6
     if n > .15:
         nsteps = 1e7
