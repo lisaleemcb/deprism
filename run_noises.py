@@ -136,6 +136,7 @@ p_vals_sf = np.asarray([*biases_sf, P_m], dtype=object)
 params_sf = dict(zip(p_names, p_vals_sf))
 ndim = utils.get_params(params_sf, k_indices).size
 model = models.ScalarBias_crossonly(k=spectra_sf[0], params=params_sf)
+N_modes_small = survey.calc_N_modes(k, 80**3 * u.Mpc**3, align='left')
 
 P_21_Beane = np.zeros((noise.size, 2))
 P_21_MCMC_median = np.zeros((noise.size, 2))
@@ -152,9 +153,9 @@ for i, n in enumerate(noise):
         nsteps = 1e7
 
     Beane_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
-                                            noiseless=False, nsteps=nsteps)
+                                            N_modes=N_modes_small, noiseless=False, nsteps=nsteps)
     Beane, MCMC = analysis.keep_P_21(k_indices, spectra_sf, params_sf, .001, model,
-                                            noiseless=True, nsteps=nsteps)
+                                            N_modes=N_modes_small, noiseless=True, nsteps=nsteps)
 
     P_21_Beane[i,0] = Beane_nl[0]
     P_21_Beane[i,1] = Beane[0]
