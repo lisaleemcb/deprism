@@ -357,7 +357,7 @@ def Beane_et_al(data, spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices):
     P_ik = data[3]
 
     P_ii = P_ij * P_ik / P_jk
-    var = analysis.var_Pii_Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices)[k_indices]
+    var = analysis.var_Pii_Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices)
 
     return P_ii, var
 
@@ -366,6 +366,7 @@ def MCMC_results(params, k_indices, data, model, N, b0_guess, p0_in=None,
                 pdf='gaussian', backend_filename=None, nsteps=1e6, nwalkers=48,
                 burn_in=1e2, parallel=False):
     # lopping off the bias
+    b0_guess = cp.deepcopy(data[-1])
     data_size = model.pspec(k_indices).size
     data = data[1:data_size*len(k_indices)+1]
     N = N[1:data_size*len(k_indices)+1,1:data_size*len(k_indices)+1]
@@ -375,6 +376,7 @@ def MCMC_results(params, k_indices, data, model, N, b0_guess, p0_in=None,
     print('DATA: ', data)
     print('NOISE: ',np.diag(N))
     print('PRIOR RANGE: ', priors_width)
+    print('PRIOR GUESS:', b0_guess)
 
     results = start_mcmc(params, k_indices, data, model, N, b0_guess, p0_in=p0_in,
                             burn_in=burn_in, nsteps=nsteps,

@@ -43,7 +43,7 @@ def var_x(P_i, W_i, P_j, W_j, P_Ni, P_Nj, P_x, N_modes):
 def var_auto(P_i, W_i, P_N, N_modes):
     return (P_i * W_i + P_N)**2 / N_modes
 
-def calc_N_modes(k, V_surv, align='center'):
+def calc_N_modes(k, V_surv, align='left'):
 
     k_vals = np.zeros(len(k) - 1)
     delta_k = k[1:] - k[:-1]

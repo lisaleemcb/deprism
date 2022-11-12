@@ -200,16 +200,16 @@ def add_P(samples, k_indices, lines):
 def var_Pii_Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices):
     #P_ii, P_ij, P_ik, P_jj, P_jk, P_kk = spectra
 
-    P_ii = spectra[0]
-    P_jj = spectra[1]
-    P_kk = spectra[2]
-    P_ij = spectra[3]
-    P_jk = spectra[4]
-    P_ik = spectra[5]
+    P_ii = spectra[0][k_indices]
+    P_jj = spectra[1][k_indices]
+    P_kk = spectra[2][k_indices]
+    P_ij = spectra[3][k_indices]
+    P_jk = spectra[4][k_indices]
+    P_ik = spectra[5][k_indices]
 
-    P_ii_tot = P_ii + P_N_i
-    P_jj_tot = P_jj + P_N_j
-    P_kk_tot = P_kk + P_N_k
+    P_ii_tot = P_ii + P_N_i[k_indices]
+    P_jj_tot = P_jj + P_N_j[k_indices]
+    P_kk_tot = P_kk + P_N_k[k_indices]
 
     var_P_ii = (P_ij / P_ik)**2 * (P_ik**2 + P_ii_tot * P_kk_tot) \
         + (P_ik / P_ij)**2 * (P_ij**2 + P_ii_tot * P_jj_tot) \
@@ -218,7 +218,7 @@ def var_Pii_Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices):
         - (P_ij**2 * P_ik / P_jk**3) * (P_kk_tot * P_ik + P_ik * P_jk) \
         - (P_ij * P_ik**2 / P_jk**3) * (P_jj_tot * P_ik + P_ij * P_jk) \
 
-    return var_P_ii / N_modes
+    return var_P_ii / N_modes[k_indices]
 
 def check_convergence(mcmc_data):
     results, params, data = mcmc_data
@@ -429,7 +429,7 @@ def run_analysis(k_indices, spectra, params_dict, frac_error, model, N_modes=Non
     if error_x is True:
         N = estimate_errors(data, frac_error=frac_error, priors_width=priors_width)
         n = [spectra[0] * frac_error, spectra[3] * frac_error, spectra[5] * frac_error]
-        N_modes = 1
+        #N_modes = 1
 
     if not noiseless:
         print('adding noise to simulation...')
@@ -446,8 +446,10 @@ def run_analysis(k_indices, spectra, params_dict, frac_error, model, N_modes=Non
 
     return data, Beane, LSE, MCMC
 
-def keep_P_21(k_indices, spectra, params, noise, model, noiseless=False):
+def keep_P_21(k_indices, spectra, params, noise, model, N_modes=None, noiseless=False):
+
     data, Beane, LSE, MCMC = run_analysis(k_indices, spectra, params, noise, model,
+                                        N_modes=N_modes,
                                         noiseless=False, priors_width=.10, nsteps=1e6)
 
     samples_00 = add_P(MCMC[0], k_indices, (0,0))
