@@ -131,9 +131,7 @@ def log_prob(x, mu, cov):
     return -0.5 * np.dot(diff, np.linalg.solve(cov, diff))
 
 def estimate_errors(signal, frac_error=.01, priors_width=.10):
-    print(signal)
     sigma = frac_error * signal
-    print(sigma)
     sigma[-1] = priors_width * signal[-1]
     N = sigma**2 * np.identity(signal.size)
 
@@ -202,12 +200,12 @@ def add_P(samples, k_indices, lines):
 def var_Pii_Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices):
     #P_ii, P_ij, P_ik, P_jj, P_jk, P_kk = spectra
 
-    P_ii = spectra[0][:-1]
-    P_jj = spectra[1][:-1]
-    P_kk = spectra[2][:-1]
-    P_ij = spectra[3][:-1]
-    P_jk = spectra[4][:-1]
-    P_ik = spectra[5][:-1]
+    P_ii = spectra[0]
+    P_jj = spectra[1]
+    P_kk = spectra[2]
+    P_ij = spectra[3]
+    P_jk = spectra[4]
+    P_ik = spectra[5]
 
     P_ii_tot = P_ii + P_N_i
     P_jj_tot = P_jj + P_N_j
