@@ -418,7 +418,7 @@ def inject_noise(data, N):
     return noisey_data
 
 def run_analysis(k_indices, spectra, params_dict, frac_error, model, N_modes=None, data=None,
-                    error_x=True, priors_width=.10, noiseless=False):
+                    error_x=True, priors_width=.10, noiseless=False, nsteps=1e6):
 
     if data is None:
         data = utils.fetch_data(k_indices, spectra, b_0=params_dict['b_i'])
@@ -441,9 +441,20 @@ def run_analysis(k_indices, spectra, params_dict, frac_error, model, N_modes=Non
 
     Beane = fitting.Beane_et_al(data, spectra, n[0], n[1], n[2], N_modes, k_indices)
     LSE = fitting.LSE_results(k_indices, data, N)
-    MCMC = fitting.MCMC_results(params_dict, k_indices, data, model, N, params_dict['b_i'])
+    MCMC = fitting.MCMC_results(params_dict, k_indices, data, model, N, params_dict['b_i'],
+                                    priors_width=.10, nsteps=1e6)
 
     return data, Beane, LSE, MCMC
+
+def keep_P_21(k_indices, spectra, params, noise, model, noiseless=False):
+    data, Beane, LSE, MCMC = run_analysis(k_indices, spectra, params, noise, model,
+                                        noiseless=False, priors_width=.10, nsteps=1e6)
+
+    samples_00 = add_P(MCMC[0], k_indices, (0,0))
+
+    return Beane, [np.median(samples_00), samples_00[MCMC[1].argmax(),-1],
+                                        np.std(samples_00[:,-1])]
+
 
 def plot_all(samples, k_indices):
     samples_00 = add_P(samples, k_indices, (0,0))
