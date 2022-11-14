@@ -136,12 +136,12 @@ params_sf = dict(zip(p_names, p_vals_sf))
 ndim = utils.get_params(params_sf, k_indices).size
 model = models.ScalarBias_crossonly(k=spectra_sf[0], params=params_sf)
 
-P_21_Beane = np.zeros(noise.size, 2)
-P_21_MCMC_median = np.zeros(noise.size, 2)
-P_21_MCMC_maxlogp = np.zeros(noise.size, 2)
+P_21_Beane = np.zeros(priors.size, 2)
+P_21_MCMC_median = np.zeros(priors.size, 2)
+P_21_MCMC_maxlogp = np.zeros(priors.size, 2)
 
-var_21_Beane = np.zeros(noise.size, 2)
-var_21_MCMC = np.zeros(noise.size, 2)
+var_21_Beane = np.zeros(priors.size, 2)
+var_21_MCMC = np.zeros(priors.size, 2)
 
 # MCMC has three values: median, max logp, and std
 for i, p in enumerate(priors):
@@ -166,14 +166,14 @@ for i, p in enumerate(priors):
     var_21_MCMC[i,0] = MCMC_nl[2]
     var_21_MCMC[i,1] = MCMC[2]
 
-noise_sf_stats = {'P_21_Beane': P_21_Beane,
+prior_sf_stats = {'P_21_Beane': P_21_Beane,
                 'P_21_MCMC_median': P_21_MCMC_median,
                 'P_21_MCMC_maxlogp': P_21_MCMC_maxlogp,
                 'P_21_MCMC_median': P_21_MCMC_median,
                 'var_21_Beane': var_21_Beane,
                 'var_21_Beane': var_21_MCMC}
 
-np.savez('noise_sf_stats', P_21_Beane=P_21_Beane,
+np.savez('prior_sf_stats', P_21_Beane=P_21_Beane,
                            P_21_MCMC_median=P_21_MCMC_median, P_21_MCMC_maxlogp=P_21_MCMC_maxlogp,
                            var_21_Beane=var_21_Beane, var_21_MCMC=var_21_MCMC)
 
