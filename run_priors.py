@@ -117,14 +117,12 @@ P_CII_OIII = spectra_bt[4] * u.Mpc**3 * u.Jy**2 * u.steradian**(-2)
 # Fitting
 
 p_names = np.asarray(['b_i','b_j', 'b_k', 'P_m'])
-k_indices = [6]
 
 frac_op = .01
 frac_con = .10
 frac_pess = .25
 
-noise = np.linspace(0, .25, 11)
-noise = noise[1:]
+priors = np.linspace(.5,1.0,11)
 
 print('superfake analysis')
 
@@ -136,26 +134,21 @@ p_vals_sf = np.asarray([*biases_sf, P_m], dtype=object)
 params_sf = dict(zip(p_names, p_vals_sf))
 ndim = utils.get_params(params_sf, k_indices).size
 model = models.ScalarBias_crossonly(k=spectra_sf[0], params=params_sf)
-N_modes_small = survey.calc_N_modes(k, 80**3 * u.Mpc**3, align='left')
 
-P_21_Beane = np.zeros((noise.size, 2))
-P_21_MCMC_median = np.zeros((noise.size, 2))
-P_21_MCMC_maxlogp = np.zeros((noise.size, 2))
+P_21_Beane = np.zeros(noise.size, 2)
+P_21_MCMC_median = np.zeros(noise.size, 2)
+P_21_MCMC_maxlogp = np.zeros(noise.size, 2)
 
-var_21_Beane = np.zeros((noise.size, 2))
-var_21_MCMC = np.zeros((noise.size, 2))
+var_21_Beane = np.zeros(noise.size, 2)
+var_21_MCMC = np.zeros(noise.size, 2)
 
 # MCMC has three values: median, max logp, and std
-for i, n in enumerate(noise):
-    print('Now on noise level',n,'%')
-    nsteps = 1e6
-    if n > .15:
-        nsteps = 1e7
+for i, p in enumerate(priors):
 
-    Beane_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
-                                            N_modes=N_modes_small, noiseless=False, nsteps=nsteps)
-    Beane, MCMC = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
-                                            N_modes=N_modes_small, noiseless=True, nsteps=nsteps)
+    Beane_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, frac_con, model,
+                                            noiseless=False, priors_offset=p)
+    Beane, MCMC = analysis.keep_P_21(k_indices, spectra_sf, params_sf, frac_con, model,
+                                            noiseless=True, priors_offset=p)
 
     P_21_Beane[i,0] = Beane_nl[0]
     P_21_Beane[i,1] = Beane[0]
