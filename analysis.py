@@ -453,7 +453,7 @@ def keep_P_21(k_indices, spectra, params, noise, model, N_modes=None, nsteps=1e6
 
     data, Beane, LSE, MCMC = run_analysis(k_indices, spectra, params, noise, model,
                                         N_modes=N_modes, noiseless=noiseless,
-                                        priors_width=priors_width, priors_offset=priors_offset,
+                                        priors_offset=priors_offset,
                                         nsteps=nsteps)
 
     samples_00 = add_P(MCMC[0], k_indices, (0,0))
