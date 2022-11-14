@@ -443,8 +443,8 @@ def run_analysis(k_indices, spectra, params_dict, frac_error, model, N_modes=Non
     Beane = fitting.Beane_et_al(data, spectra, n[0], n[1], n[2], N_modes, k_indices)
     LSE = fitting.LSE_results(k_indices, data, N)
     MCMC = fitting.MCMC_results(params_dict, k_indices, data, model, N,
-                                priors_offset * params_dict['b_i'], priors_width=.10,
-                                nsteps=1e6)
+                                priors_offset * params_dict['b_i'], priors_width=priors_width,
+                                nsteps=nsteps)
 
     return data, Beane, LSE, MCMC
 
@@ -452,8 +452,9 @@ def keep_P_21(k_indices, spectra, params, noise, model, N_modes=None, nsteps=1e6
                                         noiseless=False, priors_offset=1.0):
 
     data, Beane, LSE, MCMC = run_analysis(k_indices, spectra, params, noise, model,
-                                        N_modes=N_modes, b0_guess,
-                                        noiseless=False, priors_width=.10, nsteps=1e6)
+                                        N_modes=N_modes, noiseless=noiseless,
+                                        priors_width=priors_width, priors_offset=priors_offset,
+                                        nsteps=nsteps)
 
     samples_00 = add_P(MCMC[0], k_indices, (0,0))
 
