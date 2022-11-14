@@ -148,9 +148,9 @@ var_21_MCMC = np.zeros((priors.size, 2))
 for i, p in enumerate(priors):
 
     Beane_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, frac_con, model,
-                                            noiseless=False, priors_offset=p)
+                                            noiseless=False, priors_offset=p, N_modes=N_modes_small)
     Beane, MCMC = analysis.keep_P_21(k_indices, spectra_sf, params_sf, frac_con, model,
-                                            noiseless=True, priors_offset=p)
+                                            noiseless=True, priors_offset=p, N_modes=N_modes_small)
 
     P_21_Beane[i,0] = Beane_nl[0]
     P_21_Beane[i,1] = Beane[0]
