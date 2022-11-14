@@ -117,6 +117,7 @@ P_CII_OIII = spectra_bt[4] * u.Mpc**3 * u.Jy**2 * u.steradian**(-2)
 # Fitting
 
 p_names = np.asarray(['b_i','b_j', 'b_k', 'P_m'])
+k_indices = [6]
 
 frac_op = .01
 frac_con = .10
