@@ -113,7 +113,9 @@ intensities_M = utils.specific_intensity(redshift, L=luminosities_M)
 intensities_H = utils.specific_intensity(redshift, L=luminosities_H)
 
 I_fields = np.zeros((runs, rez, rez, rez))
-scalings = np.array([3.76387000e-04, 1.06943379e+05, 6.86553108e+01])
+scalings = np.array([6.36450014002845e-05, 3148.8613192593207, 2.584235977107341])
+
+# np.array([3.76387000e-04, 1.06943379e+05, 6.86553108e+01])
 
 for i, power in enumerate(power_indices):
     print('power =', power)
@@ -176,9 +178,9 @@ runs=3
 n_bins=20
 spectra_sf = np.zeros((int(comb(runs, 2) + runs), n_bins))
 
-b_21cm = 10 # mK
+b_21cm = np.sqrt(t21_field.mean()) # mK
 b_CII = 3 * 1.1e3   # Jy/str
-b_OIII = 5 * 1.1e3  # Jy/str
+b_OIII = 5 * 1.0e3  # Jy/str
 
 biases = [b_21cm, b_CII, b_OIII]
 indices = utils.lines_indices()
