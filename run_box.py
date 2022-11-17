@@ -182,6 +182,8 @@ b_21cm = np.sqrt(t21_field.mean()) # mK
 b_CII = 3 * 1.1e3   # Jy/str
 b_OIII = 5 * 1.0e3  # Jy/str
 
+N_modes_small = survey.calc_N_modes(k, 80**3 * u.Mpc**3, align='left')
+
 biases = [b_21cm, b_CII, b_OIII]
 indices = utils.lines_indices()
 
@@ -261,16 +263,16 @@ ndim = utils.get_params(params_sf, k_indices).size
 model = models.ScalarBias_crossonly(k=spectra_sf[0], params=params_sf)
 
 data_sf_nl, Beane_sf_nl, LSE_sf_nl, MCMC_sf_nl = analysis.run_analysis(k_indices, spectra_sf, params_sf,
-                                                                frac_pess, model, noiseless=True)
+                                                                frac_pess, model, N_modes=N_modes_small, noiseless=True)
 
 data_sf_op, Beane_sf_op, LSE_sf_op, MCMC_sf_op = analysis.run_analysis(k_indices, spectra_sf, params_sf,
-                                                                frac_op, model)
+                                                                frac_op, model, N_modes=N_modes_small)
 
 data_sf_con, Beane_sf_con, LSE_sf_con, MCMC_sf_con = analysis.run_analysis(k_indices, spectra_sf, params_sf,
-                                                                frac_con, model)
+                                                                frac_con, model, N_modes=N_modes_small)
 
 data_sf_pess, Beane_sf_pess, LSE_sf_pess, MCMC_sf_pess = analysis.run_analysis(k_indices, spectra_sf, params_sf,
-                                                                frac_pess, model)
+                                                                frac_pess, model, N_modes=N_modes_small)
 
 #analysis.plot_corner('sf_op.pdf', MCMC_sf_op, LSE_sf_op, Beane_sf_op, params_sf, spectra_sf[1][0], k_indices)
 #analysis.plot_corner('sf_con.pdf', MCMC_sf_con, LSE_sf_con, Beane_sf_con, params_sf, spectra_sf[1][0], k_indices)
@@ -293,16 +295,16 @@ params_pl = dict(zip(p_names, p_vals_pl))
 ndim = utils.get_params(params_pl, k_indices).size
 
 data_pl_nl, Beane_pl_nl, LSE_pl_nl, MCMC_pl_nl = analysis.run_analysis(k_indices, spectra_pl, params_pl,
-                                                                frac_pess, model, noiseless=True)
+                                                                frac_pess, model, N_modes=N_modes_small, noiseless=True)
 
 data_pl_op, Beane_pl_op, LSE_pl_op, MCMC_pl_op = analysis.run_analysis(k_indices, spectra_pl, params_pl,
-                                                                frac_op, model)
+                                                                frac_op, model, N_modes=N_modes_small)
 
 data_pl_con, Beane_pl_con, LSE_pl_con, MCMC_pl_con = analysis.run_analysis(k_indices, spectra_pl, params_pl,
-                                                                frac_con, model)
+                                                                frac_con, model, N_modes=N_modes_small)
 
 data_pl_pess, Beane_pl_pess, LSE_pl_pess, MCMC_pl_pess = analysis.run_analysis(k_indices, spectra_pl, params_pl,
-                                                                frac_pess, model)
+                                                                frac_pess, model, N_modes=N_modes_small)
 
 #analysis.plot_corner('pl_op.pdf', MCMC_pl_op, LSE_pl_op, Beane_pl_op, params_pl, spectra_pl[1][0], k_indices)
 #analysis.plot_corner('pl_con.pdf', MCMC_pl_con, LSE_pl_con, Beane_pl_con, params_pl, spectra_pl[1][0], k_indices)
@@ -325,16 +327,16 @@ params_bt = dict(zip(p_names, p_vals_bt))
 ndim = utils.get_params(params_bt, k_indices).size
 
 data_bt_nl, Beane_bt_nl, LSE_bt_nl, MCMC_bt_nl = analysis.run_analysis(k_indices, spectra_bt, params_bt,
-                                                                frac_pess, model, noiseless=True)
+                                                                frac_pess, model, N_modes=N_modes_small, noiseless=True)
 
 data_bt_op, Beane_bt_op, LSE_bt_op, MCMC_bt_op = analysis.run_analysis(k_indices, spectra_bt, params_bt,
-                                                                frac_op, model)
+                                                                frac_op, model, N_modes=N_modes_small)
 
 data_bt_con, Beane_bt_con, LSE_bt_con, MCMC_bt_con = analysis.run_analysis(k_indices, spectra_bt, params_bt,
-                                                                frac_con, model)
+                                                                frac_con, model, N_modes=N_modes_small)
 
 data_bt_pess, Beane_bt_pess, LSE_bt_pess, MCMC_bt_pess = analysis.run_analysis(k_indices, spectra_bt, params_bt,
-                                                                frac_pess, model)
+                                                                frac_pess, model, N_modes=N_modes_small)
 
 #analysis.plot_corner('bt_op.pdf', MCMC_bt_op, LSE_bt_op, Beane_bt_op, params_bt, spectra_bt[1][0], k_indices)
 #analysis.plot_corner('bt_con.pdf', MCMC_bt_con, LSE_bt_con, Beane_bt_con, params_bt, spectra_bt[1][0], k_indices)

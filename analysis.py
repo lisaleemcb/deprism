@@ -430,7 +430,6 @@ def run_analysis(k_indices, spectra, params_dict, frac_error, model, N_modes=Non
     if error_x is True:
         N = estimate_errors(data, frac_error=frac_error, priors_width=priors_width)
         n = [spectra[0] * frac_error, spectra[3] * frac_error, spectra[5] * frac_error]
-        #N_modes = 1
 
     if not noiseless:
         print('adding noise to simulation...')
