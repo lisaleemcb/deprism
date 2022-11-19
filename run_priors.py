@@ -179,67 +179,109 @@ np.savez('prior_sf_stats', P_21_Beane=P_21_Beane,
                            var_21_Beane=var_21_Beane, var_21_MCMC=var_21_MCMC)
 
 # ### Simulated power law data and fractional noise error
-# print('power law analysis')
-#
-# biases_pl = utils.extract_bias(k_indices, spectra_pl, P_m)
-# p_vals_pl = np.asarray([*biases_pl, P_m], dtype=object)
-#
-# params_pl = dict(zip(p_names, p_vals_pl))
-# ndim = utils.get_params(params_pl, k_indices).size
-#
-# data_pl_nl, Beane_pl_nl, LSE_pl_nl, MCMC_pl_nl = analysis.run_analysis(k_indices, spectra_pl, params_pl,
-#                                                                 frac_pess, model, noiseless=True)
-#
-# data_pl_op, Beane_pl_op, LSE_pl_op, MCMC_pl_op = analysis.run_analysis(k_indices, spectra_pl, params_pl,
-#                                                                 frac_op, model)
-#
-# data_pl_con, Beane_pl_con, LSE_pl_con, MCMC_pl_con = analysis.run_analysis(k_indices, spectra_pl, params_pl,
-#                                                                 frac_con, model)
-#
-# data_pl_pess, Beane_pl_pess, LSE_pl_pess, MCMC_pl_pess = analysis.run_analysis(k_indices, spectra_pl, params_pl,
-#                                                                 frac_pess, model)
-#
-# #analysis.plot_corner('pl_op.pdf', MCMC_pl_op, LSE_pl_op, Beane_pl_op, params_pl, spectra_pl[1][0], k_indices)
-# #analysis.plot_corner('pl_con.pdf', MCMC_pl_con, LSE_pl_con, Beane_pl_con, params_pl, spectra_pl[1][0], k_indices)
-# #analysis.plot_corner('pl_pess.pdf', MCMC_pl_pess, LSE_pl_pess, Beane_pl_pess, params_pl, spectra_pl[1][0], k_indices)
-#
-# np.savez('pl_results_z6.0155', data_pl_nl=data_pl_nl, data_pl_op=data_pl_op, data_pl_con=data_pl_con, data_pl_pess=data_pl_pess,
-#                     Beane_pl_nl=Beane_pl_nl, Beane_pl_op=Beane_pl_op, Beane_pl_con=Beane_pl_con, Beane_pl_pess=Beane_pl_pess,
-#                     LSE_pl_nl=LSE_pl_nl, LSE_pl_op=LSE_pl_op, LSE_pl_con=LSE_pl_con, LSE_pl_pess=LSE_pl_pess,
-#                     MCMC_op_samples=MCMC_pl_op[0], MCMC_con_samples=MCMC_pl_con[0], MCMC_pess_samples=MCMC_pl_pess[0],
-#                     MCMC_op_logp=MCMC_pl_op[1], MCMC_con_logp=MCMC_pl_con[1], MCMC_pess_logp=MCMC_pl_pess[1],
-#                     MCMC_nl_samples=MCMC_pl_nl[0], MCMC_nl_logp=MCMC_pl_nl[1])
+print('power law analysis')
+### Superfake data and superfake noise levels
+
+biases_pl = utils.extract_bias(k_indices, spectra_pl, P_m)
+p_vals_pl = np.asarray([*biases_pl, P_m], dtype=object)
+
+params_pl = dict(zip(p_names, p_vals_pl))
+ndim = utils.get_params(params_pl, k_indices).size
+model = models.ScalarBias_crossonly(k=spectra_pl[0], params=params_pl)
+N_modes_small = survey.calc_N_modes(k, 80**3 * u.Mpc**3, align='left')
+
+P_21_Beane = np.zeros((priors.size, 2))
+P_21_MCMC_median = np.zeros((priors.size, 2))
+P_21_MCMC_maxlogp = np.zeros((priors.size, 2))
+
+var_21_Beane = np.zeros((priors.size, 2))
+var_21_MCMC = np.zeros((priors.size, 2))
+
+# MCMC has three values: median, max logp, and std
+for i, p in enumerate(priors):
+
+    Beane_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_pl, params_pl, frac_con, model,
+                                            noiseless=False, priors_offset=p, N_modes=N_modes_small)
+    Beane, MCMC = analysis.keep_P_21(k_indices, spectra_pl, params_pl, frac_con, model,
+                                            noiseless=True, priors_offset=p, N_modes=N_modes_small)
+
+    P_21_Beane[i,0] = Beane_nl[0]
+    P_21_Beane[i,1] = Beane[0]
+
+    P_21_MCMC_median[i,0] = MCMC_nl[0]
+    P_21_MCMC_median[i,1] = MCMC[0]
+
+    P_21_MCMC_maxlogp[i,0] = MCMC_nl[1]
+    P_21_MCMC_maxlogp[i,1] = MCMC[1]
+
+    var_21_Beane[i,0] = Beane_nl[1]
+    var_21_Beane[i,1] = Beane[1]
+
+    var_21_MCMC[i,0] = MCMC_nl[2]
+    var_21_MCMC[i,1] = MCMC[2]
+
+prior_pl_stats = {'P_21_Beane': P_21_Beane,
+                'P_21_MCMC_median': P_21_MCMC_median,
+                'P_21_MCMC_maxlogp': P_21_MCMC_maxlogp,
+                'P_21_MCMC_median': P_21_MCMC_median,
+                'var_21_Beane': var_21_Beane,
+                'var_21_Beane': var_21_MCMC}
+
+np.savez('prior_pl_stats', P_21_Beane=P_21_Beane,
+                           P_21_MCMC_median=P_21_MCMC_median, P_21_MCMC_maxlogp=P_21_MCMC_maxlogp,
+                           var_21_Beane=var_21_Beane, var_21_MCMC=var_21_MCMC)
+
 #
 # ### Simulated brightness temperature data and fractional noise error
-# print('brightness temperature analysis')
-#
-# biases_bt = utils.extract_bias(k_indices, spectra_bt, P_m)
-# p_vals_bt = np.asarray([*biases_bt, P_m], dtype=object)
-#
-# params_bt = dict(zip(p_names, p_vals_bt))
-# ndim = utils.get_params(params_bt, k_indices).size
-#
-# data_bt_nl, Beane_bt_nl, LSE_bt_nl, MCMC_bt_nl = analysis.run_analysis(k_indices, spectra_bt, params_bt,
-#                                                                 frac_pess, model, noiseless=True)
-#
-# data_bt_op, Beane_bt_op, LSE_bt_op, MCMC_bt_op = analysis.run_analysis(k_indices, spectra_bt, params_bt,
-#                                                                 frac_op, model)
-#
-# data_bt_con, Beane_bt_con, LSE_bt_con, MCMC_bt_con = analysis.run_analysis(k_indices, spectra_bt, params_bt,
-#                                                                 frac_con, model)
-#
-# data_bt_pess, Beane_bt_pess, LSE_bt_pess, MCMC_bt_pess = analysis.run_analysis(k_indices, spectra_bt, params_bt,
-#                                                                 frac_pess, model)
-#
-# #analysis.plot_corner('bt_op.pdf', MCMC_bt_op, LSE_bt_op, Beane_bt_op, params_bt, spectra_bt[1][0], k_indices)
-# #analysis.plot_corner('bt_con.pdf', MCMC_bt_con, LSE_bt_con, Beane_bt_con, params_bt, spectra_bt[1][0], k_indices)
-# #analysis.plot_corner('bt_pess.pdf', MCMC_bt_pess, LSE_bt_pess, Beane_bt_pess, params_bt, spectra_bt[1][0], k_indices)
-#
-# np.savez('bt_results_z6.0155', data_bt_nl=data_bt_nl, data_bt_op=data_bt_op, data_bt_con=data_bt_con, data_bt_pess=data_bt_pess,
-#                     Beane_bt_nl=Beane_bt_nl, Beane_bt_op=Beane_bt_op, Beane_bt_con=Beane_bt_con, Beane_bt_pess=Beane_bt_pess,
-#                     LSE_bt_nl=LSE_bt_nl, LSE_bt_op=LSE_bt_op, LSE_bt_con=LSE_bt_con, LSE_bt_pess=LSE_bt_pess,
-#                     MCMC_op_samples=MCMC_bt_op[0], MCMC_con_samples=MCMC_bt_con[0], MCMC_pess_samples=MCMC_bt_pess[0],
-#                     MCMC_op_logp=MCMC_bt_op[1], MCMC_con_logp=MCMC_bt_con[1], MCMC_pess_logp=MCMC_bt_pess[1],
-#                     MCMC_nl_samples=MCMC_bt_nl[0], MCMC_nl_logp=MCMC_bt_nl[1])
-#
-# ### Fisher analysis
+
+print('brightness temperature analysis')
+### Superfake data and superfake noise levels
+
+biases_bt = utils.extract_bias(k_indices, spectra_bt, P_m)
+p_vals_bt = np.asarray([*biases_bt, P_m], dtype=object)
+
+params_bt = dict(zip(p_names, p_vals_bt))
+ndim = utils.get_params(params_bt, k_indices).size
+model = models.ScalarBias_crossonly(k=spectra_bt[0], params=params_bt)
+N_modes_small = survey.calc_N_modes(k, 80**3 * u.Mpc**3, align='left')
+
+P_21_Beane = np.zeros((priors.size, 2))
+P_21_MCMC_median = np.zeros((priors.size, 2))
+P_21_MCMC_maxlogp = np.zeros((priors.size, 2))
+
+var_21_Beane = np.zeros((priors.size, 2))
+var_21_MCMC = np.zeros((priors.size, 2))
+
+# MCMC has three values: median, max logp, and std
+for i, p in enumerate(priors):
+
+    Beane_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_bt, params_bt, frac_con, model,
+                                            noiseless=False, priors_offset=p, N_modes=N_modes_small)
+    Beane, MCMC = analysis.keep_P_21(k_indices, spectra_bt, params_bt, frac_con, model,
+                                            noiseless=True, priors_offset=p, N_modes=N_modes_small)
+
+    P_21_Beane[i,0] = Beane_nl[0]
+    P_21_Beane[i,1] = Beane[0]
+
+    P_21_MCMC_median[i,0] = MCMC_nl[0]
+    P_21_MCMC_median[i,1] = MCMC[0]
+
+    P_21_MCMC_maxlogp[i,0] = MCMC_nl[1]
+    P_21_MCMC_maxlogp[i,1] = MCMC[1]
+
+    var_21_Beane[i,0] = Beane_nl[1]
+    var_21_Beane[i,1] = Beane[1]
+
+    var_21_MCMC[i,0] = MCMC_nl[2]
+    var_21_MCMC[i,1] = MCMC[2]
+
+prior_bt_stats = {'P_21_Beane': P_21_Beane,
+                'P_21_MCMC_median': P_21_MCMC_median,
+                'P_21_MCMC_maxlogp': P_21_MCMC_maxlogp,
+                'P_21_MCMC_median': P_21_MCMC_median,
+                'var_21_Beane': var_21_Beane,
+                'var_21_Beane': var_21_MCMC}
+
+np.savez('prior_bt_stats', P_21_Beane=P_21_Beane,
+                           P_21_MCMC_median=P_21_MCMC_median, P_21_MCMC_maxlogp=P_21_MCMC_maxlogp,
+                           var_21_Beane=var_21_Beane, var_21_MCMC=var_21_MCMC)

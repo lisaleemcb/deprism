@@ -38,7 +38,15 @@ def error_bars(P_x, P_line1, P_line2, P_N, W_k, N_modes):
 def var_x(P_i, W_i, P_j, W_j, P_Ni, P_Nj, P_x, N_modes):
     W_x = np.sqrt(W_i * W_j)
 
-    return ((P_i * W_i + P_Ni) * (P_j * W_j + P_Nj) + P_x**2 * W_x**2) / (2 * N_modes)
+    return ((P_i * W_i + P_Ni) * (P_j * W_j + P_Nj) + P_x**2 * W_x**2) # / (2 * N_modes)
+
+def find_N_modes(frac_error, P_i, P_j, P_Ni, P_Nj, P_x):
+    W_i = W_j = 1
+    raw_var = var_x(P_i, W_i, P_j, W_j, P_Ni, P_Nj, P_x, 1)
+
+    N_modes = raw_var / frac_error**2
+
+    return N_modes
 
 def var_auto(P_i, W_i, P_N, N_modes):
     return (P_i * W_i + P_N)**2 / N_modes

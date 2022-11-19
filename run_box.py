@@ -113,9 +113,12 @@ intensities_M = utils.specific_intensity(redshift, L=luminosities_M)
 intensities_H = utils.specific_intensity(redshift, L=luminosities_H)
 
 I_fields = np.zeros((runs, rez, rez, rez))
-scalings = np.array([6.36450014002845e-05, 3148.8613192593207, 2.584235977107341])
 
-# np.array([3.76387000e-04, 1.06943379e+05, 6.86553108e+01])
+# this is for the mean voxel intensity to be correct
+# but this makes the spectra intensity incorrect
+#scalings = np.array([6.36450014002845e-05, 3148.8613192593207, 2.584235977107341])
+
+scalings = np.array([1,1,1])
 
 for i, power in enumerate(power_indices):
     print('power =', power)
@@ -164,47 +167,67 @@ zreion = np.load('zreion_files/zreion_z6.0155.npy')# gen_21cm_fields(delta)
 
 ion_field, t21_field = get_21cm_fields(redshift, zreion, delta)
 
-#### Checking unit conversion
-
-def set_I_mean(Lidz_pspec_log, P_x):
-    return np.sqrt(Lidz_pspec_log / P_x)
-
-print('generating superfake data')
-# indices
-
 ### Superfake data
 k_indices = [6]
 runs=3
 n_bins=20
 spectra_sf = np.zeros((int(comb(runs, 2) + runs), n_bins))
 
-b_21cm = np.sqrt(t21_field.mean()) # mK
+N_modes_small = survey.calc_N_modes(k, 80**3 * u.Mpc**3, align='left')
+indices = utils.lines_indices()
+
+### Power law data
+print('first run of power law data')
+# power law
+spectra_pl = analysis.gen_spectra(r_vec, I_fields)
+
+### Brightness temperature data
+I_fields_bt = cp.deepcopy(I_fields)
+I_fields_bt[0] = t21_field
+
+print('generating brightness temperature data')
+# full simulation
+spectra_bt = analysis.gen_spectra(r_vec, I_fields_bt)
+
+print('getting 21cm bias factor and scalings')
+
+b_21cm = np.sqrt(spectra_bt[0][k_indices] / P_m[k_indices]) # mK
 b_CII = 3 * 1.1e3   # Jy/str
 b_OIII = 5 * 1.0e3  # Jy/str
 
-N_modes_small = survey.calc_N_modes(k, 80**3 * u.Mpc**3, align='left')
+def calc_scalings(bias, spectra, P_m, k_indices):
+    s2 = (P_m[k_indices] * bias**2) / spectra[k_indices]
 
-biases = [b_21cm, b_CII, b_OIII]
-indices = utils.lines_indices()
+    return np.sqrt(s2)
+
+scalings = [calc_scalings(b_21cm, spectra_pl[0], P_m, k_indices),
+            calc_scalings(b_CII, spectra_pl[3], P_m, k_indices),
+            calc_scalings(b_OIII, spectra_pl[5], P_m, k_indices)]
+
+print('generating scaled data')
+print('with scalings:', scalings)
+
+for i, power in enumerate(power_indices):
+    print('power =', power)
+    intensities = utils.specific_intensity(redshift,
+                            L=scalings[i] * utils.mass2luminosity(masses, power=power, mass_0=1.0))
+
+    print('mean intensity = ', intensities.mean())
+    print(' ')
+    # lumens += np.random.lognormal(mean=0.0, sigma=2.0, size=None)
+    I_voxels, I_edges = np.histogramdd([x,y,z], bins=rez, weights=intensities)
+    I_fields[i] = I_voxels
+
+print('generating perfect bias data')
 
 for i in range(len(indices)):
     print(indices[i][0], indices[i][1])
     spectra_sf[i] = biases[int(indices[i][0])] * biases[int(indices[i][1])] * P_m
 
 ### Power law data
-print('generating power law data')
+print('scaled run power law data')
 # power law
 spectra_pl = analysis.gen_spectra(r_vec, I_fields)
-
-### Brightness temperature data
-
-I_fields_bt = cp.deepcopy(I_fields)
-I_fields_bt[0] = t21_field
-
-
-print('generating brightness temperature data')
-# full simulation
-spectra_bt = analysis.gen_spectra(r_vec, I_fields_bt)
 
 ### Datasets
 
