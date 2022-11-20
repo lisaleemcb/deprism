@@ -194,6 +194,7 @@ print('getting 21cm bias factor and scalings')
 b_21cm = np.sqrt(spectra_bt[0][k_indices] / P_m[k_indices]) # mK
 b_CII = 3 * 1.1e3   # Jy/str
 b_OIII = 5 * 1.0e3  # Jy/str
+biases = [b_21cm, b_CII, b_OIII]
 
 def calc_scalings(bias, spectra, P_m, k_indices):
     s2 = (P_m[k_indices] * bias**2) / spectra[k_indices]
