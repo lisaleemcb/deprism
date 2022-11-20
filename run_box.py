@@ -230,6 +230,14 @@ print('scaled run power law data')
 # power law
 spectra_pl = analysis.gen_spectra(r_vec, I_fields)
 
+### Brightness temperature data
+I_fields_bt = cp.deepcopy(I_fields)
+I_fields_bt[0] = t21_field
+
+print('generating brightness temperature data')
+# full simulation
+spectra_bt = analysis.gen_spectra(r_vec, I_fields_bt)
+
 ### Datasets
 
 np.save('pspecs_sf_z6.0155', spectra_sf)
