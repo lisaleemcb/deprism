@@ -53,30 +53,30 @@ if which_box is 'little':
     r = np.linspace(0, box_size, rez)
     r_vec = np.stack((r, r, r))
 
-if which_box is 'big':
-    rez = 1024
-    box = h5py.File('halos.z8.hdf5', 'r')
-    print(box.keys())
-
-    density = np.fromfile('rho.z=07.9589_cic_1024', dtype=np.float64).reshape(rez, rez, rez, order='F')
-
-    #density.max()
-
-    redshift = 7.9589
-    masses = np.array(box[('m')])
-    x = np.array(box[('x')])
-    y = np.array(box[('y')])
-    z = np.array(box[('z')])
-
-    runs = 3
-    n_bins = 20
-
-    box_size = 160 # in Mpc
-    r = np.linspace(0, box_size, rez)
-    r_vec = np.stack((r, r, r))
-
-mass_voxels, mass_edges = np.histogramdd([x,y,z], bins=rez,
-                                                weights=masses)
+# if which_box is 'big':
+#     rez = 1024
+#     box = h5py.File('halos.z8.hdf5', 'r')
+#     print(box.keys())
+#
+#     density = np.fromfile('rho.z=07.9589_cic_1024', dtype=np.float64).reshape(rez, rez, rez, order='F')
+#
+#     #density.max()
+#
+#     redshift = 7.9589
+#     masses = np.array(box[('m')])
+#     x = np.array(box[('x')])
+#     y = np.array(box[('y')])
+#     z = np.array(box[('z')])
+#
+#     runs = 3
+#     n_bins = 20
+#
+#     box_size = 160 # in Mpc
+#     r = np.linspace(0, box_size, rez)
+#     r_vec = np.stack((r, r, r))
+#
+# mass_voxels, mass_edges = np.histogramdd([x,y,z], bins=rez,
+#                                                 weights=masses)
 
 #print('generating underlying matter density spectrum')
 print('loading underlying matter density spectrum')
