@@ -448,17 +448,18 @@ def run_analysis(k_indices, spectra, params_dict, frac_error, model, N_modes=Non
     return data, Beane, LSE, MCMC
 
 def keep_P_21(k_indices, spectra, params, noise, model, N_modes=None, nsteps=1e6,
-                                        noiseless=False, priors_offset=1.0):
+                                        noiseless=False, priors_offset=1.0, priors_width=.1):
 
     data, Beane, LSE, MCMC = run_analysis(k_indices, spectra, params, noise, model,
                                         N_modes=N_modes, noiseless=noiseless,
-                                        priors_offset=priors_offset,
+                                        priors_offset=priors_offset, priors_width=.1,
                                         nsteps=nsteps)
 
     samples_00 = add_P(MCMC[0], k_indices, (0,0))
+    MCMC[0] = samples_00
 
-    return Beane, [np.median(samples_00), samples_00[MCMC[1].argmax(),-1],
-                                        np.std(samples_00[:,-1])]
+    return data, Beane, LSE, MCMC #Beane, [np.median(samples_00), samples_00[MCMC[1].argmax(),-1],
+                                    #    np.std(samples_00[:,-1])]
 
 
 def plot_all(samples, k_indices):

@@ -277,9 +277,9 @@ P_CII_OIII = spectra_bt[4] * u.Mpc**3 * u.Jy**2 * u.steradian**(-2)
 
 p_names = np.asarray(['b_i','b_j', 'b_k', 'P_m'])
 
-frac_op = .01
-frac_con = .10
-frac_pess = .25
+frac_op = .005
+frac_con = .01
+frac_pess = .10
 
 #variances = [var_21cm_21cm, var_21cm_CII, var_21cm_OIII, var_CII_OIII, model_params_sf['b_i'] * .25]
 

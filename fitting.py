@@ -59,7 +59,7 @@ def log_prior(param_guesses, params, k_indices, model, N, b0_guess,
         #if np.any(np.asarray(P_m) < 0):
         #    return -np.inf
 
-        return np.log(utils.gaussian(b_i, b_0, b_0 * priors_width))
+        return np.log(utils.gaussian(b_i, b0_guess, b0_guess * priors_width))
 
     if priors is 'jeffreys':
         #print(param_guesses)
