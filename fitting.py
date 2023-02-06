@@ -144,7 +144,7 @@ def log_prob(guesses, params, k_indices, data, model, N, b0_guess,
 def start_mcmc(params_init, k_indices, data, model, N, b0_guess, p0_in=None,
                 priors='gaussian', priors_width=.1, positivity=False,
                 pdf='gaussian', backend_filename=None, nsteps=1e6, nwalkers=48,
-                burn_in=1e2, parallel=False):
+                burn_in=int(1e2), parallel=False):
 
     print('running mcmc with the following settings:')
     print('fitting data from k: ', k_indices)
@@ -210,16 +210,16 @@ def start_mcmc(params_init, k_indices, data, model, N, b0_guess, p0_in=None,
 
         else:
 
-            sampler = emcee.EnsembleSampler(nwalkers, ndim, log_prob,
+            sampler = emcee.EnsembleSampler(nwalkers, int(ndim), log_prob,
                     args=args)
 
-            pre_state = sampler.run_mcmc(params0, burn_in)
+            pre_state = sampler.run_mcmc(params0, int(burn_in))
 
         #print("Mean acceptance fraction during burnin: {0:.3f}".format(
         #np.mean(sampler.acceptance_fraction)))
 
         sampler.reset()
-        state = sampler.run_mcmc(pre_state, nsteps, progress=True)
+        state = sampler.run_mcmc(pre_state, int(nsteps), progress=True)
 
         #print("Mean acceptance fraction: {0:.3f}".format(
         #np.mean(sampler.acceptance_fraction)))
@@ -363,7 +363,7 @@ def Beane_et_al(data, spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices):
 def MCMC_results(params, k_indices, data, model, N, b0_guess, p0_in=None,
                 priors='gaussian', priors_width=.1, positivity=False,
                 pdf='gaussian', backend_filename=None, nsteps=1e6, nwalkers=48,
-                burn_in=1e2, parallel=False):
+                burn_in=int(1e2), parallel=False):
     # lopping off the bias
     b0_guess = cp.deepcopy(data[-1])
     data_size = model.pspec(k_indices).size
