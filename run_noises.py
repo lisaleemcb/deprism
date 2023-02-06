@@ -143,9 +143,9 @@ N_modes_small = survey.calc_N_modes(k, 80**3 * u.Mpc**3, align='left')
 
 for i, n in enumerate(noise):
     print('Now on noise level',n,'%')
-    nsteps = int(1e5)
+    nsteps = int(5e5)
     if n > .1:
-        nsteps = int(1e7)
+        nsteps = int(5e6)
 
     data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
                                             N_modes=N_modes_small, noiseless=False, nsteps=nsteps)
@@ -162,9 +162,9 @@ print('power law analysis')
 
 for i, n in enumerate(noise):
     print('Now on noise level',n,'%')
-    nsteps = int(5e6)
+    nsteps = int(5e5)
     if n > .1:
-        nsteps = int(5e7)
+        nsteps = int(5e6)
 
     data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_pl, params_pl, n, model,
                                             N_modes=N_modes_small, noiseless=False, nsteps=nsteps)
@@ -185,9 +185,9 @@ ndim = utils.get_params(params_bt, k_indices).size
 
 for i, n in enumerate(noise):
     print('Now on noise level',n,'%')
-    nsteps = int(5e6)
+    nsteps = int(5e5)
     if n > .1:
-        nsteps = int(5e7)
+        nsteps = int(5e6)
 
     data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_bt, params_bt, n, model,
                                             N_modes=N_modes_small, noiseless=False, nsteps=nsteps)
