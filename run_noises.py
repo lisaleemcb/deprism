@@ -35,23 +35,23 @@ print('loading simulations')
 which_box = 'little'
 print('running analysis on', which_box, 'box')
 
-if which_box is 'little':
-    rez = 512
-    box = h5py.File('L80_halos_z=6.0155.hdf5', 'r')
-    print(box.keys())
-
-    redshift = 6.0155
-    masses = np.array(box[('mass')])
-    pos = np.array(box[('pos')])
-    density = np.array(box[('rho')])
-    x, y, z = pos.T
-
-    runs = 3
-    n_bins = 20
-
-    box_size = 80 # in Mpc
-    r = np.linspace(0, box_size, rez)
-    r_vec = np.stack((r, r, r))
+# if which_box is 'little':
+#     rez = 512
+#     box = h5py.File('L80_halos_z=6.0155.hdf5', 'r')
+#     print(box.keys())
+#
+#     redshift = 6.0155
+#     masses = np.array(box[('mass')])
+#     pos = np.array(box[('pos')])
+#     density = np.array(box[('rho')])
+#     x, y, z = pos.T
+#
+#     runs = 3
+#     n_bins = 20
+#
+#     box_size = 80 # in Mpc
+#     r = np.linspace(0, box_size, rez)
+#     r_vec = np.stack((r, r, r))
 
 # if which_box is 'big':
 #     rez = 1024
