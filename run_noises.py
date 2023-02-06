@@ -85,7 +85,8 @@ print('loading underlying matter density spectrum')
 #k, P_m = analysis.calc_pspec(r_vec, [delta], n_bins=n_bins, bin_scale='log')
 #np.savez('matter_pspec_6.0155', k=k, P_m=P_m)
 
-matter_pspec = np.load('spectra/matter_pspec_6.0155.npz')
+matter_pspec = np.load('/home/mcbrie2/projects/def-acliu/mcbrie2/deprism/spectra/matter_pspec_6.0155.npz')
+#matter_pspec = np.load('spectra/matter_pspec_6.0155.npz')
 k = matter_pspec['k']
 P_m = matter_pspec['P_m']
 
@@ -97,11 +98,14 @@ print('yay! finished the matter stuff')
 # pspecs_pl = np.load('pspecs_pl.npz')
 # pspecs_bt = np.load('pspecs_bt.npz')
 # pspecs_bt.files
+#
+# spectra_sf = np.load('spectra/pspecs_sf_z6.0155.npy')
+# spectra_pl = np.load('spectra/pspecs_pl_z6.0155.npy')
+# spectra_bt = np.load('spectra/pspecs_bt_z6.0155.npy')
 
-spectra_sf = np.load('spectra/pspecs_sf_z6.0155.npy')
-spectra_pl = np.load('spectra/pspecs_pl_z6.0155.npy')
-spectra_bt = np.load('spectra/pspecs_bt_z6.0155.npy')
-
+spectra_sf = np.load('/home/mcbrie2/projects/def-acliu/mcbrie2/deprism/spectra/pspecs_sf_z6.0155.npy')
+spectra_pl = np.load('/home/mcbrie2/projects/def-acliu/mcbrie2/deprism/spectra/pspecs_pl_z6.0155.npy')
+spectra_bt = np.load('/home/mcbrie2/projects/def-acliu/mcbrie2/deprism/spectra/pspecs_bt_z6.0155.npy')
 #### Autocorrelations
 
 P_21cm_21cm = spectra_bt[0] * u.Mpc**3 * u.Jy**2 * u.steradian**(-2)
