@@ -456,9 +456,9 @@ def keep_P_21(k_indices, spectra, params, noise, model, N_modes=None, nsteps=1e6
                                         nsteps=nsteps)
 
     samples_00 = add_P(MCMC[0], k_indices, (0,0))
-    MCMC[0] = samples_00
 
-    return data, Beane, LSE, MCMC #Beane, [np.median(samples_00), samples_00[MCMC[1].argmax(),-1],
+
+    return data, Beane, LSE, (samples_00, MCMC[1]) #Beane, [np.median(samples_00), samples_00[MCMC[1].argmax(),-1],
                                     #    np.std(samples_00[:,-1])]
 
 
