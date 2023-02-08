@@ -82,12 +82,12 @@ mass_voxels, mass_edges = np.histogramdd([x,y,z], bins=rez,
 print('loading underlying matter density spectrum')
 
 delta = utils.overdensity(density)
-#k, P_m = analysis.calc_pspec(r_vec, [delta], n_bins=n_bins, bin_scale='log')
-#np.savez('matter_pspec_6.0155', k=k, P_m=P_m)
+k, P_m = analysis.calc_pspec(r_vec, [delta], n_bins=n_bins, bin_scale='log')
+np.savez('spectra_new/matter_pspec_6.0155', k=k, P_m=P_m)
 
-matter_pspec = np.load('spectra/matter_pspec_6.0155.npz')
-k = matter_pspec['k']
-P_m = matter_pspec['P_m']
+# matter_pspec = np.load('spectra/matter_pspec_6.0155.npz')
+# k = matter_pspec['k']
+# P_m = matter_pspec['P_m']
 
 print('yay! finished the matter stuff')
 
@@ -162,7 +162,8 @@ def get_21cm_fields(z, zreion, delta):
     return ion_field, t21_field
 
 print('loading zreion...')
-zreion = np.load('zreion_files/zreion_z6.0155.npy')# gen_21cm_fields(delta)
+#zreion = np.load('zreion_files/zreion_z6.0155.npy')# gen_21cm_fields(delta)
+zreion = gen_21cm_fields(delta)
 #np.save('zreion_files/zreion_z6.0155', zreion)
 
 ion_field, t21_field = get_21cm_fields(redshift, zreion, delta)
@@ -195,6 +196,7 @@ b_21cm = np.sqrt(spectra_bt[0][k_indices] / P_m[k_indices]) # mK
 b_CII = 3 * 1.1e3   # Jy/str
 b_OIII = 5 * 1.0e3  # Jy/str
 biases = [b_21cm, b_CII, b_OIII]
+print('theoretical biases are', biases)
 
 def calc_scalings(bias, spectra, P_m, k_indices):
     s2 = (P_m[k_indices] * bias**2) / spectra[k_indices]
@@ -240,9 +242,9 @@ spectra_bt = analysis.gen_spectra(r_vec, I_fields_bt)
 
 ### Datasets
 
-np.save('pspecs_sf_z6.0155', spectra_sf)
-np.save('pspecs_pl_z6.0155', spectra_pl)
-np.save('pspecs_bt_z6.0155', spectra_bt)
+np.save('spectra_new/pspecs_sf_z6.0155', spectra_sf)
+np.save('spectra_new/pspecs_pl_z6.0155', spectra_pl)
+np.save('spectra_new/pspecs_bt_z6.0155', spectra_bt)
 
 #pspecs_sf = np.load('pspecs_sf.npz')
 #pspecs_pl = np.load('pspecs_pl.npz')

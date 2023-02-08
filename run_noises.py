@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import copy as cp
+import time
 import h5py
 import sys
 import corner
@@ -85,8 +86,8 @@ print('loading underlying matter density spectrum')
 #k, P_m = analysis.calc_pspec(r_vec, [delta], n_bins=n_bins, bin_scale='log')
 #np.savez('matter_pspec_6.0155', k=k, P_m=P_m)
 
-matter_pspec = np.load('/home/mcbrie2/projects/def-acliu/mcbrie2/deprism/spectra/matter_pspec_6.0155.npz')
-#matter_pspec = np.load('spectra/matter_pspec_6.0155.npz')
+# matter_pspec = np.load('/home/mcbrie2/projects/def-acliu/mcbrie2/deprism/spectra/matter_pspec_6.0155.npz')
+matter_pspec = np.load('spectra/matter_pspec_6.0155.npz')
 k = matter_pspec['k']
 P_m = matter_pspec['P_m']
 
@@ -99,14 +100,14 @@ print('yay! finished the matter stuff')
 # pspecs_bt = np.load('pspecs_bt.npz')
 # pspecs_bt.files
 #
-# spectra_sf = np.load('spectra/pspecs_sf_z6.0155.npy')
-# spectra_pl = np.load('spectra/pspecs_pl_z6.0155.npy')
-# spectra_bt = np.load('spectra/pspecs_bt_z6.0155.npy')
+spectra_sf = np.load('spectra/pspecs_sf_z6.0155.npy')
+spectra_pl = np.load('spectra/pspecs_pl_z6.0155.npy')
+spectra_bt = np.load('spectra/pspecs_bt_z6.0155.npy')
 
-spectra_sf = np.load('/home/mcbrie2/projects/def-acliu/mcbrie2/deprism/spectra/pspecs_sf_z6.0155.npy')
-spectra_pl = np.load('/home/mcbrie2/projects/def-acliu/mcbrie2/deprism/spectra/pspecs_pl_z6.0155.npy')
-spectra_bt = np.load('/home/mcbrie2/projects/def-acliu/mcbrie2/deprism/spectra/pspecs_bt_z6.0155.npy')
-#### Autocorrelations
+# spectra_sf = np.load('/home/mcbrie2/projects/def-acliu/mcbrie2/deprism/spectra/pspecs_sf_z6.0155.npy')
+# spectra_pl = np.load('/home/mcbrie2/projects/def-acliu/mcbrie2/deprism/spectra/pspecs_pl_z6.0155.npy')
+# spectra_bt = np.load('/home/mcbrie2/projects/def-acliu/mcbrie2/deprism/spectra/pspecs_bt_z6.0155.npy')
+# #### Autocorrelations
 
 P_21cm_21cm = spectra_bt[0] * u.Mpc**3 * u.Jy**2 * u.steradian**(-2)
 P_CII_CII = spectra_bt[3] * u.Mpc**3 * u.Jy**2 * u.steradian**(-2)
@@ -142,10 +143,11 @@ model = models.ScalarBias_crossonly(k=spectra_sf[0], params=params_sf)
 N_modes_small = survey.calc_N_modes(k, 80**3 * u.Mpc**3, align='left')
 
 for i, n in enumerate(noise):
+    t0 = time.time()
     print('Now on noise level',n,'%')
-    nsteps = int(5e5)
+    nsteps = int(1e6)
     if n > .1:
-        nsteps = int(5e6)
+        nsteps = int(1e7)
 
     data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
                                             N_modes=N_modes_small, noiseless=False, nsteps=nsteps)
@@ -153,49 +155,52 @@ for i, n in enumerate(noise):
                                             N_modes=N_modes_small, noiseless=True, nsteps=nsteps)
 
 
-    np.savez(f'noise_{n}_sf_nl_z6.0155', data=data_nl, Beane=Beane_nl, LSE=LSE_nl, MCMC=MCMC_nl)
-    np.savez(f'noise_{n}_sf_z6.0155', data=data, Beane=Beane, LSE=LSE, MCMC=MCMC)
+    np.savez(f'noise_{n}_sf_nl_z6.0155', data=data_nl, Beane=Beane_nl, LSE=LSE_nl, samples=MCMC_nl[0], logp=MCMC_nl[1])
+    np.savez(f'noise_{n}_sf_z6.0155', data=data, Beane=Beane, LSE=LSE, samples=MCMC[0], logp=MCMC[1])
 
+    tf = time.time()
+    print(f'run {i} saved to disk')
+    print('time to complete superfake analysis run {i} is:', (tf - t0) / 60, 'minutes')
 
-### Simulated power law data and fractional noise error
-print('power law analysis')
-
-for i, n in enumerate(noise):
-    print('Now on noise level',n,'%')
-    nsteps = int(5e5)
-    if n > .1:
-        nsteps = int(5e6)
-
-    data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_pl, params_pl, n, model,
-                                            N_modes=N_modes_small, noiseless=False, nsteps=nsteps)
-    data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_pl, params_pl, n, model,
-                                            N_modes=N_modes_small, noiseless=True, nsteps=nsteps)
-
-    np.savez(f'noise_{n}_pl_nl_z6.0155', data=data_nl, Beane=Beane_nl, LSE=LSE_nl, MCMC=MCMC_nl)
-    np.savez(f'noise_{n}_pl_z6.0155', data=data, Beane=Beane, LSE=LSE, MCMC=MCMC)
-
-### Simulated brightness temperature data and fractional noise error
-print('brightness temperature analysis')
-
-biases_bt = utils.extract_bias(k_indices, spectra_bt, P_m)
-p_vals_bt = np.asarray([*biases_bt, P_m], dtype=object)
-
-params_bt = dict(zip(p_names, p_vals_bt))
-ndim = utils.get_params(params_bt, k_indices).size
-
-for i, n in enumerate(noise):
-    print('Now on noise level',n,'%')
-    nsteps = int(5e5)
-    if n > .1:
-        nsteps = int(5e6)
-
-    data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_bt, params_bt, n, model,
-                                            N_modes=N_modes_small, noiseless=False, nsteps=nsteps)
-    data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_bt, params_bt, n, model,
-                                            N_modes=N_modes_small, noiseless=True, nsteps=nsteps)
-
-
-    np.savez(f'noise_{n}_bt_nl_z6.0155', data=data_nl, Beane=Beane_nl, LSE=LSE_nl, MCMC=MCMC_nl)
-    np.savez(f'noise_{n}_bt_z6.0155', data=data, Beane=Beane, LSE=LSE, MCMC=MCMC)
-
-### Fisher analysis
+# ### Simulated power law data and fractional noise error
+# print('power law analysis')
+#
+# for i, n in enumerate(noise):
+#     print('Now on noise level',n,'%')
+#     nsteps = int(5e5)
+#     if n > .1:
+#         nsteps = int(5e6)
+#
+#     data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_pl, params_pl, n, model,
+#                                             N_modes=N_modes_small, noiseless=False, nsteps=nsteps)
+#     data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_pl, params_pl, n, model,
+#                                             N_modes=N_modes_small, noiseless=True, nsteps=nsteps)
+#
+#     np.savez(f'noise_{n}_pl_nl_z6.0155', data=data_nl, Beane=Beane_nl, LSE=LSE_nl, samples=MCMC_nl[0], logp=MCMC_nl[1])
+#     np.savez(f'noise_{n}_pl_z6.0155', data=data, Beane=Beane, LSE=LSE, samples=MCMC[0], logp=MCMC[1])
+#
+# ### Simulated brightness temperature data and fractional noise error
+# print('brightness temperature analysis')
+#
+# biases_bt = utils.extract_bias(k_indices, spectra_bt, P_m)
+# p_vals_bt = np.asarray([*biases_bt, P_m], dtype=object)
+#
+# params_bt = dict(zip(p_names, p_vals_bt))
+# ndim = utils.get_params(params_bt, k_indices).size
+#
+# for i, n in enumerate(noise):
+#     print('Now on noise level',n,'%')
+#     nsteps = int(5e5)
+#     if n > .1:
+#         nsteps = int(5e6)
+#
+#     data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_bt, params_bt, n, model,
+#                                             N_modes=N_modes_small, noiseless=False, nsteps=nsteps)
+#     data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_bt, params_bt, n, model,
+#                                             N_modes=N_modes_small, noiseless=True, nsteps=nsteps)
+#
+#
+#     np.savez(f'noise_{n}_bt_nl_z6.0155', data=data_nl, Beane=Beane_nl, LSE=LSE_nl, samples=MCMC_nl[0], logp=MCMC_nl[1])
+#     np.savez(f'noise_{n}_bt_z6.0155', data=data, Beane=Beane, LSE=LSE, samples=MCMC[0], logp=MCMC[1])
+#
+# ### Fisher analysis
