@@ -164,7 +164,7 @@ def get_21cm_fields(z, zreion, delta):
 print('loading zreion...')
 #zreion = np.load('zreion_files/zreion_z6.0155.npy')# gen_21cm_fields(delta)
 zreion = gen_21cm_fields(delta)
-#np.save('zreion_files/zreion_z6.0155', zreion)
+np.save('zreion_files/zreion_z6.0155', zreion)
 
 ion_field, t21_field = get_21cm_fields(redshift, zreion, delta)
 

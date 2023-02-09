@@ -419,7 +419,7 @@ def inject_noise(data, N):
 
 def run_analysis(k_indices, spectra, params_dict, frac_error, model, N_modes=None,
                     data=None, error_x=True, priors_width=.10, priors_offset=1.0,
-                    noiseless=False, nsteps=1e6):
+                    noiseless=False, nsteps=1e6, backend_filename=None):
 
     if data is None:
         data = utils.fetch_data(k_indices, spectra, b_0=params_dict['b_i'])
@@ -443,17 +443,18 @@ def run_analysis(k_indices, spectra, params_dict, frac_error, model, N_modes=Non
     LSE = fitting.LSE_results(k_indices, data, N)
     MCMC = fitting.MCMC_results(params_dict, k_indices, data, model, N,
                                 priors_offset * params_dict['b_i'], priors_width=priors_width,
-                                nsteps=nsteps)
+                                nsteps=nsteps, backend_filename=backend_filename)
 
     return data, Beane, LSE, MCMC
 
 def keep_P_21(k_indices, spectra, params, noise, model, N_modes=None, nsteps=1e6,
-                                        noiseless=False, priors_offset=1.0, priors_width=.1):
+                                        noiseless=False, priors_offset=1.0, priors_width=.1,
+                                        backend_filename=None):
 
     data, Beane, LSE, MCMC = run_analysis(k_indices, spectra, params, noise, model,
                                         N_modes=N_modes, noiseless=noiseless,
-                                        priors_offset=priors_offset, priors_width=.1,
-                                        nsteps=nsteps)
+                                        priors_offset=priors_offset, priors_width=priors_width,
+                                        nsteps=nsteps, backend_filename=backend_filename)
 
     samples_00 = add_P(MCMC[0], k_indices, (0,0))
 

@@ -201,6 +201,11 @@ def start_mcmc(params_init, k_indices, data, model, N, b0_guess, p0_in=None,
         backend = None
         print('no backend initialized')
 
+    if backend_filename:
+        backend = emcee.backends.HDFBackend(backend_filename)
+        backend.reset(nwalkers, ndim)
+        print('saving chains in file ', backend_filename)
+
     if parallel is False:
         if p0_in is not None:
             sampler = emcee.EnsembleSampler(nwalkers, ndim, log_prob,
@@ -381,6 +386,6 @@ def MCMC_results(params, k_indices, data, model, N, b0_guess, p0_in=None,
                             burn_in=burn_in, nsteps=nsteps,
                             nwalkers=nwalkers, parallel=parallel,
                             pdf=pdf, priors=priors, priors_width=priors_width,
-                            positivity=positivity)
+                            positivity=positivity, backend_filename=backend_filename)
 
     return results

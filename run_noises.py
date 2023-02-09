@@ -150,9 +150,11 @@ for i, n in enumerate(noise):
         nsteps = int(1e7)
 
     data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
-                                            N_modes=N_modes_small, noiseless=False, nsteps=nsteps)
+                                            N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
+                                            backend_filename=f'noise_{n}_sf_nl_z6.0155.h5')
     data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
-                                            N_modes=N_modes_small, noiseless=True, nsteps=nsteps)
+                                            N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
+                                            backend_filename=f'noise_{n}_sf_z6.0155.h5')
 
 
     np.savez(f'noise_{n}_sf_nl_z6.0155', data=data_nl, Beane=Beane_nl, LSE=LSE_nl, samples=MCMC_nl[0], logp=MCMC_nl[1])
