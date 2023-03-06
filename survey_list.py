@@ -24,9 +24,11 @@ specs_CCATp = {'sigma_pix': 0.86 * (u.MJy * u.s**(1/2) / u.steradian),
                'Omega_surv': 1.7 * u.degree**2,
                'AGN Source': 'COSMOS'}
 
+# specs pulled (partially) from: 
+# Pober et al. https://arxiv.org/pdf/1310.7031.pdf
 specs_HERA = {'sigma_pix': None,
                'N_det': None,
-               'theta_FWMH': None,
+               'theta_FWMH': 8.7 * u.degree, # @150 MHz
                'min_baseline': 14.6 * u.m,
                'max_baseline': 140 * u.m,
                'D_dish': 140 * u.m,

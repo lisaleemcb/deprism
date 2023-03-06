@@ -23,11 +23,11 @@ def calc_pspec(r_vec, signals, n_bins=5, bin_scale='log'):
     S_r1 = 0
     S_r2 = 0
 
-    if len(signals) is 1:
+    if len(signals) == 1:
         S_r1 = signals[0]
         S_r2 = signals[0]
 
-    if len(signals) is 2:
+    if len(signals) == 2:
         S_r1 = signals[0]
         S_r2 = signals[1]
 
@@ -50,7 +50,7 @@ def calc_pspec(r_vec, signals, n_bins=5, bin_scale='log'):
     max_k = min([k_vec[i].max() for i in range(k_vec.shape[0])])
 
     bin_edges = np.zeros(n_bins)
-    if bin_scale is 'linear':
+    if bin_scale=='linear':
         print('bin scale is: linear')
         bin_edges = linear_bins(resolution(r_vec), max_k, n_bins)
 
@@ -314,7 +314,7 @@ def plot_corner(MCMC, LSE, Beane, params, logp, P_ii, k_indices, ccolor=None, fi
                                    labels=[r'$b_i$', r'$b_j$', r'$b_k$', r'$P_m$', r'$P_{ij}$'],
                                    label_kwargs={'fontsize': 30}, range=limits, fig=fig)
 
-    if fig is None:
+    if fig==None:
         fig = corner.corner(samples_00,
                                    truths=[*pvals, *P_ii[k_indices]], truth_color='black',
                                    plot_datapoints=False, color=ccolor, bins=30,
@@ -360,17 +360,17 @@ def plot_corner(MCMC, LSE, Beane, params, logp, P_ii, k_indices, ccolor=None, fi
 
 def noisey_spectra(spectra, N=None, frac_error=None, noise='on'):
 
-    if frac_error is not None and N is not None:
+    if frac_error != None and N != None:
         raise Exception("Both noise scenarios provided. Commit to one!")
 
-    if frac_error is not None:
+    if frac_error != None:
         std_spectra = np.array(spectra) * frac_error
 
-    if noise is 'on':
+    if noise == 'on':
         std_spectra = np.sqrt(np.diag(N))
         noisey_spectra = np.array(spectra) + np.random.normal(scale=std_spectra, size=std_spectra.shape)
 
-    if noise is 'off':
+    if noise == 'off':
         noisey_spectra = np.array(spectra)
 
     return noisey_spectra, std_spectra
@@ -421,13 +421,13 @@ def run_analysis(k_indices, spectra, params_dict, frac_error, model, N_modes=Non
                     data=None, error_x=True, priors_width=.10, priors_offset=1.0,
                     noiseless=False, nsteps=1e6, backend_filename=None):
 
-    if data is None:
+    if data == None:
         data = utils.fetch_data(k_indices, spectra, b_0=params_dict['b_i'])
 
-    if error_x is False:
+    if error_x == False:
         N, n = get_noise(k_indices, spectra, params_dict['b_i'], N_modes,
                                             frac_error=frac_error, priors_width=priors_width)
-    if error_x is True:
+    if error_x==True:
         N = estimate_errors(data, frac_error=frac_error, priors_width=priors_width)
         n = [spectra[0] * frac_error, spectra[3] * frac_error, spectra[5] * frac_error]
 

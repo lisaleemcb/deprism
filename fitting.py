@@ -144,7 +144,7 @@ def log_prob(guesses, params, k_indices, data, model, N, b0_guess,
 def start_mcmc(params_init, k_indices, data, model, N, b0_guess, p0_in=None,
                 priors='gaussian', priors_width=.1, positivity=False,
                 pdf='gaussian', backend_filename=None, nsteps=1e6, nwalkers=48,
-                burn_in=int(1e2), parallel=False):
+                burn_in=int(1e2), parallel=False, start_from_backend=False):
 
     print('running mcmc with the following settings:')
     print('fitting data from k: ', k_indices)
@@ -200,11 +200,6 @@ def start_mcmc(params_init, k_indices, data, model, N, b0_guess, p0_in=None,
     if backend_filename is None:
         backend = None
         print('no backend initialized')
-
-    if backend_filename:
-        backend = emcee.backends.HDFBackend(backend_filename)
-        backend.reset(nwalkers, ndim)
-        print('saving chains in file ', backend_filename)
 
     if parallel is False:
         if p0_in is not None:

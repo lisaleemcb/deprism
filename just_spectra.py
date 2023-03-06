@@ -8,6 +8,7 @@ import corner
 import copy
 import scipy
 import astropy.constants as const
+import astropy.units as u
 
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.special import comb
@@ -31,10 +32,10 @@ colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
 print('loading simulations')
 
-which_box = 'big'
+which_box = 'small'
 print('running analysis on', which_box, 'box')
 
-if which_box is 'little':
+if which_box is 'small':
     rez = 512
     box = h5py.File('L80_halos_z=6.0155.hdf5', 'r')
     print(box.keys())
@@ -85,7 +86,7 @@ print('generating underlying matter density spectrum')
 delta = utils.overdensity(density)
 k, P_m = analysis.calc_pspec(r_vec, [delta], n_bins=n_bins, bin_scale='log')
 
-if which_box is 'little':
+if which_box is 'small':
     np.savez('matter_pspec_6.0155.npz')
 
 if which_box is 'big':
@@ -105,7 +106,7 @@ H = 4.0 / 3.0
 
 power_indices = [H_I_power, L, M]
 
-import astropy.constants as const
+
 L_solar=3.828e26
 L_CII = 10e6
 L_OIII = 10e9
