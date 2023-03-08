@@ -8,11 +8,11 @@ import corner
 import copy
 import scipy
 import astropy.constants as const
+import zreion
 
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.special import comb
 from astropy import units as u
-from zreion import apply_zreion_fast
 from astropy.cosmology import Planck15
 
 import analysis
@@ -34,7 +34,7 @@ print('loading simulations')
 which_box = 'big'
 print('running analysis on', which_box, 'box')
 
-if which_box is 'little':
+if which_box == 'little':
     rez = 512
     box = h5py.File('L80_halos_z=6.0155.hdf5', 'r')
     print(box.keys())
@@ -52,7 +52,7 @@ if which_box is 'little':
     r = np.linspace(0, box_size, rez)
     r_vec = np.stack((r, r, r))
 
-if which_box is 'big':
+if which_box == 'big':
     rez = 1024
     box = h5py.File('halos.z8.hdf5', 'r')
     print(box.keys())
@@ -62,10 +62,10 @@ if which_box is 'big':
     #density.max()
 
     redshift = 7.9589
-    masses = np.array(box[('m')])
-    x = np.array(box[('x')])
-    y = np.array(box[('y')])
-    z = np.array(box[('z')])
+    masses = np.array(box[('m')]) * u.solMass
+    x = np.array(box[('x')]) * (u.Mpc / const.h)
+    y = np.array(box[('y')]) * (u.Mpc / const.h)
+    z = np.array(box[('z')]) * (u.Mpc / const.h)
 
     runs = 3
     n_bins = 20
@@ -79,17 +79,18 @@ mass_voxels, mass_edges = np.histogramdd([x,y,z], bins=rez,
 
 masses_hist = plt.hist(np.log(masses), bins=50)
 
-# print('generating underlying matter density spectrum')
-print('loading underlying matter density spectrum')
+print('generating underlying matter density spectrum')
+#print('loading underlying matter density spectrum')
 
-# delta = utils.overdensity(density)
-# k, P_m = analysis.calc_pspec(r_vec, [delta], n_bins=n_bins, bin_scale='log')
+delta = utils.overdensity(density)
+print(delta[0:10])
+k, P_m = analysis.calc_pspec(r_vec, [delta.value()], n_bins=n_bins, bin_scale='log')
 
 if which_box is 'little':
     np.savez('matter_pspec_6.0155.npz')
 
 if which_box is 'big':
-    pass
+    print('Not on this little machine!')
     #np.savez('matter_pspec_7.9589', k=k, P_m=P_m)
 
 matter_pspec = np.load('matter_pspec_7.9589.npz')
@@ -136,36 +137,37 @@ for i, power in enumerate(power_indices):
 #k = matter_pspec['k']
 #P_m = matter_pspec['P_m']
 
-# parameters
-#box = 80.0  # Mpc/h
-# omegam = Planck15.Om0
-# omegab = Planck15.Ob0
-# hubble0 = Planck15.H0
-#
-# alpha = 0.564
-# k_0 = 0.185 # Mpc/h
+#parameters
+box = 80.0  # Mpc/h
+omegam = Planck15.Om0
+omegab = Planck15.Ob0
+hubble0 = Planck15.H0
 
-# global temperature as a function of redshift
-# def t0(z):
-#     return 38.6 * hubble0.value * (omegab / 0.045) * np.sqrt(0.27 / omegam * (1 + z) / 10)
-#
-# def gen_21cm_fields(delta, box_size= 80.0, zmean=7, alpha=0.11, k0=0.05):
-#     # compute zreion field
-#     print("computing zreion...")
-#     zreion = apply_zreion_fast(delta, zmean, alpha, k0, box_size, deconvolve=False)
-#
-#     return zreion
-#
-# def get_21cm_fields(z, zreion, delta):
-#     #print("computing t21 at z=", z, "...")
-#     ion_field = np.where(zreion > z, 1.0, 0.0)
-#     t21_field = t0(z) * (1 + delta) * (1 - ion_field)
-#
-#     return ion_field, t21_field
-#
-# zreion = np.load('zreion_z7.9589.npy') #gen_21cm_fields(delta)
-# ion_field, t21_field = get_21cm_fields(redshift, zreion, delta)
-#np.save('zreion_z7.9589.npy', zreion)
+alpha = 0.564
+k_0 = 0.185 # Mpc/h
+
+global temperature as a function of redshift
+def t0(z):
+    return 38.6 * hubble0.value * (omegab / 0.045) * np.sqrt(0.27 / omegam * (1 + z) / 10)
+
+def gen_21cm_fields(delta, box_size= 80.0, zmean=7, alpha=0.11, k0=0.05):
+    # compute zreion field
+    print("computing zreion...")
+    zreion_field = zreion.apply_zreion_fast(delta, zmean, alpha, k0, box_size, deconvolve=False)
+
+    return zreion_field
+
+def get_21cm_fields(z, zreion_field, delta):
+    #print("computing t21 at z=", z, "...")
+    ion_field = np.where(zreion > z, 1.0, 0.0)
+    t21_field = t0(z) * (1 + delta) * (1 - ion_field)
+
+    return ion_field, t21_field
+
+#zreion_field = np.load('zreion_z7.9589.npy') #gen_21cm_fields(delta)
+zreion_field = gen_21cm_fields(delta.value)
+ion_field, t21_field = get_21cm_fields(redshift, zreion_field, delta)
+np.save('zreion_z7.9589.npy', zreion_field, ion_field, t21_field)
 
 
 ### Power law data

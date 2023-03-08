@@ -74,6 +74,12 @@ def mass2SFR(masses, power=5./3, mass_0=1, normalize=True):
 
     return SFR
 
+def temp2intensity(brightnesstemp, beam_area, freq):
+    intensity = brightnesstemp.to(u.Jy / u.steradian,
+                equivalencies=u.brightness_temperature(350*u.GHz, beam_area=8 * u.degree))
+
+    return intensity
+
 def extract_bias(k_indices, lumens, P_m):
     autospectra = np.zeros(len(k_indices) * 3)
     matterspectra = np.zeros(len(k_indices) * 3)
