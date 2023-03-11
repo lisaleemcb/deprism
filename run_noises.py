@@ -36,12 +36,12 @@ print('loading simulations')
 which_box = 'little'
 print('running analysis on', which_box, 'box')
 
-# if which_box is 'little':
+if which_box == 'little':
 #     rez = 512
 #     box = h5py.File('L80_halos_z=6.0155.hdf5', 'r')
 #     print(box.keys())
 #
-#     redshift = 6.0155
+     redshift = 6.0155
 #     masses = np.array(box[('mass')])
 #     pos = np.array(box[('pos')])
 #     density = np.array(box[('rho')])
@@ -54,7 +54,7 @@ print('running analysis on', which_box, 'box')
 #     r = np.linspace(0, box_size, rez)
 #     r_vec = np.stack((r, r, r))
 
-# if which_box is 'big':
+if which_box == 'big':
 #     rez = 1024
 #     box = h5py.File('halos.z8.hdf5', 'r')
 #     print(box.keys())
@@ -63,7 +63,7 @@ print('running analysis on', which_box, 'box')
 #
 #     #density.max()
 #
-#     redshift = 7.9589
+     redshift = 7.9589
 #     masses = np.array(box[('m')])
 #     x = np.array(box[('x')])
 #     y = np.array(box[('y')])
@@ -87,7 +87,7 @@ print('loading underlying matter density spectrum')
 #np.savez('matter_pspec_6.0155', k=k, P_m=P_m)
 
 # matter_pspec = np.load('/home/mcbrie2/projects/def-acliu/mcbrie2/deprism/spectra/matter_pspec_6.0155.npz')
-matter_pspec = np.load('spectra/matter_pspec_6.0155.npz')
+matter_pspec = np.load(f'spectra/matter_pspec_z{redshift}.npz')
 k = matter_pspec['k']
 P_m = matter_pspec['P_m']
 
@@ -100,9 +100,9 @@ print('yay! finished the matter stuff')
 # pspecs_bt = np.load('pspecs_bt.npz')
 # pspecs_bt.files
 #
-spectra_sf = np.load('spectra/pspecs_sf_z6.0155.npy')
-spectra_pl = np.load('spectra/pspecs_pl_z6.0155.npy')
-spectra_bt = np.load('spectra/pspecs_bt_z6.0155.npy')
+spectra_sf = np.load(f'spectra/spectra_sf_z{redshift}.npy')
+spectra_pl = np.load(f'spectra/spectra_pl_z{redshift}.npy')
+spectra_bt = np.load(f'spectra/spectra_bt_z{redshift}.npy')
 
 # spectra_sf = np.load('/home/mcbrie2/projects/def-acliu/mcbrie2/deprism/spectra/pspecs_sf_z6.0155.npy')
 # spectra_pl = np.load('/home/mcbrie2/projects/def-acliu/mcbrie2/deprism/spectra/pspecs_pl_z6.0155.npy')
@@ -184,14 +184,14 @@ print('superfake analysis')
 #
 #     data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_pl, params_pl, n, model,
 #                                             N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
-#                                             backend_filename=f'noise_{n}_pl_nl_z6.0155.h5')
+#                                             backend_filename=f'noise{n}_pl_nl_z{redshift}.h5')
 #     data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_pl, params_pl, n, model,
 #                                             N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
-#                                             backend_filename=f'noise_{n}_pl_z6.0155.h5')
+#                                             backend_filename=f'noise{n}_pl_z{redshift}.h5')
 #
 #
-#     np.savez(f'noise_{n}_pl_nl_z6.0155', data=data_nl, Beane=Beane_nl, LSE=LSE_nl, samples=MCMC_nl[0], logp=MCMC_nl[1])
-#     np.savez(f'noise_{n}_pl_z6.0155', data=data, Beane=Beane, LSE=LSE, samples=MCMC[0], logp=MCMC[1])
+#     np.savez(f'noise{n}_pl_nl_z{redshift}', data=data_nl, Beane=Beane_nl, LSE=LSE_nl, samples=MCMC_nl[0], logp=MCMC_nl[1])
+#     np.savez(f'noise{n}_pl_z{redshift}', data=data, Beane=Beane, LSE=LSE, samples=MCMC[0], logp=MCMC[1])
 #
 #     tf = time.time()
 #     print(f'run {i} saved to disk')
@@ -217,17 +217,17 @@ for i, n in enumerate(noise):
 
     data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_bt, params_bt, n, model,
                                             N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
-                                            backend_filename=f'noise_{n}_bt_nl_z6.0155.h5')
+                                            backend_filename=f'noise{n}_bt_nl_z{redshift}.h5')
     data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_bt, params_bt, n, model,
                                             N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
-                                            backend_filename=f'noise_{n}_bt_z6.0155.h5')
+                                            backend_filename=f'noise{n}_bt_z{redshift}.h5')
 
 
-    np.savez(f'noise_{n}_bt_nl_z6.0155', data=data_nl, Beane=Beane_nl, LSE=LSE_nl, sambtes=MCMC_nl[0], logp=MCMC_nl[1])
-    np.savez(f'noise_{n}_bt_z6.0155', data=data, Beane=Beane, LSE=LSE, sambtes=MCMC[0], logp=MCMC[1])
+    np.savez(f'noise{n}_bt_nl_z{redshift}', data=data_nl, Beane=Beane_nl, LSE=LSE_nl, samples=MCMC_nl[0], logp=MCMC_nl[1])
+    np.savez(f'noise{n}_bt_z{redshift}', data=data, Beane=Beane, LSE=LSE, samples=MCMC[0], logp=MCMC[1])
 
     tf = time.time()
     print(f'run {i} saved to disk')
-    print('time to complete brightness temperature run {i} is:', (tf - t0) / 60, 'minutes')
+    print(f'time to complete brightness temperature run {i} is:', (tf - t0) / 60, 'minutes')
 
 # ### Fisher analysis

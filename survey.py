@@ -56,13 +56,13 @@ def calc_N_modes(k, V_surv, align='left'):
     k_vals = np.zeros(len(k) - 1)
     delta_k = k[1:] - k[:-1]
 
-    if align is 'left':
+    if align == 'left':
         k_vals = k[:-1]
 
-    if align is 'center':
+    if align == 'center':
         k_vals = (k[1:] + k[:-1]) / 2
 
-    if align is 'right':
+    if align == 'right':
         k_vals = k[1:]
 
     N_modes = k_vals**2 * delta_k * V_surv.to_value() / (4 * np.pi**2)

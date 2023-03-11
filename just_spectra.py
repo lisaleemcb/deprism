@@ -23,12 +23,8 @@ import estimators
 import fitting
 import models
 import utils
+import survey
 
-plt.style.use('seaborn-colorblind')
-plt.rc('text', usetex=True)
-plt.rc('font', family='serif')
-
-colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
 # Simulations
 
 print('loading simulations')
@@ -82,7 +78,7 @@ print('generating underlying matter density spectrum')
 delta = utils.overdensity(density)
 k, P_m = analysis.calc_pspec(r_vec, [delta], n_bins=n_bins, bin_scale='log')
 
-np.savez(f'matter_pspec_z{redshift}.npz', k=k, P_m=P_m)
+np.savez(f'spectra/matter_pspec_z{redshift}.npz', k=k, P_m=P_m)
 
 #matter_pspec = np.load('matter_pspec_6.0155.npz')
 #k = matter_pspec['k']
@@ -110,7 +106,7 @@ intensities_L = utils.specific_intensity(redshift, L=luminosities_L)
 intensities_M = utils.specific_intensity(redshift, L=luminosities_M)
 intensities_H = utils.specific_intensity(redshift, L=luminosities_H)
 
-I_fields = np.zeros((runs, rez, rez, rez))
+I_fields_pl = np.zeros((runs, rez, rez, rez))
 scalings = np.ones(3) # np.array([3.76387000e-04, 1.06943379e+05, 6.86553108e+01])
 
 for i, power in enumerate(power_indices):
@@ -154,7 +150,7 @@ def gen_21cm_fields(delta, box_size=box_size, zmean=7, alpha=0.11, k0=0.05):
 
 def get_21cm_fields(z, zreion_field, delta):
     #print("computing t21 at z=", z, "...")
-    ion_field = np.where(zreion > z, 1.0, 0.0)
+    ion_field = np.where(zreion_field > z, 1.0, 0.0)
     t21_field = t0(z) * (1 + delta) * (1 - ion_field)
 
     return ion_field, t21_field
@@ -165,22 +161,25 @@ zreion_field = gen_21cm_fields(delta)
 ion_field, t21_field = get_21cm_fields(redshift, zreion_field, delta)
 
 nu_21cm_rest = 1420 * u.MHz
-nu_21cm_obvs = utils.calc_nu_obs(nu_21cm_rest, redshift):
+nu_21cm_obvs = utils.calc_nu_obs(nu_21cm_rest, redshift)
 
 i21_field = (t21_field * u.mK).to(u.Jy / u.steradian,
                       equivalencies=u.brightness_temperature(nu_21cm_obvs))
 
-np.save(f'zreion_z{redshift}.npy', zreion_field, ion_field, t21_field, i21_field)
+np.savez(f'zreion_files/zreion_z{redshift}.npy', zreion_field=zreion_field,
+                                    ion_field=ion_field,
+                                    t21_field=t21_field,
+                                    i21_field=i21_field)
 
 
 ### Power law data
 print('first run of power law data')
 # power law
-spectra_pl = analysis.gen_spectra(r_vec, I_fields)
+spectra_pl = analysis.gen_spectra(r_vec, I_fields_pl)
 
 print('getting 21cm bias factor and scalings')
 
-k, P_21 = analysis.calc_pspec(r_vec, [t21_field], n_bins=n_bins, bin_scale='log')
+k, P_21 = analysis.calc_pspec(r_vec, [i21_field.value], n_bins=n_bins, bin_scale='log')
 
 b_21cm = np.sqrt(P_21[k_indices] / P_m[k_indices]) # mK
 b_CII = 3 * 1.1e3   # Jy/str
@@ -212,7 +211,7 @@ for i, power in enumerate(power_indices):
     I_fields_pl[i] = I_voxels
 
 print('generating perfect bias data')
-
+spectra_sf = cp.deepcopy(spectra_pl)
 for i in range(len(indices)):
     print(indices[i][0], indices[i][1])
     spectra_sf[i] = biases[int(indices[i][0])] * biases[int(indices[i][1])] * P_m
@@ -227,7 +226,7 @@ print('generating brightness temperature data')
 # full simulation
 ### Brightness temperature data
 I_fields_bt = cp.deepcopy(I_fields_pl)
-I_fields_bt[0] = t21_field
+I_fields_bt[0] = i21_field.value
 
 spectra_bt = analysis.gen_spectra(r_vec, I_fields_bt)
 
@@ -244,14 +243,22 @@ spectra_bt = analysis.gen_spectra(r_vec, I_fields_bt)
 #
 # ### Datasets
 #
-np.savez(f'pspecs_sf_z{redshift}', P_21cm_21cm=spectra_sf[1][0], P_21cm_CII=spectra_sf[1][1],
-                    P_21cm_OIII=spectra_sf[1][2], P_CII_CII=spectra_sf[1][3],
-                    P_CII_OIII=spectra_sf[1][4], P_OIII_OIII=spectra_sf[1][5])
+np.save(f'spectra_all_int/spectra_sf_z{redshift}', spectra_sf)
 
-np.savez(f'pspecs_pl_z{redshift}', P_21cm_21cm=spectra_pl[1][0], P_21cm_CII=spectra_pl[1][1],
-                     P_21cm_OIII=spectra_pl[1][2], P_CII_CII=spectra_pl[1][3],
-                     P_CII_OIII=spectra_pl[1][4], P_OIII_OIII=spectra_pl[1][5])
+np.save(f'spectra_all_int/spectra_pl_z{redshift}', spectra_pl)
 
-np.savez(f'pspecs_bt_z{redshift}', P_21cm_21cm=spectra_bt[1][0], P_21cm_CII=spectra_bt[1][1],
-                    P_21cm_OIII=spectra_bt[1][2], P_CII_CII=spectra_bt[1][3],
-                    P_CII_OIII=spectra_bt[1][4], P_OIII_OIII=spectra_bt[1][5])
+np.save(f'spectra_all_int/spectra_bt_z{redshift}', spectra_bt)
+
+# in Npz format
+
+np.savez(f'spectra_all_int/pspecs_sf_z{redshift}', P_21cm_21cm=spectra_sf[0], P_21cm_CII=spectra_sf[1],
+                    P_21cm_OIII=spectra_sf[2], P_CII_CII=spectra_sf[3],
+                    P_CII_OIII=spectra_sf[4], P_OIII_OIII=spectra_sf[5])
+
+np.savez(f'spectra_all_int/pspecs_pl_z{redshift}', P_21cm_21cm=spectra_pl[0], P_21cm_CII=spectra_pl[1],
+                     P_21cm_OIII=spectra_pl[2], P_CII_CII=spectra_pl[3],
+                     P_CII_OIII=spectra_pl[4], P_OIII_OIII=spectra_pl[5])
+
+np.savez(f'spectra_all_int/pspecs_bt_z{redshift}', P_21cm_21cm=spectra_bt[0], P_21cm_CII=spectra_bt[1],
+                    P_21cm_OIII=spectra_bt[2], P_CII_CII=spectra_bt[3],
+                    P_CII_OIII=spectra_bt[4], P_OIII_OIII=spectra_bt[5])
