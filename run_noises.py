@@ -130,7 +130,7 @@ frac_pess = .10
 
 noise = np.asarray([.001, .005, .01, .05, .1, .15])
 
-print('superfake analysis')
+print('brightness temperature analysis')
 
 ### Superfake data and superfake noise levels
 #
@@ -223,8 +223,10 @@ for i, n in enumerate(noise):
                                             backend_filename=f'noise{n}_bt_z{redshift}.h5')
 
 
-    np.savez(f'noise{n}_bt_nl_z{redshift}', data=data_nl, Beane=Beane_nl, LSE=LSE_nl, samples=MCMC_nl[0], logp=MCMC_nl[1])
-    np.savez(f'noise{n}_bt_z{redshift}', data=data, Beane=Beane, LSE=LSE, samples=MCMC[0], logp=MCMC[1])
+    np.savez(f'noise{n}_bt_nl_z{redshift}', data=data_nl, Beane=[Beane_nl], LSE=[LSE_nl],
+                                        samples=MCMC_nl[0], logp=MCMC_nl[1])
+    np.savez(f'noise{n}_bt_z{redshift}', data=data, Beane=[Beane], LSE=[LSE],
+                                        samples=MCMC[0], logp=MCMC[1])
 
     tf = time.time()
     print(f'run {i} saved to disk')

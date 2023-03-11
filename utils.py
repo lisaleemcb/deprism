@@ -40,6 +40,9 @@ def gaussian(x, mean, sigma, normed=False):
 def a(z):
     return 1 / (1 + z)
 
+def dimless(k, P):
+    return k**3 / (2 * np.pi**2) * P
+
 def mass2luminosity(masses, power=3./5, mass_0=1, normalize=True):
         N = 1 # np.mean(np.abs(masses.flatten())**2)
 

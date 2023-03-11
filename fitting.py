@@ -19,9 +19,9 @@ def log_prior(param_guesses, params, k_indices, model, N, b0_guess,
 
     # print(b_0)
 
-    if priors is 'uniform':
+    if priors == 'uniform':
         b_0 = params['b_i']
-        if positivity is True:
+        if positivity:
             if np.any(np.asarray(b_i) < 0):
                 return -np.inf
             if np.any(np.asarray(b_j) < 0):
@@ -37,7 +37,7 @@ def log_prior(param_guesses, params, k_indices, model, N, b0_guess,
 
         return 0.0
 
-    if priors is 'upperlimit':
+    if priors == 'upperlimit':
         P_21_upper = 5.0
         P_21_guess = b_i**2 * P_m
         if np.any(np.asarray(P_m) < 0):
@@ -47,7 +47,7 @@ def log_prior(param_guesses, params, k_indices, model, N, b0_guess,
 
         return 0.0
 
-    if priors is 'gaussian':
+    if priors == 'gaussian':
         if positivity is True:
             if np.any(np.asarray(b_i) < 0):
                 return -np.inf
@@ -61,7 +61,7 @@ def log_prior(param_guesses, params, k_indices, model, N, b0_guess,
 
         return np.log(utils.gaussian(b_i, b0_guess, b0_guess * priors_width))
 
-    if priors is 'jeffreys':
+    if priors == 'jeffreys':
         #print(param_guesses)
         if np.any(np.asarray(P_m) < 0):
             return -np.inf
@@ -78,7 +78,7 @@ def log_prior(param_guesses, params, k_indices, model, N, b0_guess,
         print(Jeffreys)
         return Jeffreys
 
-    if priors is 'adhoc':
+    if priors == 'adhoc':
         if np.any(np.asarray(P_m) < 0):
             return -np.inf
         if b_i < b_0 * .75 or b_i > b_0 * 1.25:
@@ -89,7 +89,7 @@ def log_prior(param_guesses, params, k_indices, model, N, b0_guess,
 def log_likelihood(param_guesses, k_indices, data, model, N,
                     pdf='gaussian'):
 
-    if pdf is 'gaussian':
+    if pdf == 'gaussian':
         pspec = model.pspec(k_indices, params=param_guesses)
 
         #print('pspec: ', pspec)
@@ -100,7 +100,7 @@ def log_likelihood(param_guesses, k_indices, data, model, N,
 
         return -0.5 * np.dot(diff, np.linalg.solve(N, diff))
 
-    if pdf is 'quad':
+    if pdf == 'quad':
         pspec = model.pspec(k_indices, params=param_guesses)
 
     #    print('pspec: ', pspec)
@@ -184,13 +184,13 @@ def start_mcmc(params_init, k_indices, data, model, N, b0_guess, p0_in=None,
     #print(params0)
 
     if backend_filename is not None:
-        if start_from_backend is True:
+        if start_from_backend:
             filename = backend_filename
             backend = emcee.backends.HDFBackend(filename)
             #print(backend.chain)
             print('pickup up from backend file...', str(filename))
 
-        if start_from_backend is False:
+        if not start_from_backend:
             filename = backend_filename
             backend = emcee.backends.HDFBackend(filename)
             #print(backend.chain)
@@ -201,7 +201,7 @@ def start_mcmc(params_init, k_indices, data, model, N, b0_guess, p0_in=None,
         backend = None
         print('no backend initialized')
 
-    if parallel is False:
+    if not parallel:
         if p0_in is not None:
             sampler = emcee.EnsembleSampler(nwalkers, ndim, log_prob,
                     args=args)
@@ -229,7 +229,7 @@ def start_mcmc(params_init, k_indices, data, model, N, b0_guess, p0_in=None,
 
         return sampler.get_chain(thin=100, flat=True), sampler.get_log_prob(thin=100, flat=True)
 
-    if parallel is True:
+    if parallel:
         print('We are going parallelized! Wooooooo...')
         with Pool() as pool:
             sampler = emcee.EnsembleSampler(nwalkers, ndim, log_prob,
@@ -288,7 +288,7 @@ def recover_params_mcmc(k, k_indices, lumen_pspecs, model, density, variances,
 
     params = dict(zip(p_names, pvals))
 
-    if inject_noise is True:
+    if inject_noise:
         data = data + utils.generate_noise(N)
 
     # lopping off the bias
@@ -316,14 +316,14 @@ def recover_params_LSE(k, k_indices, lumen_pspecs, model, density, variances,
 
     data[-1] = biases[0]
 
-    if N is None:
+    if N == None:
         N = analysis.estimate_errors(data, frac_error=.20)
     #N = analysis.create_noise_matrix(k_indices, variances)
 
     N[-1,-1] = (biases[0] * .1)**2
     N = N[1:,1:]
 
-    if inject_noise is True:
+    if inject_noise:
         'adding noise'
         data = data + utils.generate_noise(N)
     # print('LSE data: ', data_HI_L_M)
@@ -358,7 +358,7 @@ def Beane_et_al(data, spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices):
     P_ii = P_ij * P_ik / P_jk
     var = analysis.var_Pii_Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices)
 
-    return P_ii, var
+    return P_ii, var[0]
 
 def MCMC_results(params, k_indices, data, model, N, b0_guess, p0_in=None,
                 priors='gaussian', priors_width=.1, positivity=False,
