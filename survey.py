@@ -35,10 +35,10 @@ def error_bars(P_x, P_line1, P_line2, P_N, W_k, N_modes):
                                             + P_line1 * (P_line2 + P_N / W_k**2))
     return sigma
 
-def var_x(P_i, W_i, P_j, W_j, P_Ni, P_Nj, P_x, N_modes):
+def var_x(P_i, P_j, P_Ni, P_Nj, P_x, N_modes, W_i=1.0, W_j=1.0):
     W_x = np.sqrt(W_i * W_j)
 
-    return ((P_i * W_i + P_Ni) * (P_j * W_j + P_Nj) + P_x**2 * W_x**2) # / (2 * N_modes)
+    return ((P_i * W_i + P_Ni) * (P_j * W_j + P_Nj) + P_x**2 * W_x**2)  / (2 * N_modes)
 
 def find_N_modes(frac_error, P_i, P_j, P_Ni, P_Nj, P_x):
     W_i = W_j = 1

@@ -154,7 +154,8 @@ def start_mcmc(params_init, k_indices, data, model, N, b0_guess, p0_in=None,
     print('positivity prior is: ', positivity)
     print('pdf is: ', pdf)
     print('nsteps: ', nsteps)
-    print('logp of truths is:', log_prob(utils.get_params(params_init, k_indices), params_init, k_indices, data, model, N, b0_guess,
+    print('logp of truths is:', log_prob(utils.get_params(params_init, k_indices),
+                            params_init, k_indices, data, model, N, b0_guess,
                             priors='gaussian', priors_width=.25,
                             positivity=False, pdf='gaussian'))
 
@@ -345,8 +346,19 @@ def LSE_results(k_indices, data, N):
     LSE = estimators.Estimators(k_indices, data[1:], N[1:,1:])
     results = LSE.LSE_3cross_1bias()
 
-    params = np.exp(results[0])
-    errors = utils.delog_errors(results)
+    # params, errors without 21cm
+    p_ = np.exp(results[0])
+    e_ = utils.delog_errors(results)
+
+    params = np.zeros((p_.size + 1))
+    errors = np.zeros((e_.size + 1))
+
+    for i in range(p_.size):
+        params[i] = p_[i]
+        errors[i] = e_[i]
+
+    params[-1] = p_[0]**2 * p_[-1]
+    errors[-1] = params[-1] * np.sqrt((e_[0] / p_[0])**2 + (e_[0] / p_[0])**2 + (e_[-1] / p_[-1])**2)
 
     return params, errors
 
@@ -358,7 +370,7 @@ def Beane_et_al(data, spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices):
     P_ii = P_ij * P_ik / P_jk
     var = analysis.var_Pii_Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices)
 
-    return P_ii, var[0]
+    return P_ii, np.std(var[0])
 
 def MCMC_results(params, k_indices, data, model, N, b0_guess, p0_in=None,
                 priors='gaussian', priors_width=.1, positivity=False,

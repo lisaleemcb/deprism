@@ -59,7 +59,7 @@ if which_box == 'big':
 #     box = h5py.File('halos.z8.hdf5', 'r')
 #     print(box.keys())
 #
-#     density = np.fromfile('rho.z=07.9589_cic_1024', dtype=np.float64).reshape(rez, rez, rez, order='F')
+#     density = np.fromfile('sims/rho.z=07.9589_cic_1024', dtype=np.float64).reshape(rez, rez, rez, order='F')
 #
 #     #density.max()
 #
@@ -100,27 +100,15 @@ print('yay! finished the matter stuff')
 # pspecs_bt = np.load('pspecs_bt.npz')
 # pspecs_bt.files
 #
-spectra_sf = np.load(f'spectra/spectra_sf_z{redshift}.npy')
-spectra_pl = np.load(f'spectra/spectra_pl_z{redshift}.npy')
-spectra_bt = np.load(f'spectra/spectra_bt_z{redshift}.npy')
+spectra_sf = np.load(f'spectra_all_int/spectra_sf_z{redshift}.npy')
+spectra_pl = np.load(f'spectra_all_int/spectra_pl_z{redshift}.npy')
+spectra_bt = np.load(f'spectra_all_int/spectra_bt_z{redshift}.npy')
 
 # spectra_sf = np.load('/home/mcbrie2/projects/def-acliu/mcbrie2/deprism/spectra/pspecs_sf_z6.0155.npy')
 # spectra_pl = np.load('/home/mcbrie2/projects/def-acliu/mcbrie2/deprism/spectra/pspecs_pl_z6.0155.npy')
 # spectra_bt = np.load('/home/mcbrie2/projects/def-acliu/mcbrie2/deprism/spectra/pspecs_bt_z6.0155.npy')
-# #### Autocorrelations
-
-P_21cm_21cm = spectra_bt[0] * u.Mpc**3 * u.Jy**2 * u.steradian**(-2)
-P_CII_CII = spectra_bt[3] * u.Mpc**3 * u.Jy**2 * u.steradian**(-2)
-P_OIII_OIII = spectra_bt[5] * u.Mpc**3 * u.Jy**2 * u.steradian**(-2)
-
-#### Crosscorrelations
-
-P_21cm_CII = spectra_bt[1] * u.Mpc**3 * u.Jy**2 * u.steradian**(-2)
-P_21cm_OIII = spectra_bt[2] * u.Mpc**3 * u.Jy**2 * u.steradian**(-2)
-P_CII_OIII = spectra_bt[4] * u.Mpc**3 * u.Jy**2 * u.steradian**(-2)
 
 # Fitting
-
 p_names = np.asarray(['b_i','b_j', 'b_k', 'P_m'])
 k_indices = [6]
 
@@ -128,12 +116,11 @@ frac_op = .005
 frac_con = .01
 frac_pess = .10
 
-noise = np.asarray([.001, .005, .01, .05, .1, .15])
+noise = np.linspace(0.001, .15, 10) #np.asarray([.001, .005, .01, .05, .1, .15])
 
-print('brightness temperature analysis')
-
-### Superfake data and superfake noise levels
+# print('superfake temperature analysis')
 #
+# ### Superfake data and superfake noise levels
 # biases_sf = utils.extract_bias(k_indices, spectra_sf, P_m)
 # p_vals_sf = np.asarray([*biases_sf, P_m], dtype=object)
 #
@@ -150,20 +137,22 @@ print('brightness temperature analysis')
 #         nsteps = int(1e7)
 #
 #     data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
-#                                             N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
-#                                             backend_filename=f'noise_{n}_sf_nl_z6.0155.h5')
-#     data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
 #                                             N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
-#                                             backend_filename=f'noise_{n}_sf_z6.0155.h5')
+#                                             backend_filename=f'noise{n}_sf_nl_z{redshift}_int.h5')
+#     data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
+#                                             N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
+#                                             backend_filename=f'noise{n}_sf_z{redshift}_int.h5')
 #
 #
-#     np.savez(f'noise_{n}_sf_nl_z6.0155', data=data_nl, Beane=Beane_nl, LSE=LSE_nl, samples=MCMC_nl[0], logp=MCMC_nl[1])
-#     np.savez(f'noise_{n}_sf_z6.0155', data=data, Beane=Beane, LSE=LSE, samples=MCMC[0], logp=MCMC[1])
+#     np.savez(f'results_all_int/sf_fits/noise{n}_sf_nl_z{redshift}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
+#                                         samples=MCMC_nl[0], logp=MCMC_nl[1])
+#     np.savez(f'results_all_int/sf_fits/noise{n}_sf_z{redshift}_int', data=data, Beane=Beane, LSE=LSE,
+#                                         samples=MCMC[0], logp=MCMC[1])
 #
 #     tf = time.time()
 #     print(f'run {i} saved to disk')
-#     print('time to complete superfake analysis run {i} is:', (tf - t0) / 60, 'minutes')
-
+#     print('time to complete superfake analysis run {i} is:', (tf - t0) / 60 / 60, 'hours')
+#
 # ### Simulated power law data and fractional noise error
 # print('power law analysis')
 #
@@ -182,23 +171,26 @@ print('brightness temperature analysis')
 #     if n > .1:
 #         nsteps = int(1e7)
 #
-#     data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_pl, params_pl, n, model,
-#                                             N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
-#                                             backend_filename=f'noise{n}_pl_nl_z{redshift}.h5')
+#     # data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_pl, params_pl, n, model,
+#     #                                         N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
+#     #                                         backend_filename=f'noise{n}_pl_nl_z{redshift}_int.h5')
 #     data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_pl, params_pl, n, model,
-#                                             N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
-#                                             backend_filename=f'noise{n}_pl_z{redshift}.h5')
+#                                             N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
+#                                             backend_filename=f'noise{n}_pl_z{redshift}_int.h5')
 #
 #
-#     np.savez(f'noise{n}_pl_nl_z{redshift}', data=data_nl, Beane=Beane_nl, LSE=LSE_nl, samples=MCMC_nl[0], logp=MCMC_nl[1])
-#     np.savez(f'noise{n}_pl_z{redshift}', data=data, Beane=Beane, LSE=LSE, samples=MCMC[0], logp=MCMC[1])
+#     # np.savez(f'results_noises/pl_fits/noise{n}_pl_nl_z{redshift}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
+#     #                                     samples=MCMC_nl[0], logp=MCMC_nl[1])
+#     np.savez(f'results_noises/pl_fits/noise{n}_pl_z{redshift}_int', data=data, Beane=Beane, LSE=LSE,
+#                                         samples=MCMC[0], logp=MCMC[1])
+#
 #
 #     tf = time.time()
 #     print(f'run {i} saved to disk')
 #     print('time to complete power law run {i} is:', (tf - t0) / 60, 'minutes')
 
 # ### Simulated brightness temperature data and fractional noise error
-# print('brightness temperature analysis')
+print('brightness temperature analysis')
 
 biases_bt = utils.extract_bias(k_indices, spectra_bt, P_m)
 p_vals_bt = np.asarray([*biases_bt, P_m], dtype=object)
@@ -216,20 +208,21 @@ for i, n in enumerate(noise):
         nsteps = int(1e7)
 
     data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_bt, params_bt, n, model,
-                                            N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
-                                            backend_filename=f'noise{n}_bt_nl_z{redshift}.h5')
-    data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_bt, params_bt, n, model,
                                             N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
-                                            backend_filename=f'noise{n}_bt_z{redshift}.h5')
+                                            backend_filename=f'noise{n}_bt_nl_z{redshift}_int.h5')
+    data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_bt, params_bt, n, model,
+                                            N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
+                                            backend_filename=f'noise{n}_bt_z{redshift}_int.h5')
 
 
-    np.savez(f'noise{n}_bt_nl_z{redshift}', data=data_nl, Beane=[Beane_nl], LSE=[LSE_nl],
+    np.savez(f'results_all_int/bt_fits/noise{n}_bt_nl_z{redshift}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
                                         samples=MCMC_nl[0], logp=MCMC_nl[1])
-    np.savez(f'noise{n}_bt_z{redshift}', data=data, Beane=[Beane], LSE=[LSE],
+    np.savez(f'results_all_int/bt_fits/noise{n}_bt_z{redshift}_int', data=data, Beane=Beane, LSE=LSE,
                                         samples=MCMC[0], logp=MCMC[1])
+
 
     tf = time.time()
     print(f'run {i} saved to disk')
     print(f'time to complete brightness temperature run {i} is:', (tf - t0) / 60, 'minutes')
 
-# ### Fisher analysis
+# # ### Fisher analysis

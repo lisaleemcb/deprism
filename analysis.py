@@ -201,11 +201,11 @@ def var_Pii_Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices):
     #P_ii, P_ij, P_ik, P_jj, P_jk, P_kk = spectra
 
     P_ii = spectra[0][k_indices]
-    P_jj = spectra[1][k_indices]
-    P_kk = spectra[2][k_indices]
-    P_ij = spectra[3][k_indices]
+    P_ij = spectra[1][k_indices]
+    P_ik = spectra[2][k_indices]
+    P_jj = spectra[3][k_indices]
     P_jk = spectra[4][k_indices]
-    P_ik = spectra[5][k_indices]
+    P_kk = spectra[5][k_indices]
 
     P_ii_tot = P_ii + P_N_i[k_indices]
     P_jj_tot = P_jj + P_N_j[k_indices]
@@ -216,7 +216,7 @@ def var_Pii_Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices):
         + (P_ij * P_ik / P_jk**2)**2 * (P_jk**2 + P_jj_tot * P_kk_tot) \
         + (P_ij * P_ik / P_jk**2) * (P_ii_tot * P_jk + P_ij * P_ik) \
         - (P_ij**2 * P_ik / P_jk**3) * (P_kk_tot * P_ik + P_ik * P_jk) \
-        - (P_ij * P_ik**2 / P_jk**3) * (P_jj_tot * P_ik + P_ij * P_jk) \
+        - (P_ij * P_ik**2 / P_jk**3) * (P_jj_tot * P_ik + P_ij * P_jk)
 
     return var_P_ii / N_modes[k_indices]
 
@@ -284,15 +284,11 @@ def initialize_data(spectra, params, N, k_indices):
 
     return data
 
-def plot_corner(MCMC, LSE, Beane, params, logp, P_ii, k_indices, ccolor=None, fig=None, limits=None):
+def plot_corner(samples, LSE, Beane, params, logp, P_ii, k_indices, ccolor=None, fig=None, limits=None):
     # truth stuff
     pvals = utils.get_pvals(params, k_indices)
     ndim = len(pvals)
     print([*pvals, *P_ii[k_indices]])
-
-    # MCMC stuff
-    samples = MCMC
-    samples_00 = add_P(samples, k_indices, (0,0))
 
     # LSE stuff
     LSE_params, LSE_var = LSE
@@ -308,15 +304,15 @@ def plot_corner(MCMC, LSE, Beane, params, logp, P_ii, k_indices, ccolor=None, fi
     colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
     if fig:
-        fig = corner.corner(samples_00,
-                                   truths=[*pvals, *P_ii[k_indices]], truth_color='black',
+        fig = corner.corner(samples,
+                                   truths=[*pvals, *P_ii[k_indices]], truth_color='blue',
                                    plot_datapoints=False, color=ccolor, bins=30,
                                    labels=[r'$b_i$', r'$b_j$', r'$b_k$', r'$P_m$', r'$P_{ij}$'],
                                    label_kwargs={'fontsize': 30}, range=limits, fig=fig)
 
     if fig==None:
-        fig = corner.corner(samples_00,
-                                   truths=[*pvals, *P_ii[k_indices]], truth_color='black',
+        fig = corner.corner(samples,
+                                   truths=[*pvals, *P_ii[k_indices]], truth_color='blue',
                                    plot_datapoints=False, color=ccolor, bins=30,
                                    labels=[r'$b_i$', r'$b_j$', r'$b_k$', r'$P_m$', r'$P_{ij}$'],
                                    label_kwargs={'fontsize': 30}, range=[.99,.99,.99,.99,.99])
