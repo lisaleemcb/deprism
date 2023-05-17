@@ -85,7 +85,7 @@ delta = utils.overdensity(density)
 #k, P_m = analysis.calc_pspec(r_vec, [delta], n_bins=n_bins, bin_scale='log')
 #np.savez('matter_pspec_6.0155', k=k, P_m=P_m)
 
-matter_pspec = np.load('spectra/matter_pspec_{redshift}.npz')
+matter_pspec = np.load(f'spectra/matter_pspec_{redshift}.npz')
 k = matter_pspec['k']
 P_m = matter_pspec['P_m']
 
