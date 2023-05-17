@@ -1,4 +1,4 @@
- import numpy as np
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import copy as cp
@@ -85,7 +85,7 @@ delta = utils.overdensity(density)
 #k, P_m = analysis.calc_pspec(r_vec, [delta], n_bins=n_bins, bin_scale='log')
 #np.savez('matter_pspec_6.0155', k=k, P_m=P_m)
 
-matter_pspec = np.load('spectra/matter_pspec_6.0155.npz')
+matter_pspec = np.load('spectra/matter_pspec_{redshift}.npz')
 k = matter_pspec['k']
 P_m = matter_pspec['P_m']
 
@@ -98,9 +98,9 @@ print('yay! finished the matter stuff')
 # pspecs_bt = np.load('pspecs_bt.npz')
 # pspecs_bt.files
 
-spectra_sf = np.load('spectra/pspecs_sf_z6.0155.npy')
-spectra_pl = np.load('spectra/pspecs_pl_z6.0155.npy')
-spectra_bt = np.load('spectra/pspecs_bt_z6.0155.npy')
+spectra_sf = np.load(f'spectra/pspecs_sf_z{redshift}.npy')
+spectra_pl = np.load(f'spectra/pspecs_pl_z{redshift}.npy')
+spectra_bt = np.load(f'spectra/pspecs_bt_z{redshift}.npy')
 
 #### Autocorrelations
 
