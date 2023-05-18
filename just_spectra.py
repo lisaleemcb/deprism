@@ -77,6 +77,7 @@ if which_box == 'big':
 print('generating underlying matter density spectrum')
 #print('loading underlying matter density spectrum')
 
+t0 = time.time()
 
 delta = utils.overdensity(density)
 k, P_m = analysis.calc_pspec(r_vec, [delta], n_bins=n_bins, bin_scale='log')
