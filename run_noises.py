@@ -84,10 +84,10 @@ print('generating underlying matter density spectrum')
 
 delta = utils.overdensity(density)
 k, P_m = analysis.calc_pspec(r_vec, [delta], n_bins=n_bins, bin_scale='log')
-np.savez('matter_pspec_z{redshift}', k=k, P_m=P_m)
+np.savez('spectra/matter_pspec_z{redshift}', k=k, P_m=P_m)
 
 # matter_pspec = np.load('/home/mcbrie2/projects/def-acliu/mcbrie2/deprism/spectra/matter_pspec_6.0155.npz')
-#matter_pspec = np.load(f'spectra/matter_pspec_z{redshift}.npz')
+matter_pspec = np.load(f'spectra/matter_pspec_z{redshift}.npz')
 k = matter_pspec['k']
 P_m = matter_pspec['P_m']
 
