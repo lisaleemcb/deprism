@@ -413,19 +413,26 @@ def inject_noise(data, N):
 
     return noisey_data
 
-def run_analysis(k_indices, spectra, params_dict, frac_error, model, N_modes=None,
-                    data=None, error_x=True, priors_width=.10, priors_offset=1.0,
+def run_analysis(k_indices, spectra, params_dict, noise, model, N_modes=None,
+                    data=None, error_x=False,
+                    priors='gaussian', priors_width=.10, priors_offset=1.0,
                     noiseless=False, nsteps=1e6, backend_filename=None):
 
     if data == None:
         data = utils.fetch_data(k_indices, spectra, b_0=params_dict['b_i'])
 
     if error_x == False:
-        N, n = get_noise(k_indices, spectra, params_dict['b_i'], N_modes,
-                                            frac_error=frac_error, priors_width=priors_width)
+        N = estimate_errors(data, frac_error=1.0, priors_width=priors_width)
+        N[0,0] = noise[0][k_indices]
+        N[1,1] = noise[1][k_indices]
+        N[2,2] = noise[4][k_indices]
+        N[3,3] = noise[2][k_indices]
+
+        n = [np.sqrt(noise[0]), np.sqrt(noise[3]), np.sqrt(noise[5])]
+
     if error_x==True:
-        N = estimate_errors(data, frac_error=frac_error, priors_width=priors_width)
-        n = [spectra[0] * frac_error, spectra[3] * frac_error, spectra[5] * frac_error]
+        N = estimate_errors(data, frac_error=noise, priors_width=priors_width)
+        n = [spectra[0] * noise, spectra[3] * noise, spectra[5] * noise]
 
     if not noiseless:
         print('adding noise to simulation...')
@@ -437,20 +444,22 @@ def run_analysis(k_indices, spectra, params_dict, frac_error, model, N_modes=Non
 
     Beane = fitting.Beane_et_al(data, spectra, n[0], n[1], n[2], N_modes, k_indices)
     LSE = fitting.LSE_results(k_indices, data, N)
-    MCMC = fitting.MCMC_results(params_dict, k_indices, data, model, N,
+    MCMC = fitting.MCMC_results(params_dict, k_indices, data, model, N, priors=priors,
                                 priors_offset * params_dict['b_i'], priors_width=priors_width,
                                 nsteps=nsteps, backend_filename=backend_filename)
 
     return data, Beane, LSE, MCMC
 
-def keep_P_21(k_indices, spectra, params, noise, model, N_modes=None, nsteps=1e6,
-                                        noiseless=False, priors_offset=1.0, priors_width=.1,
-                                        backend_filename=None):
+def keep_P_21(k_indices, spectra, params, noise, model,
+                N_modes=None, nsteps=1e6, noiseless=False,
+                priors='gaussian', priors_offset=1.0, priors_width=.1,
+                                        error_x=True, backend_filename=None):
 
     data, Beane, LSE, MCMC = run_analysis(k_indices, spectra, params, noise, model,
                                         N_modes=N_modes, noiseless=noiseless,
                                         priors_offset=priors_offset, priors_width=priors_width,
-                                        nsteps=nsteps, backend_filename=backend_filename)
+                                        error_x=error_x, nsteps=nsteps,
+                                        backend_filename=backend_filename)
 
     samples_00 = add_P(MCMC[0], k_indices, (0,0))
 

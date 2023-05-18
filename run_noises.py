@@ -116,78 +116,78 @@ frac_op = .005
 frac_con = .01
 frac_pess = .10
 
-noise = np.linspace(0.001, .15, 10) #np.asarray([.001, .005, .01, .05, .1, .15])
+noise = np.asarray([.001, .005, .01, .05, .1, .15])
 
-# print('superfake temperature analysis')
-#
-# ### Superfake data and superfake noise levels
-# biases_sf = utils.extract_bias(k_indices, spectra_sf, P_m)
-# p_vals_sf = np.asarray([*biases_sf, P_m], dtype=object)
-#
-# params_sf = dict(zip(p_names, p_vals_sf))
-# ndim = utils.get_params(params_sf, k_indices).size
-# model = models.ScalarBias_crossonly(k=spectra_sf[0], params=params_sf)
-# N_modes_small = survey.calc_N_modes(k, 80**3 * u.Mpc**3, align='left')
-#
-# for i, n in enumerate(noise):
-#     t0 = time.time()
-#     print('Now on noise level',n,'%')
-#     nsteps = int(1e6)
-#     if n > .1:
-#         nsteps = int(1e7)
-#
-#     data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
-#                                             N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
-#                                             backend_filename=f'noise{n}_sf_nl_z{redshift}_int.h5')
-#     data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
-#                                             N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
-#                                             backend_filename=f'noise{n}_sf_z{redshift}_int.h5')
-#
-#
-#     np.savez(f'results_all_int/sf_fits/noise{n}_sf_nl_z{redshift}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
-#                                         samples=MCMC_nl[0], logp=MCMC_nl[1])
-#     np.savez(f'results_all_int/sf_fits/noise{n}_sf_z{redshift}_int', data=data, Beane=Beane, LSE=LSE,
-#                                         samples=MCMC[0], logp=MCMC[1])
-#
-#     tf = time.time()
-#     print(f'run {i} saved to disk')
-#     print('time to complete superfake analysis run {i} is:', (tf - t0) / 60 / 60, 'hours')
-#
+print('superfake temperature analysis')
+
+### Superfake data and superfake noise levels
+biases_sf = utils.extract_bias(k_indices, spectra_sf, P_m)
+p_vals_sf = np.asarray([*biases_sf, P_m], dtype=object)
+
+params_sf = dict(zip(p_names, p_vals_sf))
+ndim = utils.get_params(params_sf, k_indices).size
+model = models.ScalarBias_crossonly(k=spectra_sf[0], params=params_sf)
+N_modes_small = survey.calc_N_modes(k, 80**3 * u.Mpc**3, align='left')
+
+for i, n in enumerate(noise):
+    t0 = time.time()
+    print('Now on noise level',n,'%')
+    nsteps = int(1e6)
+    if n > .1:
+        nsteps = int(1e7)
+
+    data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
+                                            N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
+                                            backend_filename=f'noise{n}_sf_nl_z{redshift}_int.h5')
+    data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
+                                            N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
+                                            backend_filename=f'noise{n}_sf_z{redshift}_int.h5')
+
+
+    np.savez(f'results_all_int/sf_fits/noise{n}_sf_nl_z{redshift}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
+                                        samples=MCMC_nl[0], logp=MCMC_nl[1])
+    np.savez(f'results_all_int/sf_fits/noise{n}_sf_z{redshift}_int', data=data, Beane=Beane, LSE=LSE,
+                                        samples=MCMC[0], logp=MCMC[1])
+
+    tf = time.time()
+    print(f'run {i} saved to disk')
+    print('time to complete superfake analysis run {i} is:', (tf - t0) / 60 / 60, 'hours')
+
 # ### Simulated power law data and fractional noise error
-# print('power law analysis')
-#
-# biases_pl = utils.extract_bias(k_indices, spectra_pl, P_m)
-# p_vals_pl = np.asarray([*biases_pl, P_m], dtype=object)
-#
-# params_pl = dict(zip(p_names, p_vals_pl))
-# ndim = utils.get_params(params_pl, k_indices).size
-# model = models.ScalarBias_crossonly(k=spectra_pl[0], params=params_pl)
-# N_modes_small = survey.calc_N_modes(k, 80**3 * u.Mpc**3, align='left')
-#
-# for i, n in enumerate(noise):
-#     t0 = time.time()
-#     print('Now on noise level',n,'%')
-#     nsteps = int(1e6)
-#     if n > .1:
-#         nsteps = int(1e7)
-#
-#     # data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_pl, params_pl, n, model,
-#     #                                         N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
-#     #                                         backend_filename=f'noise{n}_pl_nl_z{redshift}_int.h5')
-#     data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_pl, params_pl, n, model,
-#                                             N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
-#                                             backend_filename=f'noise{n}_pl_z{redshift}_int.h5')
-#
-#
-#     # np.savez(f'results_noises/pl_fits/noise{n}_pl_nl_z{redshift}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
-#     #                                     samples=MCMC_nl[0], logp=MCMC_nl[1])
-#     np.savez(f'results_noises/pl_fits/noise{n}_pl_z{redshift}_int', data=data, Beane=Beane, LSE=LSE,
-#                                         samples=MCMC[0], logp=MCMC[1])
-#
-#
-#     tf = time.time()
-#     print(f'run {i} saved to disk')
-#     print('time to complete power law run {i} is:', (tf - t0) / 60, 'minutes')
+print('power law analysis')
+
+biases_pl = utils.extract_bias(k_indices, spectra_pl, P_m)
+p_vals_pl = np.asarray([*biases_pl, P_m], dtype=object)
+
+params_pl = dict(zip(p_names, p_vals_pl))
+ndim = utils.get_params(params_pl, k_indices).size
+model = models.ScalarBias_crossonly(k=spectra_pl[0], params=params_pl)
+N_modes_small = survey.calc_N_modes(k, 80**3 * u.Mpc**3, align='left')
+
+for i, n in enumerate(noise):
+    t0 = time.time()
+    print('Now on noise level',n,'%')
+    nsteps = int(1e6)
+    if n > .1:
+        nsteps = int(1e7)
+
+    data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_pl, params_pl, n, model,
+                                            N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
+                                            backend_filename=f'noise{n}_pl_nl_z{redshift}_int.h5')
+    data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_pl, params_pl, n, model,
+                                            N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
+                                            backend_filename=f'noise{n}_pl_z{redshift}_int.h5')
+
+
+    np.savez(f'results_all_int/pl_fits/noise{n}_pl_nl_z{redshift}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
+                                        samples=MCMC_nl[0], logp=MCMC_nl[1])
+    np.savez(f'results_all_int/pl_fits/noise{n}_pl_z{redshift}_int', data=data, Beane=Beane, LSE=LSE,
+                                        samples=MCMC[0], logp=MCMC[1])
+
+
+    tf = time.time()
+    print(f'run {i} saved to disk')
+    print('time to complete power law run {i} is:', (tf - t0) / 60, 'minutes')
 
 # ### Simulated brightness temperature data and fractional noise error
 print('brightness temperature analysis')

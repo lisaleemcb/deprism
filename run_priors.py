@@ -137,195 +137,57 @@ ndim = utils.get_params(params_sf, k_indices).size
 model = models.ScalarBias_crossonly(k=spectra_sf[0], params=params_sf)
 N_modes_small = survey.calc_N_modes(k, 80**3 * u.Mpc**3, align='left')
 
-P_21_Beane = np.zeros((priors.size, 2))
-P_21_MCMC_median = np.zeros((priors.size, 2))
-P_21_MCMC_maxlogp = np.zeros((priors.size, 2))
+t0 = time.time()
+print('Flat prior calculation...')
+nsteps = int(1e6)
+n = .05
+if n > .1:
+    nsteps = int(1e7)
 
-var_21_Beane = np.zeros((priors.size, 2))
-var_21_MCMC = np.zeros((priors.size, 2))
-
-# MCMC has three values: median, max logp, and std
-for i, p in enumerate(priors):
-
-    Beane_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, frac_con, model,
-                                            noiseless=False, priors_width=p, N_modes=N_modes_small)
-    Beane, MCMC = analysis.keep_P_21(k_indices, spectra_sf, params_sf, frac_con, model,
-                                            noiseless=True, priors_width=p, N_modes=N_modes_small)
-
-    P_21_Beane[i,0] = Beane_nl[0]
-    P_21_Beane[i,1] = Beane[0]
-
-    P_21_MCMC_median[i,0] = MCMC_nl[0]
-    P_21_MCMC_median[i,1] = MCMC[0]
-
-    P_21_MCMC_maxlogp[i,0] = MCMC_nl[1]
-    P_21_MCMC_maxlogp[i,1] = MCMC[1]
-
-    var_21_Beane[i,0] = Beane_nl[1]
-    var_21_Beane[i,1] = Beane[1]
-
-    var_21_MCMC[i,0] = MCMC_nl[2]
-    var_21_MCMC[i,1] = MCMC[2]
-
-prior_sf_stats = {'P_21_Beane': P_21_Beane,
-                'P_21_MCMC_median': P_21_MCMC_median,
-                'P_21_MCMC_maxlogp': P_21_MCMC_maxlogp,
-                'P_21_MCMC_median': P_21_MCMC_median,
-                'var_21_Beane': var_21_Beane,
-                'var_21_Beane': var_21_MCMC}
-
-np.savez('prior_sf_stats', P_21_Beane=P_21_Beane,
-                           P_21_MCMC_median=P_21_MCMC_median, P_21_MCMC_maxlogp=P_21_MCMC_maxlogp,
-                           var_21_Beane=var_21_Beane, var_21_MCMC=var_21_MCMC)
-
-# MCMC has three values: median, max logp, and std
-
-P_21_Beane_p = np.zeros((priors.size, 2))
-P_21_MCMC_median_p = np.zeros((priors.size, 2))
-P_21_MCMC_maxlogp_p = np.zeros((priors.size, 2))
-
-var_21_Beane_p = np.zeros((priors.size, 2))
-var_21_MCMC_p = np.zeros((priors.size, 2))
+data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
+                                        N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
+                                        priors='uniform',
+                                        backend_filename=f'noise{n}_bt_nl_z{redshift}_int.h5')
+data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
+                                        priors='uniform',
+                                        N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
+                                        backend_filename=f'noise{n}_bt_z{redshift}_int.h5')
 
 
-for i, p in enumerate(priors):
-
-    Beane_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, frac_con, model,
-                                            noiseless=False, priors_offset=p, N_modes=N_modes_small)
-    Beane, MCMC = analysis.keep_P_21(k_indices, spectra_sf, params_sf, frac_con, model,
-                                            noiseless=True, priors_offset=p, N_modes=N_modes_small)
-
-    P_21_Beane_p[i,0] = Beane_nl[0]
-    P_21_Beane_p[i,1] = Beane[0]
-
-    P_21_MCMC_median_p[i,0] = MCMC_nl[0]
-    P_21_MCMC_median_p[i,1] = MCMC[0]
-
-    P_21_MCMC_maxlogp_p[i,0] = MCMC_nl[1]
-    P_21_MCMC_maxlogp_p[i,1] = MCMC[1]
-
-    var_21_Beane_p[i,0] = Beane_nl[1]
-    var_21_Beane_p[i,1] = Beane[1]
-
-    var_21_MCMC_p[i,0] = MCMC_nl[2]
-    var_21_MCMC_p[i,1] = MCMC[2]
-
-prior_p_sf_stats = {'P_21_Beane': P_21_Beane_p,
-                'P_21_MCMC_median': P_21_MCMC_median_p,
-                'P_21_MCMC_maxlogp': P_21_MCMC_maxlogp_p,
-                'P_21_MCMC_median': P_21_MCMC_median_p,
-                'var_21_Beane': var_21_Beane_p,
-                'var_21_Beane': var_21_MCMC_p}
-
-np.savez('prior_sf_stats', P_21_Beane=P_21_Beane_p,
-                           P_21_MCMC_median=P_21_MCMC_median_p, P_21_MCMC_maxlogp=P_21_MCMC_maxlogp_p,
-                           var_21_Beane=var_21_Beane_p, var_21_MCMC=var_21_MCMC_p)
+np.savez(f'results_all_int/sf_fits/uniformprior_sf_nl_z{redshift}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
+                                    samples=MCMC_nl[0], logp=MCMC_nl[1])
+np.savez(f'results_all_int/sf_fits/uniformprior_sf_z{redshift}_int', data=data, Beane=Beane, LSE=LSE,
+                                    samples=MCMC[0], logp=MCMC[1])
 
 
-# ### Simulated power law data and fractional noise error
-# print('power law analysis')
-# ### Superfake data and superfake noise levels
-#
-# biases_pl = utils.extract_bias(k_indices, spectra_pl, P_m)
-# p_vals_pl = np.asarray([*biases_pl, P_m], dtype=object)
-#
-# params_pl = dict(zip(p_names, p_vals_pl))
-# ndim = utils.get_params(params_pl, k_indices).size
-# model = models.ScalarBias_crossonly(k=spectra_pl[0], params=params_pl)
-# N_modes_small = survey.calc_N_modes(k, 80**3 * u.Mpc**3, align='left')
-#
-# P_21_Beane = np.zeros((priors.size, 2))
-# P_21_MCMC_median = np.zeros((priors.size, 2))
-# P_21_MCMC_maxlogp = np.zeros((priors.size, 2))
-#
-# var_21_Beane = np.zeros((priors.size, 2))
-# var_21_MCMC = np.zeros((priors.size, 2))
-#
-# # MCMC has three values: median, max logp, and std
-# for i, p in enumerate(priors):
-#
-#     Beane_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_pl, params_pl, frac_con, model,
-#                                             noiseless=False, priors_offset=p, N_modes=N_modes_small)
-#     Beane, MCMC = analysis.keep_P_21(k_indices, spectra_pl, params_pl, frac_con, model,
-#                                             noiseless=True, priors_offset=p, N_modes=N_modes_small)
-#
-#     P_21_Beane[i,0] = Beane_nl[0]
-#     P_21_Beane[i,1] = Beane[0]
-#
-#     P_21_MCMC_median[i,0] = MCMC_nl[0]
-#     P_21_MCMC_median[i,1] = MCMC[0]
-#
-#     P_21_MCMC_maxlogp[i,0] = MCMC_nl[1]
-#     P_21_MCMC_maxlogp[i,1] = MCMC[1]
-#
-#     var_21_Beane[i,0] = Beane_nl[1]
-#     var_21_Beane[i,1] = Beane[1]
-#
-#     var_21_MCMC[i,0] = MCMC_nl[2]
-#     var_21_MCMC[i,1] = MCMC[2]
-#
-# prior_pl_stats = {'P_21_Beane': P_21_Beane,
-#                 'P_21_MCMC_median': P_21_MCMC_median,
-#                 'P_21_MCMC_maxlogp': P_21_MCMC_maxlogp,
-#                 'P_21_MCMC_median': P_21_MCMC_median,
-#                 'var_21_Beane': var_21_Beane,
-#                 'var_21_Beane': var_21_MCMC}
-#
-# np.savez('prior_pl_stats', P_21_Beane=P_21_Beane,
-#                            P_21_MCMC_median=P_21_MCMC_median, P_21_MCMC_maxlogp=P_21_MCMC_maxlogp,
-#                            var_21_Beane=var_21_Beane, var_21_MCMC=var_21_MCMC)
-#
-# #
-# # ### Simulated brightness temperature data and fractional noise error
-#
-# print('brightness temperature analysis')
-# ### Superfake data and superfake noise levels
-#
-# biases_bt = utils.extract_bias(k_indices, spectra_bt, P_m)
-# p_vals_bt = np.asarray([*biases_bt, P_m], dtype=object)
-#
-# params_bt = dict(zip(p_names, p_vals_bt))
-# ndim = utils.get_params(params_bt, k_indices).size
-# model = models.ScalarBias_crossonly(k=spectra_bt[0], params=params_bt)
-# N_modes_small = survey.calc_N_modes(k, 80**3 * u.Mpc**3, align='left')
-#
-# P_21_Beane = np.zeros((priors.size, 2))
-# P_21_MCMC_median = np.zeros((priors.size, 2))
-# P_21_MCMC_maxlogp = np.zeros((priors.size, 2))
-#
-# var_21_Beane = np.zeros((priors.size, 2))
-# var_21_MCMC = np.zeros((priors.size, 2))
-#
-# # MCMC has three values: median, max logp, and std
-# for i, p in enumerate(priors):
-#
-#     Beane_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_bt, params_bt, frac_con, model,
-#                                             noiseless=False, priors_offset=p, N_modes=N_modes_small)
-#     Beane, MCMC = analysis.keep_P_21(k_indices, spectra_bt, params_bt, frac_con, model,
-#                                             noiseless=True, priors_offset=p, N_modes=N_modes_small)
-#
-#     P_21_Beane[i,0] = Beane_nl[0]
-#     P_21_Beane[i,1] = Beane[0]
-#
-#     P_21_MCMC_median[i,0] = MCMC_nl[0]
-#     P_21_MCMC_median[i,1] = MCMC[0]
-#
-#     P_21_MCMC_maxlogp[i,0] = MCMC_nl[1]
-#     P_21_MCMC_maxlogp[i,1] = MCMC[1]
-#
-#     var_21_Beane[i,0] = Beane_nl[1]
-#     var_21_Beane[i,1] = Beane[1]
-#
-#     var_21_MCMC[i,0] = MCMC_nl[2]
-#     var_21_MCMC[i,1] = MCMC[2]
-#
-# prior_bt_stats = {'P_21_Beane': P_21_Beane,
-#                 'P_21_MCMC_median': P_21_MCMC_median,
-#                 'P_21_MCMC_maxlogp': P_21_MCMC_maxlogp,
-#                 'P_21_MCMC_median': P_21_MCMC_median,
-#                 'var_21_Beane': var_21_Beane,
-#                 'var_21_Beane': var_21_MCMC}
-#
-# np.savez('prior_bt_stats', P_21_Beane=P_21_Beane,
-#                            P_21_MCMC_median=P_21_MCMC_median, P_21_MCMC_maxlogp=P_21_MCMC_maxlogp,
-#                            var_21_Beane=var_21_Beane, var_21_MCMC=var_21_MCMC)
+tf = time.time()
+print(f'run {i} saved to disk')
+print(f'time to complete uniform prior run {i} is:', (tf - t0) / 60, 'minutes')
+
+t0 = time.time()
+print('Prior offset calculation...')
+nsteps = int(1e6)
+n = .05
+if n > .1:
+    nsteps = int(1e7)
+
+for p in [.75, 95, 1.0, 1.05, 1.25]:
+    data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
+                                            N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
+                                            priors='gaussian', priors_offset=p,
+                                            backend_filename=f'noise{n}_bt_nl_z{redshift}_int.h5')
+    data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
+                                            priors='gaussian', priors_offset=p,
+                                            N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
+                                            backend_filename=f'noise{n}_bt_z{redshift}_int.h5')
+
+
+    np.savez(f'results_all_int/sf_fits/prioroffset{p}_sf_nl_z{redshift}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
+                                        samples=MCMC_nl[0], logp=MCMC_nl[1])
+    np.savez(f'results_all_int/sf_fits/prioroffset{p}_sf_z{redshift}_int', data=data, Beane=Beane, LSE=LSE,
+                                        samples=MCMC[0], logp=MCMC[1])
+
+
+tf = time.time()
+print(f'run {i} saved to disk')
+print(f'time to complete prior offset runs is:', (tf - t0) / 60, 'minutes')
