@@ -37,22 +37,22 @@ which_box = 'little'
 print('running analysis on', which_box, 'box')
 
 if which_box == 'little':
-#     rez = 512
-#     box = h5py.File('L80_halos_z=6.0155.hdf5', 'r')
-#     print(box.keys())
-#
-     redshift = 6.0155
-#     masses = np.array(box[('mass')])
-#     pos = np.array(box[('pos')])
-#     density = np.array(box[('rho')])
-#     x, y, z = pos.T
-#
-#     runs = 3
-#     n_bins = 20
-#
-#     box_size = 80 # in Mpc
-#     r = np.linspace(0, box_size, rez)
-#     r_vec = np.stack((r, r, r))
+    rez = 512
+    box = h5py.File('L80_halos_z=6.0155.hdf5', 'r')
+    print(box.keys())
+
+    redshift = 6.0155
+    masses = np.array(box[('mass')])
+    pos = np.array(box[('pos')])
+    density = np.array(box[('rho')])
+    x, y, z = pos.T
+
+    runs = 3
+    n_bins = 20
+
+    box_size = 80 # in Mpc
+    r = np.linspace(0, box_size, rez)
+    r_vec = np.stack((r, r, r))
 
 if which_box == 'big':
 #     rez = 1024
@@ -79,15 +79,15 @@ if which_box == 'big':
 # mass_voxels, mass_edges = np.histogramdd([x,y,z], bins=rez,
 #                                                 weights=masses)
 
-#print('generating underlying matter density spectrum')
-print('loading underlying matter density spectrum')
+print('generating underlying matter density spectrum')
+#print('loading underlying matter density spectrum')
 
-#delta = utils.overdensity(density)
-#k, P_m = analysis.calc_pspec(r_vec, [delta], n_bins=n_bins, bin_scale='log')
-#np.savez('matter_pspec_6.0155', k=k, P_m=P_m)
+delta = utils.overdensity(density)
+k, P_m = analysis.calc_pspec(r_vec, [delta], n_bins=n_bins, bin_scale='log')
+np.savez('matter_pspec_z{redshift}', k=k, P_m=P_m)
 
 # matter_pspec = np.load('/home/mcbrie2/projects/def-acliu/mcbrie2/deprism/spectra/matter_pspec_6.0155.npz')
-matter_pspec = np.load(f'spectra/matter_pspec_z{redshift}.npz')
+#matter_pspec = np.load(f'spectra/matter_pspec_z{redshift}.npz')
 k = matter_pspec['k']
 P_m = matter_pspec['P_m']
 
