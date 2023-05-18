@@ -444,8 +444,9 @@ def run_analysis(k_indices, spectra, params_dict, noise, model, N_modes=None,
 
     Beane = fitting.Beane_et_al(data, spectra, n[0], n[1], n[2], N_modes, k_indices)
     LSE = fitting.LSE_results(k_indices, data, N)
-    MCMC = fitting.MCMC_results(params_dict, k_indices, data, model, N, priors=priors,
-                                priors_offset * params_dict['b_i'], priors_width=priors_width,
+    MCMC = fitting.MCMC_results(params_dict, k_indices, data, model, N,
+                                priors_offset * params_dict['b_i'],  priors=priors,
+                                priors_width=priors_width,
                                 nsteps=nsteps, backend_filename=backend_filename)
 
     return data, Beane, LSE, MCMC
