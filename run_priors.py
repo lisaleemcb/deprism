@@ -162,8 +162,7 @@ np.savez(f'results_all_int/sf_fits/uniformprior_sf_z{redshift}_int', data=data, 
 
 
 tf = time.time()
-print(f'run {i} saved to disk')
-print(f'time to complete uniform prior run {i} is:', (tf - t0) / 60, 'minutes')
+print(f'time to complete uniform prior run is:', (tf - t0) / 60, 'minutes')
 
 t0 = time.time()
 print('Prior offset calculation...')
@@ -176,11 +175,11 @@ for p in [.75, 95, 1.0, 1.05, 1.25]:
     data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
                                             N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
                                             priors='gaussian', priors_offset=p,
-                                            backend_filename=f'noise{n}_bt_nl_z{redshift}_int.h5')
+                                            backend_filename=f'prioroffset{p}_bt_nl_z{redshift}_int.h5')
     data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
                                             priors='gaussian', priors_offset=p,
                                             N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
-                                            backend_filename=f'noise{n}_bt_z{redshift}_int.h5')
+                                            backend_filename=f'prioroffset{p}_bt_z{redshift}_int.h5')
 
 
     np.savez(f'results_all_int/sf_fits/prioroffset{p}_sf_nl_z{redshift}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
@@ -190,5 +189,4 @@ for p in [.75, 95, 1.0, 1.05, 1.25]:
 
 
 tf = time.time()
-print(f'run {i} saved to disk')
 print(f'time to complete prior offset runs is:', (tf - t0) / 60, 'minutes')
