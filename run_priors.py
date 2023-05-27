@@ -171,7 +171,7 @@ n = .05
 if n > .1:
     nsteps = int(1e7)
 
-for p in [.75, 95, 1.0, 1.05, 1.25]:
+for p in [.75, .95, 1.0, 1.05, 1.25]:
     data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
                                             N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
                                             priors='gaussian', priors_offset=p,
