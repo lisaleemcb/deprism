@@ -370,7 +370,7 @@ def Beane_et_al(data, spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices):
     P_ii = P_ij * P_ik / P_jk
     var = analysis.var_Pii_Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices)
 
-    return P_ii, np.std(var[0])
+    return P_ii, np.sqrt(var)[0]
 
 def MCMC_results(params, k_indices, data, model, N, b0_guess, p0_in=None,
                 priors='gaussian', priors_width=.1, positivity=False,

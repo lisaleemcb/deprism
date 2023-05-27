@@ -148,11 +148,11 @@ if n > .1:
 data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
                                         N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
                                         priors='uniform',
-                                        backend_filename=f'noise{n}_bt_nl_z{redshift}_int.h5')
+                                        backend_filename=f'uniformprior_sf_nl_z{redshift}_int.h5')
 data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
                                         priors='uniform',
                                         N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
-                                        backend_filename=f'noise{n}_bt_z{redshift}_int.h5')
+                                        backend_filename=f'uniformprior_sf_z{redshift}_int.h5')
 
 
 np.savez(f'results_all_int/sf_fits/uniformprior_sf_nl_z{redshift}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,

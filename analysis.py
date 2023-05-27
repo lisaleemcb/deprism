@@ -457,7 +457,7 @@ def keep_P_21(k_indices, spectra, params, noise, model,
                                         error_x=True, backend_filename=None):
 
     data, Beane, LSE, MCMC = run_analysis(k_indices, spectra, params, noise, model,
-                                        N_modes=N_modes, noiseless=noiseless,
+                                        N_modes=N_modes, noiseless=noiseless, priors=priors,
                                         priors_offset=priors_offset, priors_width=priors_width,
                                         error_x=error_x, nsteps=nsteps,
                                         backend_filename=backend_filename)
