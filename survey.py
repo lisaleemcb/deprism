@@ -24,11 +24,20 @@ Omega_m = 0.27
 Omega_r = 10e-4
 Omega_Lambda = 0.73
 
-nu_CII = 1.900539e12 * u.Hz # Hz
-nu_CO = 115.271203e9 * u.Hz # Hz
-nu_O_III = 1e9 * u.Hz # Hz
+lambda_OIII = 88 * u.um # micrometers
+lambda_CII = 158 * u.um
+lambda_21cm = 21 * u.cm # centimeters, of course!
 
-lambda_CII = 158 * u.nm # nanometers
+# nu_21cm = 1420 * u.MHz
+# nu_CII = 1.900539e12 * u.Hz # Hz
+# nu_CO = 115.271203e9 * u.Hz # Hz
+# nu_OIII = 88 * u.Hz # Hz
+
+nu_21cm = lambda_21cm.to(u.MHz, equivalencies=u.spectral())
+nu_CII = lambda_CII.to(u.GHz, equivalencies=u.spectral()) #158 um micrometers
+nu_OIII = lambda_OIII.to(u.GHz, equivalencies=u.spectral())
+
+#lambda_CO = nu_CO.to(u.mm, equivalencies=u.spectral())
 
 def error_bars(P_x, P_line1, P_line2, P_N, W_k, N_modes):
     sigma = (1 / np.sqrt(N_modes)) * np.sqrt(P_x**2
@@ -84,6 +93,10 @@ def calc_P_N(survey_specs, redshift=7.0, rest_wavelength=None):
 
     P_N = V_pix * sigma_N**2 / t_pix
 
+    print('V_pix:', V_pix)
+    print('t_pix', t_pix)
+    print('sigma_N', sigma_N)
+
     return P_N
 
 def calc_V_pix(survey_specs, redshift, rest_wavelength):
@@ -103,10 +116,60 @@ def calc_t_pix(survey_specs, redshift, rest_wavelength):
                                 rest_wavelength).to(u.arcmin)
     Omega_beam = calc_Omega_beam(theta_beam)
 
+    print('sigma_beam:', theta_to_sigma(theta_beam).to(u.arcmin))
+
     t_pix = (survey_specs['t_obs'] * survey_specs['N_spec_eff']
             * Omega_beam / survey_specs['S_A'])
 
     return t_pix.to(u.s, equivalencies=u.dimensionless_angles())
+
+def calc_P_N_21cm(survey_specs, k, redshift):
+    time_samples = np.sqrt((6 * u.hr) / survey_specs['t_per_day'])
+    red_bls = np.sqrt(10**4 / survey_specs['f_ratio'])   # f_ratio is f/f_0
+
+    # From HERA Phase I Upper Limits on the 21 cm EoR Power Spectrum
+    # actually from Parsons 2012 now
+    X = calc_X(redshift)
+    Y = calc_Y(redshift)
+    #X2Y = 540 * ((1 + redshift) / 10)**0.9 * u.Mpc**3 / (u.sr * u.Hz)
+
+    #X = Planck18.comoving_distance(redshift).to(u.Mpc)
+
+    nu_obs = utils.calc_nu_obs(nu_21cm, redshift)
+    T_sys = calc_T_sys(nu_obs)
+
+    dimless = (k / (.1 / u.Mpc))**3
+    beam_err = (survey_specs['beam_width'] / (.76 * u.sr))**(3/2)
+    T_sys_err = (T_sys / (500 * u.K))**2
+    days = ((120 * u.day) / survey_specs['t_obs'])
+    bl_length = (survey_specs['min_baseline'] / (20 * u.m))
+
+    N_per_bl = X**2 * Y * survey_specs['beam_width'] * T_sys**2 / (2 * survey_specs['t_int'])
+    N_per_bl = 2.8e4 * dimless * beam_err * T_sys_err * days * bl_length * u.mK**2
+
+    equiv = u.brightness_temperature(utils.calc_nu_obs(nu_21cm, redshift))
+
+    return (np.sqrt(N_per_bl * time_samples).to(u.Jy  / u.sr, equivalencies=equiv))**2
+
+def calc_X(redshift):
+    return Planck18.comoving_distance(redshift) / u.radian**2
+
+def calc_Y(redshift):
+    H = Planck18.H(redshift)
+
+    return (const.c * (1 + redshift)**2) / (nu_21cm * H)
+
+    # Y = 17 * np.sqrt((1 + redshift) / 10) * (Planck18.Om0 * Planck18.h**2 / 0.15)**(-.5)
+    #
+    # return Y * u.Mpc / u.MHz
+
+def calc_T_sys(nu_obs):
+    """System Temperature for HERA
+        From DeBoer et al. (2016)
+    """
+    return 100 * u.K + 120 * (nu_obs / (150 * u.MHz))**(-2.55) * u.K
+
+
 
 """
 functions related to instrument beams

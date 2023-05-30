@@ -377,7 +377,7 @@ def MCMC_results(params, k_indices, data, model, N, b0_guess, p0_in=None,
                 pdf='gaussian', backend_filename=None, nsteps=1e6, nwalkers=48,
                 burn_in=int(1e2), parallel=False):
     # lopping off the bias
-    b0_guess = cp.deepcopy(data[-1])
+    #b0_guess = cp.deepcopy(data[-1])
     data_size = model.pspec(k_indices).size
     data = data[1:data_size*len(k_indices)+1]
     N = N[1:data_size*len(k_indices)+1,1:data_size*len(k_indices)+1]

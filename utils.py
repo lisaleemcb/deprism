@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import analysis
 import models
 
-from astropy.cosmology import Planck15
+from astropy.cosmology import Planck18
 from astropy import units as u
 from astropy import constants as const
 from scipy.integrate import simps #simpson
@@ -66,7 +66,7 @@ def specific_intensity(z, e=None, nu=nu_CII, L=None):
     if L is not None:
         e = L * phi(z)
 
-    I = (e * const.c) / (4.0 * np.pi * nu * Planck15.H(z))
+    I = (e * const.c) / (4.0 * np.pi * nu * Planck18.H(z))
 
     return (I * u.steradian**(-1)).to(u.Jy * u.steradian**(-1))
 
