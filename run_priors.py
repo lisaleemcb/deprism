@@ -120,10 +120,6 @@ P_CII_OIII = spectra_bt[4] * u.Mpc**3 * u.Jy**2 * u.steradian**(-2)
 p_names = np.asarray(['b_i','b_j', 'b_k', 'P_m'])
 k_indices = [6]
 
-frac_op = .005
-frac_con = .01
-frac_pess = .10
-
 priors = np.arange(.75,1.25,.05)
 
 print('superfake analysis')
@@ -138,55 +134,62 @@ ndim = utils.get_params(params_sf, k_indices).size
 model = models.ScalarBias_crossonly(k=spectra_sf[0], params=params_sf)
 N_modes_small = survey.calc_N_modes(k, 80**3 * u.Mpc**3, align='left')
 
-t0 = time.time()
-print('Flat prior calculation...')
-nsteps = int(1e6)
-n = .05
-if n > .1:
-    nsteps = int(1e7)
-
-data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
-                                        N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
-                                        priors='uniform',
-                                        backend_filename=f'uniformprior_sf_nl_z{redshift}_int.h5')
-data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
-                                        priors='uniform',
-                                        N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
-                                        backend_filename=f'uniformprior_sf_z{redshift}_int.h5')
-
-
-np.savez(f'results_all_int/sf_fits/uniformprior_sf_nl_z{redshift}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
-                                    samples=MCMC_nl[0], logp=MCMC_nl[1])
-np.savez(f'results_all_int/sf_fits/uniformprior_sf_z{redshift}_int', data=data, Beane=Beane, LSE=LSE,
-                                    samples=MCMC[0], logp=MCMC[1])
+# t0 = time.time()
+# print('Flat prior calculation...')
+# nsteps = int(1e6)
+# n = .05
+# if n > .1:
+#     nsteps = int(1e7)
+#
+# data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
+#                                         N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
+#                                         priors='uniform',
+#                                         backend_filename=f'uniformprior_sf_nl_z{redshift}_int.h5')
+# data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
+#                                         priors='uniform',
+#                                         N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
+#                                         backend_filename=f'uniformprior_sf_z{redshift}_int.h5')
+#
+#
+# np.savez(f'results_all_int/sf_fits/uniformprior_sf_nl_z{redshift}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
+#                                     samples=MCMC_nl[0], logp=MCMC_nl[1])
+# np.savez(f'results_all_int/sf_fits/uniformprior_sf_z{redshift}_int', data=data, Beane=Beane, LSE=LSE,
+#                                     samples=MCMC[0], logp=MCMC[1])
 
 
 tf = time.time()
 print(f'time to complete uniform prior run is:', (tf - t0) / 60, 'minutes')
 
-t0 = time.time()
-print('Prior offset calculation...')
-nsteps = int(1e6)
-n = .05
-if n > .1:
-    nsteps = int(1e7)
 
-for p in [.75, .95, 1.0, 1.05, 1.25]:
-    data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
-                                            N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
-                                            priors='gaussian', priors_offset=p,
-                                            backend_filename=f'prioroffset{p}_bt_nl_z{redshift}_int.h5')
-    data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
-                                            priors='gaussian', priors_offset=p,
-                                            N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
-                                            backend_filename=f'prioroffset{p}_bt_z{redshift}_int.h5')
+noise = np.asarray([.001, .005, .01, .05, .1, .15])
+
+for i, n in enumerate(noise):
+    t0 = time.time()
+    print('Now on noise level',n,'%')
+    nsteps = int(1e6)
+    if n > .1:
+        nsteps = int(1e7)
+
+    print('Prior offset calculation...')
+    p = .95
 
 
-    np.savez(f'results_all_int/sf_fits/prioroffset{p}_sf_nl_z{redshift}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
-                                        samples=MCMC_nl[0], logp=MCMC_nl[1])
-    np.savez(f'results_all_int/sf_fits/prioroffset{p}_sf_z{redshift}_int', data=data, Beane=Beane, LSE=LSE,
-                                        samples=MCMC[0], logp=MCMC[1])
+
+        data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
+                                                N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
+                                                priors='gaussian', priors_offset=p,
+                                                backend_filename=f'prioroffset{p}_noise{n}_bt_nl_z{redshift}_int.h5')
+        data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
+                                                priors='gaussian', priors_offset=p,
+                                                N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
+                                                backend_filename=f'prioroffset{p}_noise_{n}_bt_z{redshift}_int.h5')
 
 
-tf = time.time()
-print(f'time to complete prior offset runs is:', (tf - t0) / 60, 'minutes')
+        np.savez(f'results_all_int/sf_fits/prioroffset{p}_noise{n}_sf_nl_z{redshift}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
+                                            samples=MCMC_nl[0], logp=MCMC_nl[1])
+        np.savez(f'results_all_int/sf_fits/prioroffset{p}_noise{n}_sf_z{redshift}_int', data=data, Beane=Beane, LSE=LSE,
+                                            samples=MCMC[0], logp=MCMC[1])
+
+
+    tf = time.time()
+    print(f'time to complete prior offset runs is:', (tf - t0) / 60, 'minutes')

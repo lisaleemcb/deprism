@@ -138,17 +138,17 @@ def calc_P_N_21cm(survey_specs, k, redshift):
     nu_obs = utils.calc_nu_obs(nu_21cm, redshift)
     T_sys = calc_T_sys(nu_obs)
 
-    dimless = (k / (.1 / u.Mpc))**3
-    beam_err = (survey_specs['beam_width'] / (.76 * u.sr))**(3/2)
+    dimless = (k / (.1 * Planck18.h / u.Mpc))**3
+    beam_err = (survey_specs['beam_width'] / (.76 * u.sr)).to(u.sr, equivalencies=u.dimensionless_angles())**(3/2)
+    print('beam_err', beam_err)
     T_sys_err = (T_sys / (500 * u.K))**2
-    days = ((120 * u.day) / survey_specs['t_obs'])
-    bl_length = (survey_specs['min_baseline'] / (20 * u.m))
+    days = ((120 * u.day) / survey_specs['t_days'])
+    bl_length = (survey_specs['max_baseline'] / (20 * u.m))
 
-    N_per_bl = X**2 * Y * survey_specs['beam_width'] * T_sys**2 / (2 * survey_specs['t_int'])
+    #N_per_bl = X**2 * Y * survey_specs['beam_width'] * T_sys**2 / (2 * survey_specs['t_int'])
     N_per_bl = 2.8e4 * dimless * beam_err * T_sys_err * days * bl_length * u.mK**2
-
     equiv = u.brightness_temperature(utils.calc_nu_obs(nu_21cm, redshift))
-
+    print(N_per_bl)
     return (np.sqrt(N_per_bl * time_samples).to(u.Jy  / u.sr, equivalencies=equiv))**2
 
 def calc_X(redshift):

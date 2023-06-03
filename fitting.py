@@ -343,7 +343,7 @@ def recover_params_LSE(k, k_indices, lumen_pspecs, model, density, variances,
     return params, errors
 
 def LSE_results(k_indices, data, N):
-    LSE = estimators.Estimators(k_indices, data[1:], N[1:,1:])
+    LSE = estimators.Estimators(k_indices, data[1:], N[1:,1:] / data[1:]**2)
     results = LSE.LSE_3cross_1bias()
 
     # params, errors without 21cm

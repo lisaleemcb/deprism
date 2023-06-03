@@ -382,10 +382,11 @@ def initialize_fits(k_indices, spectra, P_m, variances, N_frac_error=None):
 
 def delog_errors(results):
     log_params, log_errors = results
+    params = np.exp(log_params)
+    print(log_errors)
     log_var = np.diag(log_errors)
     var = np.zeros_like(log_var)
-    var[:-1] = np.exp(log_params[:-1]) * log_var[:-1]
-    var[-1] = np.exp(log_params[-1]) * log_var[-1]
+    var = np.exp(log_params) * log_var
 
     return var
 

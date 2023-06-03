@@ -42,13 +42,14 @@ specs_PAPER = {'sigma_pix': None,
                'N_pol': 2,
                'T_sys': 500 * u.K,
                't_per_day': 6 * u.hr,
+               't_days': 120 * u.day,
                'f_ratio': 3.34e4}
 
 # specs pulled (partially) from:
 # Pober et al. https://arxiv.org/pdf/1310.7031.pdf
 specs_HERA = {'sigma_pix': None,
                'N_det': None,
-               'beam_width': 10 * u.degree,
+               'beam_width': 10**2 * u.degree**2,
                'min_baseline': 14.6 * u.m,
                'max_baseline': 160.9 * u.m,
                'D_dish': 140 * u.m,
@@ -62,13 +63,14 @@ specs_HERA = {'sigma_pix': None,
                'N_pol': 2,
                'T_sys': 300 * u.K, # at 160 MHz, just an average uses the full expression in survey.py
                't_per_day': 12 * u.hr,
+               't_days': 120 * u.day,
                't_int': 300 * u.s,
                'f_ratio': 3.34e4}
 
 # D_dish is specified due to coding laziness. Should be max_baseline
 specs_HERA_future = {'sigma_pix': None,
                'N_det': None,
-               'beam_width': .76 * u.steradian,
+               'beam_width': 10**2 * u.degree**2,
                'min_baseline': 14.6 * u.m,
                'max_baseline': 5000 * u.m,
                'D_dish': 5000 * u.m,
@@ -83,6 +85,7 @@ specs_HERA_future = {'sigma_pix': None,
                'N_pol': 2,
                'T_sys': 300 * u.K, # at 160 MHz, just an average uses the full expression in survey.py
                't_per_day': 12 * u.hr,
+               't_days': 120 * u.day,
                't_int': 300 * u.s,
                'f_ratio': 3.34e4}
 
