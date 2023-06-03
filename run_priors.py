@@ -173,22 +173,20 @@ for i, n in enumerate(noise):
     print('Prior offset calculation...')
     p = .95
 
+    data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
+                                            N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
+                                            priors='gaussian', priors_offset=p,
+                                            backend_filename=f'prioroffset{p}_noise{n}_bt_nl_z{redshift}_int.h5')
+    data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
+                                            priors='gaussian', priors_offset=p,
+                                            N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
+                                            backend_filename=f'prioroffset{p}_noise_{n}_bt_z{redshift}_int.h5')
 
 
-        data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
-                                                N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
-                                                priors='gaussian', priors_offset=p,
-                                                backend_filename=f'prioroffset{p}_noise{n}_bt_nl_z{redshift}_int.h5')
-        data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
-                                                priors='gaussian', priors_offset=p,
-                                                N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
-                                                backend_filename=f'prioroffset{p}_noise_{n}_bt_z{redshift}_int.h5')
-
-
-        np.savez(f'results_all_int/sf_fits/prioroffset{p}_noise{n}_sf_nl_z{redshift}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
-                                            samples=MCMC_nl[0], logp=MCMC_nl[1])
-        np.savez(f'results_all_int/sf_fits/prioroffset{p}_noise{n}_sf_z{redshift}_int', data=data, Beane=Beane, LSE=LSE,
-                                            samples=MCMC[0], logp=MCMC[1])
+    np.savez(f'results_all_int/sf_fits/prioroffset{p}_noise{n}_sf_nl_z{redshift}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
+                                        samples=MCMC_nl[0], logp=MCMC_nl[1])
+    np.savez(f'results_all_int/sf_fits/prioroffset{p}_noise{n}_sf_z{redshift}_int', data=data, Beane=Beane, LSE=LSE,
+                                        samples=MCMC[0], logp=MCMC[1])
 
 
     tf = time.time()
