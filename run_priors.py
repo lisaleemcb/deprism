@@ -156,10 +156,10 @@ N_modes_small = survey.calc_N_modes(k, 80**3 * u.Mpc**3, align='left')
 # np.savez(f'results_all_int/sf_fits/uniformprior_sf_z{redshift}_int', data=data, Beane=Beane, LSE=LSE,
 #                                     samples=MCMC[0], logp=MCMC[1])
 
-
-tf = time.time()
-print(f'time to complete uniform prior run is:', (tf - t0) / 60, 'minutes')
-
+# 
+# tf = time.time()
+# print(f'time to complete uniform prior run is:', (tf - t0) / 60, 'minutes')
+#
 
 noise = np.asarray([.001, .005, .01, .05, .1, .15])
 
