@@ -26,7 +26,6 @@ class Estimators:
                     [1, 0, 1, 1]])
 
         num_P_m = (self.data.size - 1) % 4
-        print(num_P_m)
 
         #A = np.zeros()
 
@@ -37,11 +36,11 @@ class Estimators:
             raise Exception('data shape must be 4 observations')
 
         if noise is not None:
-            self.noise = utils.log_noise(noise, self.data)
-            print(self.noise)
+            self.noise = noise # utils.log_noise(noise, self.data)
+            print('LSE noise estimator', self.noise)
 
-        else:
-            self.noise = utils.log_noise(self.noise, self.data)
+        # else:
+        #     self.noise = utils.log_noise(self.noise, self.data)
 
         A = np.array([[1, 1, 0, 1],
                     [0, 1, 1, 1],
@@ -59,11 +58,10 @@ class Estimators:
             raise Exception('data shape must be 5 observations')
 
         if noise is not None:
-            self.noise = utils.log_noise(noise, self.data)
-            print(self.noise)
+            self.noise = noise # utils.log_noise(noise, self.data)
 
-        else:
-            self.noise = utils.log_noise(self.noise, self.data)
+        # else:
+        #     self.noise = utils.log_noise(self.noise, self.data)
 
         A_base = np.array([[2, 0, 0, 1],
                     [1, 1, 0, 1],

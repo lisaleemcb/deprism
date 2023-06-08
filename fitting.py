@@ -348,17 +348,19 @@ def LSE_results(k_indices, data, N):
 
     # params, errors without 21cm
     p_ = np.exp(results[0])
-    e_ = utils.delog_errors(results)
+    e_ = np.diag(results[1])
 
     params = np.zeros((p_.size + 1))
     errors = np.zeros((e_.size + 1))
 
     for i in range(p_.size):
         params[i] = p_[i]
-        errors[i] = e_[i]
+        errors[i] = p_[i]**2 * e_[i]
 
     params[-1] = p_[0]**2 * p_[-1]
-    errors[-1] = params[-1] * np.sqrt((e_[0] / p_[0])**2 + (e_[0] / p_[0])**2 + (e_[-1] / p_[-1])**2)
+
+    err_b02 = 2 * params[0] * errors[0]
+    errors[-1] = params[0] * errors[3] + err_b02 * params[3]
 
     return params, errors
 
