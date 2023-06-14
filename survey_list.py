@@ -51,41 +51,40 @@ specs_HERA = {'sigma_pix': None,
                'N_det': None,
                'beam_width': 10**2 * u.degree**2,
                'min_baseline': 14.6 * u.m,
-               'max_baseline': 160.9 * u.m,
-               'D_dish': 140 * u.m,
+               'max_baseline': 600 * u.m,
+               'D_dish': 600 * u.m,
                'nu_obs_min': 100.0 * u.GHz,
                'nu_obs_max': 200.0 * u.GHz,
-               'delta_nu': 97.8 * u.kHz,
+               'delta_nu': 50 * u.kHz,
                'B_nu': 6 * u.MHz,
                't_obs': 120 * u.day,
                'S_A': 1440 * u.degree**2,
                'N': 32,  # number of antennas
-               'N_pol': 2,
+               'N_pol': 331,
                'T_sys': 300 * u.K, # at 160 MHz, just an average uses the full expression in survey.py
                't_per_day': 12 * u.hr,
-               't_days': 120 * u.day,
+               't_days': 160 * u.day,
                't_int': 300 * u.s,
                'f_ratio': 3.34e4}
 
 # D_dish is specified due to coding laziness. Should be max_baseline
 specs_HERA_future = {'sigma_pix': None,
                'N_det': None,
-               'beam_width': 10**2 * u.degree**2,
+               'beam_width': 1.0**2 * u.degree**2,
                'min_baseline': 14.6 * u.m,
-               'max_baseline': 5000 * u.m,
+               'max_baseline': 5000 * u.m, # must match 'D_dish'
                'D_dish': 5000 * u.m,
                'nu_obs_min': 100.0 * u.GHz,
                'nu_obs_max': 200.0 * u.GHz,
-               'delta_nu': 97.8 * u.kHz,
-               'B_nu': 1 * u.GHz,
-               't_obs':  120 * u.day,
+               'delta_nu': 1.0 * u.kHz,
+               'B_nu': 10 * u.MHz,
+               't_obs': 120 * u.day,
                'S_A': 1440 * u.degree**2,
-               'AGN Source': None,
-               'N': 32,  # number of antennas
+               'N': 600,  # number of antennas
                'N_pol': 2,
                'T_sys': 300 * u.K, # at 160 MHz, just an average uses the full expression in survey.py
                't_per_day': 12 * u.hr,
-               't_days': 120 * u.day,
+               't_days': 160 * u.day,
                't_int': 300 * u.s,
                'f_ratio': 3.34e4}
 

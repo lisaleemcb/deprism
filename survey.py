@@ -129,26 +129,30 @@ def calc_P_N_21cm(survey_specs, k, redshift):
 
     # From HERA Phase I Upper Limits on the 21 cm EoR Power Spectrum
     # actually from Parsons 2012 now
-    X = calc_X(redshift)
-    Y = calc_Y(redshift)
+    # X = calc_X(redshift)
+    # Y = calc_Y(redshift)
     #X2Y = 540 * ((1 + redshift) / 10)**0.9 * u.Mpc**3 / (u.sr * u.Hz)
-
-    #X = Planck18.comoving_distance(redshift).to(u.Mpc)
 
     nu_obs = utils.calc_nu_obs(nu_21cm, redshift)
     T_sys = calc_T_sys(nu_obs)
 
     dimless = (k / (.1 * Planck18.h / u.Mpc))**3
-    beam_err = (survey_specs['beam_width'] / (.76 * u.sr)).to(u.sr, equivalencies=u.dimensionless_angles())**(3/2)
-    print('beam_err', beam_err)
+    beam_err = (survey_specs['beam_width'].to(u.sr, equivalencies=u.dimensionless_angles()) / (.76 * u.sr))**(3/2)
+
     T_sys_err = (T_sys / (500 * u.K))**2
     days = ((120 * u.day) / survey_specs['t_days'])
     bl_length = (survey_specs['max_baseline'] / (20 * u.m))
+    f_ratio = survey_specs['f_ratio']
+    # print('beam err:', beam_err)
+    # print('days:', days)
+    # print('bl_length', bl_length)
+    # print('T_sys_err', T_sys_err)
+    # print('1overf', 1 / f_ratio)
 
     #N_per_bl = X**2 * Y * survey_specs['beam_width'] * T_sys**2 / (2 * survey_specs['t_int'])
-    N_per_bl = 2.8e4 * dimless * beam_err * T_sys_err * days * bl_length * u.mK**2
+    N_per_bl = 2.8e4 * dimless * beam_err * T_sys_err * days * bl_length / f_ratio * u.mK**2
     equiv = u.brightness_temperature(utils.calc_nu_obs(nu_21cm, redshift))
-    print(N_per_bl)
+
     return (np.sqrt(N_per_bl * time_samples).to(u.Jy  / u.sr, equivalencies=equiv))**2
 
 def calc_X(redshift):
@@ -322,7 +326,7 @@ def calc_sigma_perp(survey_specs, redshift, rest_wavelength):
     return sigma_perp.to(u.Mpc, equivalencies=u.dimensionless_angles())
 
 def calc_sigma_para(survey_specs, redshift, nu_obs):
-
+    # print('delta nu', survey_specs['delta_nu'])
     sigma_para = ((const.c / Planck18.H(redshift))
                 * (survey_specs['delta_nu'] * (1 + redshift)**2 / nu_obs))
 
@@ -333,6 +337,28 @@ def set_sigma_para(sigma_para, redshift, nu_obs):
     delta_nu = (sigma_para * Planck18.H(redshift) * nu_obs) / (const.c * (1 + redshift))
 
     return delta_nu
+
+def set_D_dish(theta_beam, rest_wavelength, redshift):
+    """Calculates necessary dish (or baseline) size for desired theta_beam
+
+    Parameters
+    ----------
+    rest_wavelength : units of length
+        rest wavelength of the target line
+    redshift :
+        redshift
+    D_dish :
+        dish size of instrument
+
+    Returns
+    -------
+    float
+        value of D dish
+    """
+
+    D_dish = rest_wavelength * (1 + redshift) / theta_beam
+
+    return D_dish.to(u.m, equivalencies=u.dimensionless_angles())
 
 def calc_W_k(mu, k, sigma_perp, sigma_para):
     W_k = np.exp(-k**2 * sigma_perp**2) * np.exp(-mu**2 * k**2 * (sigma_para**2 - sigma_perp**2))
