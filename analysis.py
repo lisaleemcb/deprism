@@ -429,7 +429,7 @@ def run_analysis(k_indices, spectra, params_dict, noise, model, N_modes=None,
         N[2,2] = noise[4][k_indices][0].value
         N[3,3] = noise[2][k_indices][0].value
 
-        n = [np.sqrt(noise[0]), np.sqrt(noise[3]), np.sqrt(noise[5])]
+        n = [np.sqrt(noise[0]).value, np.sqrt(noise[3]).value, np.sqrt(noise[5]).value]
 
     if error_x==True:
         N = estimate_errors(data, frac_error=noise, priors_width=priors_width)
@@ -443,7 +443,7 @@ def run_analysis(k_indices, spectra, params_dict, noise, model, N_modes=None,
     else:
         print('noiseless run, easy breezy!')
 
-    Beane = fitting.Beane_et_al(data, spectra, n[0].value, n[1].value, n[2].value, N_modes, k_indices)
+    Beane = fitting.Beane_et_al(data, spectra, n[0], n[1], n[2], N_modes, k_indices)
     LSE = fitting.LSE_results(k_indices, data, N)
     MCMC = fitting.MCMC_results(params_dict, k_indices, data, model, N,
                                 priors_offset * params_dict['b_i'],  priors=priors,

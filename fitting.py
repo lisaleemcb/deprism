@@ -337,18 +337,14 @@ def recover_params_LSE(k, k_indices, lumen_pspecs, model, density, variances,
     LSE = estimators.Estimators(k_indices, data[1:], N)
     results = LSE.LSE_3cross_1bias()
 
-    params = np.exp(results[0])
-    errors = utils.delog_errors(results)
+    params, errors = utils.delog_results(results, np.diag(N))
 
     return params, errors
 
 def LSE_results(k_indices, data, N):
     LSE = estimators.Estimators(k_indices, data[1:], N[1:,1:] / data[1:]**2)
     results = LSE.LSE_3cross_1bias()
-
-    # params, errors without 21cm
-    p_ = np.exp(results[0])
-    e_ = np.diag(results[1])
+    p_, e_ = utils.delog_results(results, np.diag(N))
 
     params = np.zeros((p_.size + 1))
     errors = np.zeros((e_.size + 1))
@@ -357,10 +353,9 @@ def LSE_results(k_indices, data, N):
         params[i] = p_[i]
         errors[i] = p_[i]**2 * e_[i]
 
-    params[-1] = p_[0]**2 * p_[-1]
-
-    err_b02 = 2 * params[0] * errors[0]
-    errors[-1] = params[0] * errors[3] + err_b02 * params[3]
+    params[-1] = p_[0]**2 * p_[3]
+    sigma_ii = p_[0]**2 * np.sqrt(e_[3]) + 2 * p_[3] * e_[0]
+    errors[-1] = sigma_ii**2
 
     return params, errors
 

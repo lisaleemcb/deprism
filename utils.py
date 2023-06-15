@@ -380,15 +380,19 @@ def initialize_fits(k_indices, spectra, P_m, variances, N_frac_error=None):
 
     return data, N, params, model_cross
 
-def delog_errors(results):
+def delog_results(results, noise_vars):
     log_params, log_errors = results
     params = np.exp(log_params)
-    print(log_errors)
+
+    # now we're putting in the estimated errors
     log_var = np.diag(log_errors)
     var = np.zeros_like(log_var)
-    var = np.exp(log_params) * log_var
+    var[0] = noise_vars[3]
+    var[1] = noise_vars[3] + noise_vars[2] + noise_vars[1]
+    var[2] = noise_vars[3] + noise_vars[0] + noise_vars[1]
+    var[3] = 4 * noise_vars[3]**2 + noise_vars[0] + noise_vars[1] + noise_vars[2]
 
-    return var
+    return params, var
 
 def get_pvals(params_dict, k_indices):
     biases = [params_dict['b_i'], params_dict['b_j'], params_dict['b_k']]
