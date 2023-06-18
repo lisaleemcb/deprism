@@ -382,7 +382,7 @@ def MCMC_results(params, k_indices, data, model, N, b0_guess, p0_in=None,
 
     print('PARAMS: ', params)
     print('DATA: ', data)
-    print('NOISE: ',np.diag(N))
+    print('NOISE / DATA: ',np.sqrt(np.diag(N))/ data)
     print('PRIOR RANGE: ', priors_width)
     print('PRIOR GUESS:', b0_guess)
 
