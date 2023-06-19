@@ -408,7 +408,7 @@ x = np.arange(k.size)
 surveys1 = x[(k > k_range_surveys[0].value) & (k < k_range_surveys[-1].value)]
 surveys2 = k[(k > k_range_surveys_future[0].value) & (k < k_range_surveys_future[-1].value)]
 
-for i in surveys1:
+for i in surveys1[1:]:
     t0 = time.time()
     print('Now on k-mode k=',k[i])
     k_indices = [i]
