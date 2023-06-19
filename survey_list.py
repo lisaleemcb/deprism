@@ -63,7 +63,7 @@ specs_HERA = {'sigma_pix': None,
                'N_pol': 331,
                'T_sys': 300 * u.K, # at 160 MHz, just an average uses the full expression in survey.py
                't_per_day': 12 * u.hr,
-               't_days': 160 * u.day,
+               't_days': 18 * u.day,
                't_int': 300 * u.s,
                'f_ratio': 3.34e4}
 
