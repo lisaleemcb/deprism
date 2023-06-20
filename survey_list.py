@@ -80,9 +80,9 @@ specs_HERA_future = {'sigma_pix': None,
                'B_nu': 60.0 * u.MHz,
                't_obs': 120 * u.day,
                'S_A': 1440 * u.degree**2,
-               'N': 600,  # number of antennas
+               'N': 100,  # number of antennas
                'N_pol': 2,
-               'T_sys': 300 * u.K, # at 160 MHz, just an average uses the full expression in survey.py
+               'T_sys': 200 * u.K, # at 160 MHz, just an average uses the full expression in survey.py
                't_per_day': 12 * u.hr,
                't_days': 160 * u.day,
                't_int': 300 * u.s,

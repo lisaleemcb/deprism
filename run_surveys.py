@@ -406,7 +406,7 @@ N_modes_small = survey.calc_N_modes(k, 80**3 * u.Mpc**3, align='left')
 x = np.arange(k.size)
 
 surveys1 = x[(k > k_range_surveys[0].value) & (k < k_range_surveys[-1].value)]
-surveys2 = k[(k > k_range_surveys_future[0].value) & (k < k_range_surveys_future[-1].value)]
+surveys2 = x[(k > k_range_surveys_future[0].value) & (k < k_range_surveys_future[-1].value)]
 
 for i in surveys1[1:]:
     t0 = time.time()
@@ -420,17 +420,17 @@ for i in surveys1[1:]:
 
     data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
                                             N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
-                                            backend_filename=f'survey_current_kmode_{k[6]:.2f}_sf_nl_z{redshift:.3f}_int.h5',
+                                            backend_filename=f'survey_current_kmode_{k[i]:.2f}_sf_nl_z{redshift:.3f}_int.h5',
                                             error_x=False)
     data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
                                             N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
-                                            backend_filename=f'survey_current_kmode_{k[6]:.2f}_sf_z{redshift:.3f}_int.h5',
+                                            backend_filename=f'survey_current_kmode_{k[i]:.2f}_sf_z{redshift:.3f}_int.h5',
                                             error_x=False)
 
 
-    np.savez(f'results_all_int/sf_fits/survey_current_kmode_{k[6]:.2f}_sf_nl_z{redshift:.3f}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
+    np.savez(f'results_all_int/sf_fits/survey_current_kmode_{k[i]:.2f}_sf_nl_z{redshift:.3f}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
                                         samples=MCMC_nl[0], logp=MCMC_nl[1])
-    np.savez(f'results_all_int/sf_fits/survey_current_kmode_{k[6]:.2f}_sf_z{redshift:.3f}_int', data=data, Beane=Beane, LSE=LSE,
+    np.savez(f'results_all_int/sf_fits/survey_current_kmode_{k[i]:.2f}_sf_z{redshift:.3f}_int', data=data, Beane=Beane, LSE=LSE,
                                         samples=MCMC[0], logp=MCMC[1])
 
     tf = time.time()
