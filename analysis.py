@@ -419,6 +419,7 @@ def run_analysis(k_indices, spectra, params_dict, noise, model, N_modes=None,
                     noiseless=False, nsteps=1e6, backend_filename=None):
 
     if data == None:
+        # data order is P_ii, P_ij, P_jk, P_ik, b_0
         data = utils.fetch_data(k_indices, spectra, b_0=params_dict['b_i'])
 
     if error_x == False:

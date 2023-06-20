@@ -381,6 +381,7 @@ def initialize_fits(k_indices, spectra, P_m, variances, N_frac_error=None):
     return data, N, params, model_cross
 
 def delog_results(results, noise_vars):
+    print('NOISE VARS:', noise_vars)
     log_params, log_errors = results
     params = np.exp(log_params)
 
@@ -390,7 +391,7 @@ def delog_results(results, noise_vars):
     var[0] = noise_vars[3]
     var[1] = noise_vars[3] + noise_vars[2] + noise_vars[1]
     var[2] = noise_vars[3] + noise_vars[0] + noise_vars[1]
-    var[3] = 4 * noise_vars[3]**2 + noise_vars[0] + noise_vars[1] + noise_vars[2]
+    var[3] = 4 * noise_vars[3] + noise_vars[0] + noise_vars[1] + noise_vars[2]
 
     return params, var
 

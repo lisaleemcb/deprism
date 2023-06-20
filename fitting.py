@@ -330,8 +330,8 @@ def recover_params_LSE(k, k_indices, lumen_pspecs, model, density, variances,
     # print('LSE data: ', data_HI_L_M)
     # print('LSE biases: ,', biases_HI_L_M)
 
-    print('DATA: ', data[1:])
-    print('NOISE: ', np.diag(N))
+    print('LSE DATA: ', data[1:])
+    print('LSE NOISE: ', np.diag(N))
     print('noise has shape ', N.shape)
 
     LSE = estimators.Estimators(k_indices, data[1:], N)
@@ -342,9 +342,13 @@ def recover_params_LSE(k, k_indices, lumen_pspecs, model, density, variances,
     return params, errors
 
 def LSE_results(k_indices, data, N):
-    LSE = estimators.Estimators(k_indices, data[1:], N[1:,1:] / data[1:]**2)
+    LSE_noise = N[1:,1:] / data[1:]**2
+    LSE = estimators.Estimators(k_indices, data[1:], LSE_noise)
     results = LSE.LSE_3cross_1bias()
-    p_, e_ = utils.delog_results(results, np.diag(N))
+    p_, e_ = utils.delog_results(results, np.diag(LSE_noise))
+
+    print('LSE DATA: ', data[1:])
+    print('LSE NOISE: ', np.diag(N[1:,1:]))
 
     params = np.zeros((p_.size + 1))
     errors = np.zeros((e_.size + 1))
@@ -354,7 +358,7 @@ def LSE_results(k_indices, data, N):
         errors[i] = p_[i]**2 * e_[i]
 
     params[-1] = p_[0]**2 * p_[3]
-    sigma_ii = p_[0]**2 * np.sqrt(e_[3]) + 2 * p_[3] * e_[0]
+    sigma_ii = p_[0]**2 * np.sqrt(e_[3]) + 2 * p_[0] * p_[3] * np.sqrt(e_[0])
     errors[-1] = sigma_ii**2
 
     return params, errors
