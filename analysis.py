@@ -200,20 +200,16 @@ def add_P(samples, k_indices, lines):
 def var_Pii_Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices):
     #P_ii, P_ij, P_ik, P_jj, P_jk, P_kk = spectra
 
-    P_ii = spectra[0][1:]
-    P_ij = spectra[1][1:]
-    P_ik = spectra[2][1:]
-    P_jj = spectra[3][1:]
-    P_jk = spectra[4][1:]
-    P_kk = spectra[5][1:]
+    P_ii = spectra[0][k_indices]
+    P_ij = spectra[1][k_indices]
+    P_ik = spectra[2][k_indices]
+    P_jj = spectra[3][k_indices]
+    P_jk = spectra[4][k_indices]
+    P_kk = spectra[5][k_indices]
 
-    print('P_jj', P_jj.shape)
-    print('P_N_j', P_N_j.shape)
-    P_ii_tot = P_ii + P_N_i[1:]
-    P_jj_tot = P_jj + P_N_j
-    P_kk_tot = P_kk + P_N_k
-
-
+    P_ii_tot = P_ii + P_N_i[k_indices]
+    P_jj_tot = P_jj + P_N_j[k_indices]
+    P_kk_tot = P_kk + P_N_k[k_indices]
 
     var_P_ii = (P_ij / P_ik)**2 * (P_ik**2 + P_ii_tot * P_kk_tot) \
         + (P_ik / P_ij)**2 * (P_ij**2 + P_ii_tot * P_jj_tot) \
@@ -222,7 +218,8 @@ def var_Pii_Beane_et_al(spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices):
         - (P_ij**2 * P_ik / P_jk**3) * (P_kk_tot * P_ij + P_ik * P_jk) \
         - (P_ij * P_ik**2 / P_jk**3) * (P_jj_tot * P_ik + P_ij * P_jk)
 
-    return var_P_ii / N_modes
+    return var_P_ii / N_modes[k_indices]
+
 
 def check_convergence(mcmc_data):
     results, params, data = mcmc_data
