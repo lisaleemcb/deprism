@@ -178,7 +178,7 @@ def start_mcmc(params_init, k_indices, data, model, N, b0_guess, p0_in=None,
 
     delta_p = np.zeros_like(p0)
     for i, val in enumerate(p0[0]):
-        std_dev = .0001 * val
+        std_dev = .1 * val
         delta_p[:,i] = np.random.normal(scale=std_dev, size=nwalkers)
 
     params0 = p0 + delta_p
