@@ -412,7 +412,7 @@ for i in surveys1[1:]:
     t0 = time.time()
     print('Now on k-mode k=',k[i])
     k_indices = [i]
-    nsteps = int(5e6)
+    nsteps = int(1e7)
     n = [var_21cm_21cm_HERA, var_21cm_CII, var_21cm_OIII,
          var_CII_CII_StageIII, var_CII_OIII, var_OIII_OIII_EXCLAIM]
     # if n > .1:

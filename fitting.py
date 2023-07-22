@@ -144,20 +144,22 @@ def log_prob(guesses, params, k_indices, data, model, N, b0_guess,
 def start_mcmc(params_init, k_indices, data, model, N, b0_guess, p0_in=None,
                 priors='gaussian', priors_width=.1, positivity=False,
                 pdf='gaussian', backend_filename=None, nsteps=1e6, nwalkers=48,
-                burn_in=int(1e2), parallel=False, start_from_backend=False):
+                burn_in=1, parallel=False, start_from_backend=False):
 
     print('running mcmc with the following settings:')
     print('fitting data from k: ', k_indices)
+    print('burn_in is:', burn_in)
     print('prior is: ', priors)
     print('prior guess is:', b0_guess)
     print('prior width is: ', priors_width)
     print('positivity prior is: ', positivity)
     print('pdf is: ', pdf)
     print('nsteps: ', nsteps)
+    print('nwalkers:', nwalkers)
     print('logp of truths is:', log_prob(utils.get_params(params_init, k_indices),
                             params_init, k_indices, data, model, N, b0_guess,
-                            priors='gaussian', priors_width=.25,
-                            positivity=False, pdf='gaussian'))
+                            priors=priors, priors_width=.25,
+                            positivity=False, pdf=pdf))
 
     pvals = np.asarray(list(params_init.values()), dtype=object)
 
@@ -347,8 +349,9 @@ def LSE_results(k_indices, data, N):
     results = LSE.LSE_3cross_1bias()
     p_, e_ = utils.delog_results(results, np.diag(LSE_noise))
 
+    print('k_index:', k_indices)
     print('LSE DATA: ', data[1:])
-    print('LSE NOISE: ', np.diag(N[1:,1:]))
+    print('LSE NOISE: ', np.diag(LSE_noise))
 
     params = np.zeros((p_.size + 1))
     errors = np.zeros((e_.size + 1))
@@ -376,7 +379,7 @@ def Beane_et_al(data, spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices):
 def MCMC_results(params, k_indices, data, model, N, b0_guess, p0_in=None,
                 priors='gaussian', priors_width=.1, positivity=False,
                 pdf='gaussian', backend_filename=None, nsteps=1e6, nwalkers=48,
-                burn_in=int(1e2), parallel=False):
+                burn_in=1, parallel=False):
     # lopping off the bias
     #b0_guess = cp.deepcopy(data[-1])
     data_size = model.pspec(k_indices).size
