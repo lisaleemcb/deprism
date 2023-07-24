@@ -395,7 +395,7 @@ var_21cm_OIII_future = survey.var_x(utils.dimless(k_units[:-1],
 ### Superfake data and superfake noise levels
 
 # print('superfake temperature analysis')
-biases_sf = utils.extract_bias(k_indices, spectra_sf, utils.dimless(k,P_m))
+biases_sf = utils.extract_bias(k_indices, utils.dimless(k,spectra_sf), utils.dimless(k,P_m))
 p_vals_sf = np.asarray([*biases_sf, utils.dimless(k,P_m)], dtype=object)
 
 params_sf = dict(zip(p_names, p_vals_sf))
