@@ -39,7 +39,7 @@ print('running analysis on', which_box, 'box')
 
 if which_box == 'little':
     rez = 512
-    box = h5py.File('L80_halos_z=6.0155.hdf5', 'r')
+    box = h5py.File('sims/L80_halos_z=6.0155.hdf5', 'r')
     print(box.keys())
 
     redshift = 6.0155
@@ -57,7 +57,7 @@ if which_box == 'little':
 
 if which_box == 'big':
 #     rez = 1024
-    box = h5py.File('halos.z8.hdf5', 'r')
+    box = h5py.File('sims/halos.z8.hdf5', 'r')
     print(box.keys())
 
     density = np.fromfile('sims/rho.z=07.9589_cic_1024', dtype=np.float64).reshape(rez, rez, rez, order='F')
@@ -395,7 +395,7 @@ var_21cm_OIII_future = survey.var_x(utils.dimless(k_units[:-1],
 ### Superfake data and superfake noise levels
 
 # print('superfake temperature analysis')
-biases_sf = utils.extract_bias(k_indices, spectra_sf, utils.dimless(k,P_m)))
+biases_sf = utils.extract_bias(k_indices, spectra_sf, utils.dimless(k,P_m))
 p_vals_sf = np.asarray([*biases_sf, utils.dimless(k,P_m)], dtype=object)
 
 params_sf = dict(zip(p_names, p_vals_sf))
