@@ -425,7 +425,6 @@ def run_analysis(k_indices, spectra, params_dict, noise, model, N_modes=None,
 
     if error_x == False:
         N = estimate_errors(data, frac_error=1.0, priors_width=priors_width)
-        print('looks like:', noise[0][k_indices].value)
         N[0,0] = noise[0][k_indices][0].value
         N[1,1] = noise[1][k_indices][0].value
         N[2,2] = noise[4][k_indices][0].value

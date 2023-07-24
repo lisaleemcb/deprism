@@ -395,12 +395,12 @@ var_21cm_OIII_future = survey.var_x(utils.dimless(k_units[:-1],
 ### Superfake data and superfake noise levels
 
 # print('superfake temperature analysis')
-biases_sf = utils.extract_bias(k_indices, spectra_sf, P_m)
-p_vals_sf = np.asarray([*biases_sf, P_m], dtype=object)
+biases_sf = utils.extract_bias(k_indices, spectra_sf, utils.dimless(k,P_m)))
+p_vals_sf = np.asarray([*biases_sf, utils.dimless(k,P_m)], dtype=object)
 
 params_sf = dict(zip(p_names, p_vals_sf))
 ndim = utils.get_params(params_sf, k_indices).size
-model = models.ScalarBias_crossonly(k=spectra_sf[0], params=params_sf)
+model = models.ScalarBias_crossonly(k=utils.dimless(k, spectra_sf[0]), params=params_sf)
 N_modes_small = survey.calc_N_modes(k, 80**3 * u.Mpc**3, align='left')
 
 x = np.arange(k.size)
@@ -418,11 +418,11 @@ for i in surveys1[1:]:
     # if n > .1:
     #     nsteps = int(1e7)
 
-    data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
+    data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, utils.dimless(k, spectra_sf), params_sf, n, model,
                                             N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
                                             backend_filename=f'survey_current_kmode_{k[i]:.2f}_sf_nl_z{redshift:.3f}_int.h5',
                                             error_x=False)
-    data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_sf, params_sf, n, model,
+    data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, utils.dimless(k, spectra_sf), params_sf, n, model,
                                             N_modes=N_modes_small, noiseless=False, nsteps=nsteps,
                                             backend_filename=f'survey_current_kmode_{k[i]:.2f}_sf_z{redshift:.3f}_int.h5',
                                             error_x=False)
