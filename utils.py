@@ -381,7 +381,6 @@ def initialize_fits(k_indices, spectra, P_m, variances, N_frac_error=None):
     return data, N, params, model_cross
 
 def delog_results(results, noise_vars):
-    print('NOISE VARS:', noise_vars)
     log_params, log_errors = results
     params = np.exp(log_params)
 

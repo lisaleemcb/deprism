@@ -304,9 +304,10 @@ var_21cm_CII = survey.var_x(utils.dimless(k_units[:-1],
                                   utils.dimless(k_units[:-1], P_N_CII_StageII),
                             utils.dimless(k_units[:-1],
                                 pspecs_sf['P_21cm_CII'][:-1]* u.Mpc**3 * u.Jy**2 * u.steradian**(-2)),
-                                  N_modes_CII_StageII,
+                                  N_modes_21cm_HERA,
                                   W_i=W_21cm_HERA[:-1],
                                   W_j=W_CII_StageII[:-1])
+
 
 var_CII_OIII = survey.var_x(utils.dimless(k_units[:-1],
                                 pspecs_sf['P_CII_CII'][:-1] * u.Mpc**3 * u.Jy**2 * u.steradian**(-2)),
@@ -316,7 +317,7 @@ var_CII_OIII = survey.var_x(utils.dimless(k_units[:-1],
                                   utils.dimless(k_units[:-1], P_N_OIII_EXCLAIM),
                             utils.dimless(k_units[:-1],
                                 pspecs_sf['P_CII_OIII'][:-1]* u.Mpc**3 * u.Jy**2 * u.steradian**(-2)),
-                                  N_modes_OIII_EXCLAIM,
+                                  N_modes_21cm_HERA,
                                   W_i=W_CII_StageII[:-1],
                                   W_j=W_OIII_EXCLAIM[:-1])
 
@@ -328,7 +329,7 @@ var_21cm_CII_StageIII = survey.var_x(utils.dimless(k_units[:-1],
                                   utils.dimless(k_units[:-1], P_N_CII_StageIII),
                             utils.dimless(k_units[:-1],
                                 pspecs_sf['P_21cm_CII'][:-1]* u.Mpc**3 * u.Jy**2 * u.steradian**(-2)),
-                                  N_modes_CII_StageIII,
+                                  N_modes_21cm_HERA,
                                   W_i=W_21cm_HERA[:-1],
                                   W_j=W_CII_StageIII[:-1])
 
@@ -340,7 +341,7 @@ var_CII_OIII_StageIII = survey.var_x(utils.dimless(k_units[:-1],
                                   utils.dimless(k_units[:-1], P_N_OIII_EXCLAIM),
                             utils.dimless(k_units[:-1],
                                 pspecs_sf['P_CII_OIII'][:-1]* u.Mpc**3 * u.Jy**2 * u.steradian**(-2)),
-                                  N_modes_OIII_EXCLAIM,
+                                  N_modes_21cm_HERA,
                                   W_i=W_CII_StageIII[:-1],
                                   W_j=W_OIII_EXCLAIM[:-1])
 
@@ -352,7 +353,7 @@ var_21cm_OIII = survey.var_x(utils.dimless(k_units[:-1],
                                   utils.dimless(k_units[:-1], P_N_OIII_EXCLAIM),
                             utils.dimless(k_units[:-1],
                                 pspecs_sf['P_21cm_OIII'][:-1]* u.Mpc**3 * u.Jy**2 * u.steradian**(-2)),
-                                  N_modes_OIII_EXCLAIM,
+                                  N_modes_21cm_HERA,
                                   W_i=W_21cm_HERA[:-1],
                                   W_j=W_OIII_EXCLAIM[:-1])
 
@@ -364,7 +365,7 @@ var_21cm_CII_future = survey.var_x(utils.dimless(k_units[:-1],
                                   utils.dimless(k_units[:-1], P_N_CII_future),
                             utils.dimless(k_units[:-1],
                                 pspecs_sf['P_21cm_CII'][:-1]* u.Mpc**3 * u.Jy**2 * u.steradian**(-2)),
-                                  N_modes_CII_future,
+                                  N_modes_21cm_HERA,
                                   W_i=W_21cm_future[:-1],
                                   W_j=W_CII_future[:-1])
 
@@ -376,7 +377,7 @@ var_CII_OIII_future = survey.var_x(utils.dimless(k_units[:-1],
                                   utils.dimless(k_units[:-1], P_N_OIII_future),
                             utils.dimless(k_units[:-1],
                                 pspecs_sf['P_CII_OIII'][:-1]* u.Mpc**3 * u.Jy**2 * u.steradian**(-2)),
-                                  N_modes_OIII_future,
+                                  N_modes_21cm_HERA,
                                   W_i=W_CII_future[:-1],
                                   W_j=W_OIII_future[:-1])
 
@@ -388,21 +389,11 @@ var_21cm_OIII_future = survey.var_x(utils.dimless(k_units[:-1],
                                   utils.dimless(k_units[:-1], P_N_OIII_future),
                             utils.dimless(k_units[:-1],
                                 pspecs_sf['P_21cm_OIII'][:-1]* u.Mpc**3 * u.Jy**2 * u.steradian**(-2)),
-                                  N_modes_OIII_future,
+                                  N_modes_21cm_HERA,
                                   W_i=W_21cm_future[:-1],
                                   W_j=W_OIII_future[:-1])
 
 ### Superfake data and superfake noise levels
-
-# print('superfake temperature analysis')
-biases_sf = utils.extract_bias(k_indices, utils.dimless(k,spectra_sf), utils.dimless(k,P_m))
-p_vals_sf = np.asarray([*biases_sf, utils.dimless(k,P_m)], dtype=object)
-
-params_sf = dict(zip(p_names, p_vals_sf))
-ndim = utils.get_params(params_sf, k_indices).size
-model = models.ScalarBias_crossonly(k=utils.dimless(k, spectra_sf[0]), params=params_sf)
-N_modes_small = survey.calc_N_modes(k, 80**3 * u.Mpc**3, align='left')
-
 x = np.arange(k.size)
 
 surveys1 = x[(k > k_range_surveys[0].value) & (k < k_range_surveys[-1].value)]
@@ -410,11 +401,32 @@ surveys2 = x[(k > k_range_surveys_future[0].value) & (k < k_range_surveys_future
 
 for i in surveys1[1:]:
     t0 = time.time()
-    print('Now on k-mode k=',k[i])
+
     k_indices = [i]
-    nsteps = int(1e7)
+    print('Now on k-mode k=',k[k_indices])
+
+    biases_sf = utils.extract_bias(k_indices, utils.dimless(k, spectra_sf), utils.dimless(k, P_m))
+    p_vals_sf = np.asarray([*biases_sf, utils.dimless(k, P_m)], dtype=object)
+    params_sf = dict(zip(p_names, p_vals_sf))
+    ndim = utils.get_params(params_sf, k_indices).size
+
+    data_check = [utils.dimless(k, spectra_sf[0])[k_indices][0], utils.dimless(k, spectra_sf[1])[k_indices][0],
+                 utils.dimless(k, spectra_sf[4])[k_indices][0], utils.dimless(k, spectra_sf[2])[k_indices][0],
+                biases_sf[0]]
+
+    p_sf_tot = np.zeros(ndim+1)
+    for i in range(ndim):
+        p_sf_tot[i] = utils.get_params(params_sf, k_indices)[i]
+    p_sf_tot[-1] = utils.dimless(k, spectra_sf)[0][k_indices]
+
+    print(f'parameters are', p_sf_tot)
+
+    model = models.ScalarBias_crossonly(k=spectra_sf[0], params=params_sf)
+    N_modes_small = survey.calc_N_modes(k, 80**3 * u.Mpc**3, align='left')
+
+    nsteps = int(1e6)
     n = [var_21cm_21cm_HERA, var_21cm_CII, var_21cm_OIII,
-         var_CII_CII_StageIII, var_CII_OIII, var_OIII_OIII_EXCLAIM]
+            var_CII_CII_StageIII, var_CII_OIII, var_OIII_OIII_EXCLAIM]
     # if n > .1:
     #     nsteps = int(1e7)
 

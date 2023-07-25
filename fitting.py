@@ -343,14 +343,17 @@ def recover_params_LSE(k, k_indices, lumen_pspecs, model, density, variances,
 
     return params, errors
 
-def LSE_results(k_indices, data, N):
-    LSE_noise = N[1:,1:] / data[1:]**2
-    LSE = estimators.Estimators(k_indices, data[1:], LSE_noise)
+def LSE_results(k_indices, params_dict, data_noise, data_nl, N):
+    p_true = utils.get_params(params_dict, k_indices)
+
+    LSE_noise = N[1:,1:] / data_nl[1:]**2
+    LSE = estimators.Estimators(k_indices, data_noise[1:], LSE_noise)
     results = LSE.LSE_3cross_1bias()
     p_, e_ = utils.delog_results(results, np.diag(LSE_noise))
 
     print('k_index:', k_indices)
-    print('LSE DATA: ', data[1:])
+    print('LSE DATA: ', data_noise[1:])
+    print('LSE DATA / DATA_NL: ', data_noise[1:] / data_nl[1:])
     print('LSE NOISE: ', np.diag(LSE_noise))
 
     params = np.zeros((p_.size + 1))
@@ -358,11 +361,12 @@ def LSE_results(k_indices, data, N):
 
     for i in range(p_.size):
         params[i] = p_[i]
-        errors[i] = p_[i]**2 * e_[i]
+        errors[i] = p_true[i]**2 * e_[i]
 
     params[-1] = p_[0]**2 * p_[3]
-    sigma_ii = p_[0]**2 * np.sqrt(e_[3]) + 2 * p_[0] * p_[3] * np.sqrt(e_[0])
-    errors[-1] = sigma_ii**2
+
+    var_ii = (np.diag(LSE_noise)[0] + np.diag(LSE_noise)[1] + np.diag(LSE_noise)[2]) * data_nl[0]**2
+    errors[-1] = var_ii
 
     return params, errors
 
