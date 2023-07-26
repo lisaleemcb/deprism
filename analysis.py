@@ -445,7 +445,6 @@ def run_analysis(k_indices, spectra, params_dict, noise, model, N_modes=None,
     else:
         print('noiseless run, easy breezy!')
 
-    print('SURVEY NOISE:', noise[1])
     Beane = fitting.Beane_et_al(data, spectra, n[0], n[1], n[2], N_modes, k_indices)
     LSE = fitting.LSE_results(k_indices, params_dict, data, data_nl, N)
     MCMC = fitting.MCMC_results(params_dict, k_indices, data, model, N,
