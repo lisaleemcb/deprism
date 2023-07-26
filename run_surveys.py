@@ -424,7 +424,7 @@ for i in surveys1[1:]:
     model = models.ScalarBias_crossonly(k=spectra_sf[0], params=params_sf)
     N_modes_small = survey.calc_N_modes(k, 80**3 * u.Mpc**3, align='left')
 
-    nsteps = int(1e3)
+    nsteps = int(1e6)
     n = [var_21cm_21cm_HERA, var_21cm_CII, var_21cm_OIII,
             var_CII_CII_StageIII, var_CII_OIII, var_OIII_OIII_EXCLAIM]
 
