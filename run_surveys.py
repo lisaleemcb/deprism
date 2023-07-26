@@ -25,7 +25,7 @@ import utils
 import survey
 import survey_list
 
-plt.style.use('seaborn-v0_8-colorblind')
+plt.style.use('seaborn-colorblind')
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif')
 
