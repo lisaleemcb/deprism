@@ -25,7 +25,7 @@ import utils
 import survey
 import survey_list
 
-plt.style.use('seaborn-colorblind')
+plt.style.use('seaborn-v0_8-colorblind')
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif')
 
@@ -415,8 +415,8 @@ for i in surveys1[1:]:
                 biases_sf[0]]
 
     p_sf_tot = np.zeros(ndim+1)
-    for i in range(ndim):
-        p_sf_tot[i] = utils.get_params(params_sf, k_indices)[i]
+    for j in range(ndim):
+        p_sf_tot[j] = utils.get_params(params_sf, k_indices)[j]
     p_sf_tot[-1] = utils.dimless(k, spectra_sf)[0][k_indices]
 
     print(f'parameters are', p_sf_tot)
@@ -424,11 +424,9 @@ for i in surveys1[1:]:
     model = models.ScalarBias_crossonly(k=spectra_sf[0], params=params_sf)
     N_modes_small = survey.calc_N_modes(k, 80**3 * u.Mpc**3, align='left')
 
-    nsteps = int(1e6)
+    nsteps = int(1e3)
     n = [var_21cm_21cm_HERA, var_21cm_CII, var_21cm_OIII,
             var_CII_CII_StageIII, var_CII_OIII, var_OIII_OIII_EXCLAIM]
-    # if n > .1:
-    #     nsteps = int(1e7)
 
     data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, utils.dimless(k, spectra_sf), params_sf, n, model,
                                             N_modes=N_modes_small, noiseless=True, nsteps=nsteps,
@@ -447,7 +445,7 @@ for i in surveys1[1:]:
 
     tf = time.time()
     print(f'run {i} saved to disk')
-    print('time to complete superfake analysis run {i} is:', (tf - t0) / 60 / 60, 'hours')
+    print(f'time to complete superfake analysis run {i} is:', (tf - t0) / 60 / 60, 'hours')
 
 # ### Simulated power law data and fractional noise error
 # print('power law analysis')
