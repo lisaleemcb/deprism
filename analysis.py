@@ -452,14 +452,14 @@ def run_analysis(k_indices, spectra, params_dict, noise, model, N_modes=None,
                                 priors_width=priors_width,
                                 nsteps=nsteps, backend_filename=backend_filename)
 
-    return data, Beane, LSE, MCMC
+    return data, Beane, LSE, MCMC, N
 
 def keep_P_21(k_indices, spectra, params, noise, model,
                 N_modes=None, nsteps=1e6, noiseless=False,
                 priors='gaussian', priors_offset=1.0, priors_width=.1,
                 error_x=True, backend_filename=None):
 
-    data, Beane, LSE, MCMC = run_analysis(k_indices, spectra, params, noise, model,
+    data, Beane, LSE, MCMC, N = run_analysis(k_indices, spectra, params, noise, model,
                                         N_modes=N_modes, noiseless=noiseless, priors=priors,
                                         priors_offset=priors_offset, priors_width=priors_width,
                                         error_x=error_x, nsteps=nsteps,
@@ -468,7 +468,7 @@ def keep_P_21(k_indices, spectra, params, noise, model,
     samples_00 = add_P(MCMC[0], k_indices, (0,0))
 
 
-    return data, Beane, LSE, (samples_00, MCMC[1]) #Beane, [np.median(samples_00), samples_00[MCMC[1].argmax(),-1],
+    return data, Beane, LSE, (samples_00, MCMC[1]), N #Beane, [np.median(samples_00), samples_00[MCMC[1].argmax(),-1],
                                     #    np.std(samples_00[:,-1])]
 
 

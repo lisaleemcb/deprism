@@ -113,7 +113,6 @@ pspecs_bt = np.load('spectra_all_int/pspecs_bt_z6.0155.npz')
 # Fitting
 p_names = np.asarray(['b_i','b_j', 'b_k', 'P_m'])
 k_indices = [6]
-k_units = k * Planck18.h / u.Mpc
 
 # Survey specifications now
 # set by nature
@@ -179,25 +178,27 @@ P21_HERA = ((np.sqrt(data_HERA[:,1]) * u.mK).to(u.Jy / u.steradian,
 
 noise_HERA = P21_HERA / data_HERA[:,2]
 
-spectra_sf_interp = np.zeros((6, k_HERA[1:].size))
-
 print('loaded HERA data...')
-
+spectra_sf_interp = np.zeros((6, k_HERA[1:].size))
 for i in range(6):
     spec_interp = np.interp(k_HERA[1:],
                             k[1:-1], utils.dimless(k[1:-1], spectra_sf[i][1:-1]))
     spectra_sf_interp[i] = spec_interp
 
-kperp_grid, kpara_grid = np.meshgrid(joint_spacing[0], joint_spacing[1])
+# calculating k-modes
+k_range_sphere = []
+k_range_sphere.append(np.concatenate((-np.flip(joint_spacing[0][1:]), joint_spacing[0])))
+k_range_sphere.append(np.concatenate((-np.flip(joint_spacing[0][1:]), joint_spacing[0])))
+k_range_sphere.append(np.concatenate((-np.flip(joint_spacing[1][1:]), joint_spacing[1])))
 
-k_grid = np.ones((joint_spacing[0].size, joint_spacing[0].size, joint_spacing[1].size))
+K_grid = np.zeros((k_range_sphere[0].size, k_range_sphere[1].size, k_range_sphere[2].size))
 
-for x_i, x in enumerate(joint_spacing[0]):
-    for y_i,y in enumerate(joint_spacing[0]):
-        for z_i,z in enumerate(joint_spacing[1]):
-            k_grid[x_i,y_i,z_i] = np.sqrt(x**2 + y**2 + z**2)
+for x_i, x in enumerate(k_range_sphere[0]):
+    for y_i,y in enumerate(k_range_sphere[1]):
+        for z_i,z in enumerate(k_range_sphere[2]):
+            K_grid[x_i,y_i,z_i] = np.sqrt(x**2 + y**2 + z**2)
 
-N_modes_joint, N_modes_bins = np.histogram(k_grid, bins=k_HERA)
+print('min, max k:', K_grid.min(), K_grid.max())
 
 # volumes
 V_21cm_HERA = survey.calc_V_survey(HERA, redshift, lambda_21cm)
@@ -209,22 +210,8 @@ V_21cm_future = survey.calc_V_survey(HERA_future, redshift, lambda_21cm)
 V_CII_future = survey.calc_V_survey(CII_future, redshift, lambda_CII)
 V_OIII_future = survey.calc_V_survey(OIII_future, redshift, lambda_OIII)
 
-# instrument noises
-P_N_CII_StageII = survey.calc_P_N(StageII, redshift, lambda_CII)
-P_N_CII_StageIII = survey.calc_P_N(StageIII, redshift, lambda_CII)
-P_N_CII_future = survey.calc_P_N(CII_future, redshift, lambda_CII)
-
-P_N_OIII_EXCLAIM = survey.calc_P_N(EXCLAIM, redshift, lambda_OIII)
-P_N_OIII_future = survey.calc_P_N(OIII_future, redshift, lambda_OIII)
 # N modes
-N_modes_21cm_HERA = survey.calc_N_modes(k_HERA, V_21cm_HERA, align='left')
-N_modes_CII_StageII = survey.calc_N_modes(k_HERA, V_CII_StageII, align='left')
-N_modes_CII_StageIII = survey.calc_N_modes(k_HERA, V_CII_StageIII, align='left')
-N_modes_OIII_EXCLAIM = survey.calc_N_modes(k_HERA, V_OIII_EXCLAIM, align='left')
-
-N_modes_21cm_future = survey.calc_N_modes(k_HERA, V_21cm_future, align='left')
-N_modes_CII_future = survey.calc_N_modes(k_HERA, V_CII_future, align='left')
-N_modes_OIII_future = survey.calc_N_modes(k_HERA, V_OIII_future, align='left')
+N_modes_joint, N_modes_bins = np.histogram(K_grid, bins=k_HERA)
 
 # some other initalization stuff because of HERA data_nl# resize for survey section
 k_units = k_HERA[1:] / u.Mpc
@@ -236,6 +223,23 @@ P_N_21cm_future = noise_HERA
 
 spectra_units = spectra_sf_interp * u.Jy**2 * u.steradian**(-2)
 
+# instrument noises
+P_N_CII_StageII = utils.dimless(k_units, survey.calc_P_N(StageII, redshift,
+                                        lambda_CII)) / np.sqrt(N_modes_joint)
+P_N_CII_StageIII = utils.dimless(k_units,
+                                survey.calc_P_N(StageIII, redshift,
+                                        lambda_CII)) / np.sqrt(N_modes_joint)
+P_N_CII_future = utils.dimless(k_units,
+                                survey.calc_P_N(CII_future, redshift,
+                                        lambda_CII)) / np.sqrt(N_modes_joint)
+
+P_N_OIII_EXCLAIM = utils.dimless(k_units,
+                                 survey.calc_P_N(EXCLAIM, redshift,
+                                        lambda_OIII)) / np.sqrt(N_modes_joint)
+P_N_OIII_future = utils.dimless(k_units,
+                                survey.calc_P_N(OIII_future, redshift,
+                                        lambda_OIII)) / np.sqrt(N_modes_joint)
+                                        
 # Window functions
 W_21cm_HERA = survey.calc_W(k_HERA[1:], k_21cm_HERA, HERA, redshift, lambda_21cm)
 W_CII_StageII = survey.calc_W(k_HERA[1:], k_CII_StageII, StageII, redshift, lambda_CII)
@@ -256,70 +260,77 @@ P_21cm_OIII = spectra_units[2]
 P_CII_CII = spectra_units[3]
 P_CII_OIII = spectra_units[4]
 P_OIII_OIII = spectra_units[5]
+
+#============
 # autos
+#============
+# 21cm
 var_21cm_21cm_PAPER = survey.var_x(P_21cm_21cm, P_21cm_21cm,
                                     P_N_21cm_PAPER, P_N_21cm_PAPER,
-                                    P_21cm_21cm, N_modes_21cm_HERA,
+                                    P_21cm_21cm,
+                                    N_modes_joint,
                                     W_i=W_21cm_HERA,
                                     W_j=W_21cm_HERA)
 
 var_21cm_21cm_HERA = survey.var_x(P_21cm_21cm, P_21cm_21cm,
                                     P_N_21cm_HERA, P_N_21cm_HERA,
-                                    P_21cm_21cm, N_modes_21cm_HERA,
+                                    P_21cm_21cm,
+                                    N_modes_joint,
                                     W_i=W_21cm_HERA,
                                     W_j=W_21cm_HERA)
 
 var_21cm_21cm_future = survey.var_x(P_21cm_21cm, P_21cm_21cm,
                                     P_N_21cm_future, P_N_21cm_future,
-                                    P_21cm_21cm, N_modes_21cm_future,
+                                    P_21cm_21cm,
+                                    N_modes_joint,
                                     W_i=W_21cm_future,
                                     W_j=W_21cm_future)
 
-
+# C[II]
 var_CII_CII_StageII = survey.var_x(P_CII_CII, P_CII_CII,
-                                    utils.dimless(k_units, P_N_CII_StageII),
-                                    utils.dimless(k_units, P_N_CII_StageII),
+                                    P_N_CII_StageII, P_N_CII_StageIII,
                                     P_CII_CII,
-                                    N_modes_CII_StageII,
+                                    N_modes_joint,
                                     W_i=W_CII_StageII,
                                     W_j=W_CII_StageII)
 
 var_CII_CII_StageIII = survey.var_x(P_CII_CII, P_CII_CII,
-                                    utils.dimless(k_units, P_N_CII_StageIII),
-                                    utils.dimless(k_units, P_N_CII_StageIII),
+                                    P_N_CII_StageIII,
+                                    P_N_CII_StageIII,
                                     P_CII_CII,
-                                    N_modes_CII_StageIII,
+                                    N_modes_joint,
                                     W_i=W_CII_StageIII,
                                     W_j=W_CII_StageIII)
 
 var_CII_CII_future = survey.var_x(P_CII_CII, P_CII_CII,
-                                    utils.dimless(k_units, P_N_CII_future),
-                                    utils.dimless(k_units, P_N_CII_future),
+                                    P_N_CII_future, P_N_CII_future,
                                     P_CII_CII,
-                                    N_modes_CII_future,
+                                    N_modes_joint,
                                     W_i=W_CII_future,
                                     W_j=W_CII_future)
 
+# O[III]
 var_OIII_OIII_EXCLAIM = survey.var_x(P_OIII_OIII, P_OIII_OIII,
-                                        utils.dimless(k_units, P_N_OIII_EXCLAIM),
-                                        utils.dimless(k_units, P_N_OIII_EXCLAIM),
+                                        P_N_OIII_EXCLAIM,
+                                        P_N_OIII_EXCLAIM,
                                         P_OIII_OIII,
-                                        N_modes_OIII_EXCLAIM,
+                                        N_modes_joint,
                                         W_i=W_OIII_EXCLAIM,
                                         W_j=W_OIII_EXCLAIM)
 
 var_OIII_OIII_future = survey.var_x(P_OIII_OIII, P_OIII_OIII,
-                                        utils.dimless(k_units, P_N_OIII_EXCLAIM),
-                                        utils.dimless(k_units, P_N_OIII_EXCLAIM),
+                                        P_N_OIII_EXCLAIM,
+                                        P_N_OIII_EXCLAIM,
                                         P_OIII_OIII,
-                                        N_modes_OIII_EXCLAIM,
+                                        N_modes_joint,
                                         W_i=W_OIII_EXCLAIM,
                                         W_j=W_OIII_EXCLAIM)
-
+#===========
 # crosses
+#===========
+# current
 var_21cm_CII = survey.var_x(P_21cm_21cm, P_CII_CII,
-                            P_N_21cm_HERA,
-                            utils.dimless(k_units, P_N_CII_StageII),
+                            P_N_21cm_HERA, P_N_CII_StageII,
                             P_21cm_CII,
                             N_modes_joint,
                             W_i=W_21cm_HERA,
@@ -327,56 +338,50 @@ var_21cm_CII = survey.var_x(P_21cm_21cm, P_CII_CII,
 
 
 var_CII_OIII = survey.var_x(P_CII_CII, P_OIII_OIII,
-                            utils.dimless(k_units, P_N_CII_StageII),
-                            utils.dimless(k_units, P_N_OIII_EXCLAIM),
+                            P_N_CII_StageII, P_N_OIII_EXCLAIM,
                             P_CII_OIII,
                             N_modes_joint,
                             W_i=W_CII_StageII,
                             W_j=W_OIII_EXCLAIM)
 
 var_21cm_CII_StageIII = survey.var_x(P_21cm_21cm, P_CII_CII,
-                            P_N_21cm_HERA,
-                            utils.dimless(k_units, P_N_CII_StageIII),
+                            P_N_21cm_HERA, P_N_CII_StageIII,
                             P_21cm_CII,
                             N_modes_joint,
                             W_i=W_21cm_HERA,
                             W_j=W_CII_StageIII)
 
 var_CII_OIII_StageIII = survey.var_x(P_CII_CII, P_OIII_OIII,
-                            utils.dimless(k_units, P_N_CII_StageIII),
-                            utils.dimless(k_units, P_N_OIII_EXCLAIM),
+                            P_N_CII_StageIII, P_N_OIII_EXCLAIM,
                             P_CII_OIII,
                             N_modes_joint,
                             W_i=W_CII_StageIII,
                             W_j=W_OIII_EXCLAIM)
 
 var_21cm_OIII = survey.var_x(P_21cm_21cm, P_OIII_OIII,
-                                P_N_21cm_HERA,
-                                utils.dimless(k_units, P_N_OIII_EXCLAIM),
-                                P_21cm_OIII,
-                                N_modes_joint,
-                                W_i=W_21cm_HERA,
-                                W_j=W_OIII_EXCLAIM)
+                            P_N_21cm_HERA, P_N_OIII_EXCLAIM,
+                            P_21cm_OIII,
+                            N_modes_joint,
+                            W_i=W_21cm_HERA,
+                            W_j=W_OIII_EXCLAIM)
 
+# future
 var_21cm_CII_future = survey.var_x(P_21cm_21cm, P_CII_CII,
-                                    P_N_21cm_future,
-                                    utils.dimless(k_units, P_N_CII_future),
+                                    P_N_21cm_future, P_N_CII_future,
                                     P_21cm_CII,
                                     N_modes_joint,
                                     W_i=W_21cm_future,
                                     W_j=W_CII_future)
 
 var_CII_OIII_future = survey.var_x(P_CII_CII, P_OIII_OIII,
-                                  utils.dimless(k_units, P_N_CII_future),
-                                  utils.dimless(k_units, P_N_OIII_future),
+                                  P_N_CII_future, P_N_OIII_future,
                                   P_CII_OIII,
                                   N_modes_joint,
                                   W_i=W_CII_future,
                                   W_j=W_OIII_future)
 
 var_21cm_OIII_future = survey.var_x(P_21cm_21cm, P_OIII_OIII,
-                                    P_N_21cm_future,
-                                    utils.dimless(k_units, P_N_OIII_future),
+                                    P_N_21cm_future, P_N_OIII_future,
                                     P_21cm_OIII,
                                     N_modes_joint,
                                     W_i=W_21cm_future,
@@ -404,26 +409,27 @@ for i in range(k_units.value.size):
 
     #     np.set_printoptions(precision=6, suppress=True)
     print(f'parameters are', p_sf_tot)
-    model = models.ScalarBias_crossonly(k=spectra_sf[0], params=params_sf)
+    model = models.ScalarBias_crossonly(k=k_HERA, params=params_sf)
 
     nsteps = int(1e6)
     n = [var_21cm_21cm_HERA, var_21cm_CII, var_21cm_OIII,
             var_CII_CII_StageIII, var_CII_OIII, var_OIII_OIII_EXCLAIM]
 
-    data_nl, Beane_nl, LSE_nl, MCMC_nl = analysis.keep_P_21(k_indices, spectra_sf_interp, params_sf, n, model,
+    data_nl, Beane_nl, LSE_nl, MCMC_nl, N = analysis.keep_P_21(k_indices, spectra_sf_interp, params_sf,
+                                            n, model,
                                             N_modes=N_modes_joint, noiseless=True, nsteps=nsteps,
                                             backend_filename=f'survey_current_kmode_{k[i]:.2f}_sf_nl_z{redshift:.3f}_int.h5',
                                             error_x=False)
-    data, Beane, LSE, MCMC = analysis.keep_P_21(k_indices, spectra_sf_interp, params_sf, n, model,
+    data, Beane, LSE, MCMC, N = analysis.keep_P_21(k_indices, spectra_sf_interp, params_sf, n, model,
                                             N_modes=N_modes_joint, noiseless=False, nsteps=nsteps,
                                             backend_filename=f'survey_current_kmode_{k[i]:.2f}_sf_z{redshift:.3f}_int.h5',
                                             error_x=False)
 
 
     np.savez(f'results_all_int/sf_fits/survey_current_kmode_{k[i]:.2f}_sf_nl_z{redshift:.3f}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
-                                        samples=MCMC_nl[0], logp=MCMC_nl[1], params=params_sf)
+                                        samples=MCMC_nl[0], logp=MCMC_nl[1], N=N, params=params_sf)
     np.savez(f'results_all_int/sf_fits/survey_current_kmode_{k[i]:.2f}_sf_z{redshift:.3f}_int', data=data, Beane=Beane, LSE=LSE,
-                                        samples=MCMC[0], logp=MCMC[1], params=params_sf)
+                                        samples=MCMC[0], logp=MCMC[1], N=N, params=params_sf)
 
     tf = time.time()
     print(f'run {i} saved to disk')

@@ -44,10 +44,21 @@ def error_bars(P_x, P_line1, P_line2, P_N, W_k, N_modes):
                                             + P_line1 * (P_line2 + P_N / W_k**2))
     return sigma
 
-def var_x(P_i, P_j, P_Ni, P_Nj, P_x, N_modes, W_i=1.0, W_j=1.0):
+def var_x_old(P_i, P_j, P_Ni, P_Nj, P_x, N_modes, W_i=1.0, W_j=1.0):
+    # this is for when the noise is decoupled from the N_modes
     W_x = np.sqrt(W_i * W_j)
 
     return ((P_i * W_i + P_Ni) * (P_j * W_j + P_Nj) + P_x**2 * W_x**2)  / (2 * N_modes)
+
+def var_x(P_i, P_j, P_Ni, P_Nj, P_x, N_modes, W_i=1.0, W_j=1.0):
+    # P_N's in this case are P_N / N_modes
+    var1 = (P_i * P_j * W_i * W_j) / (2 * N_modes)
+    var2 = (P_i * W_i * P_Nj) / (2 * np.sqrt(N_modes))
+    var3 = (P_j * W_j * P_Ni) / (2 * np.sqrt(N_modes))
+    var4 = (P_Ni * P_Nj) / 2
+    var5 = (P_x**2 * W_i * W_j) / (2 * N_modes)
+
+    return var1 + var2 + var3 + var4 + var5
 
 def find_N_modes(frac_error, P_i, P_j, P_Ni, P_Nj, P_x):
     W_i = W_j = 1
@@ -93,10 +104,6 @@ def calc_P_N(survey_specs, redshift=7.0, rest_wavelength=None):
 
     P_N = V_pix * sigma_N**2 / t_pix
 
-    print('V_pix:', V_pix)
-    print('t_pix', t_pix)
-    print('sigma_N', sigma_N)
-
     return P_N
 
 def calc_V_pix(survey_specs, redshift, rest_wavelength):
@@ -115,8 +122,6 @@ def calc_t_pix(survey_specs, redshift, rest_wavelength):
     theta_beam = calc_theta_beam(survey_specs['D_dish'], redshift,
                                 rest_wavelength).to(u.arcmin)
     Omega_beam = calc_Omega_beam(survey_specs, theta_beam=theta_beam)
-
-    print('sigma_beam:', theta_to_sigma(theta_beam).to(u.arcmin))
 
     t_pix = (survey_specs['t_obs'] * survey_specs['N_spec_eff']
             * Omega_beam / survey_specs['S_A'])

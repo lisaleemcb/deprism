@@ -381,9 +381,9 @@ def Beane_et_al(data, spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices):
     return P_ii, var[0]
 
 def MCMC_results(params, k_indices, data, model, N, b0_guess, p0_in=None,
-                priors='gaussian', priors_width=.1, positivity=False,
+                priors='gaussian', priors_width=.1, positivity=True,
                 pdf='gaussian', backend_filename=None, nsteps=1e6, nwalkers=48,
-                burn_in=1, parallel=False):
+                burn_in=500, parallel=False):
     # lopping off the bias
     #b0_guess = cp.deepcopy(data[-1])
     data_size = model.pspec(k_indices).size
