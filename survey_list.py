@@ -14,7 +14,8 @@ lambda_CII = nu_CII.to(u.um, equivalencies=u.spectral()) #158 um micrometers
 lambda_CO = nu_CO.to(u.mm, equivalencies=u.spectral())
 lambda_OIII = nu_OIII.to(u.cm, equivalencies=u.spectral())
 
-specs_CCATp = {'sigma_pix': 0.86 * (u.MJy * u.s**(1/2) / u.steradian),
+specs_CCATp = {'type': 'interferometer',
+               'sigma_pix': 0.86 * (u.MJy * u.s**(1/2) / u.steradian),
                'N_det': 20 * u.dimensionless_unscaled,
                'theta_FWMH': 46.0 * u.arcsec,
                'nu_obs_min': 200.0 * u.GHz,
@@ -26,7 +27,8 @@ specs_CCATp = {'sigma_pix': 0.86 * (u.MJy * u.s**(1/2) / u.steradian),
 
 # specs from Parson, Pober et al.
 # SOME OF THIS IS WRONG FOR PAPER JUST FYI
-specs_PAPER = {'sigma_pix': None,
+specs_PAPER = {'type': 'interferometer',
+               'sigma_pix': None,
                'N_det': None,
                'beam_width': .76 * u.steradian,
                'min_baseline': 14.6 * u.m,
@@ -47,7 +49,8 @@ specs_PAPER = {'sigma_pix': None,
 
 # specs pulled (partially) from:
 # Pober et al. https://arxiv.org/pdf/1310.7031.pdf
-specs_HERA = {'sigma_pix': None,
+specs_HERA = {'type': 'interferometer',
+               'sigma_pix': None,
                'N_det': None,
                'beam_width': 10**2 * u.degree**2,
                'min_baseline': 14.6 * u.m,
@@ -68,7 +71,8 @@ specs_HERA = {'sigma_pix': None,
                'f_ratio': 3.34e4}
 
 # D_dish is specified due to coding laziness. Should be max_baseline
-specs_HERA_future = {'sigma_pix': None,
+specs_HERA_future = {'type': 'interferometer',
+               'sigma_pix': None,
                'N_det': None,
                'beam_width': 1.0**2 * u.degree**2,
                'min_baseline': 14.6 * u.m,
@@ -89,7 +93,8 @@ specs_HERA_future = {'sigma_pix': None,
                'f_ratio': 3.34e4}
 
 # FYST-like Stage II (formerly CCAT-prime) from Padmanabhan et al. (2021)
-specs_StageII = {'D_dish': 9 * u.m,
+specs_StageII = {'type': 'dish',
+                'D_dish': 9 * u.m,
                 'delta_nu': 400 * u.MHz,
                 'N_spec_eff': 1,
                 'S_A': 100 * u.degree**2,
@@ -100,7 +105,8 @@ specs_StageII = {'D_dish': 9 * u.m,
                 'Survey_Bandwidth_finish': 428 * u.GHz}
 
 # FYST-like State III/IV from Padmanabhan et al. (2021)
-specs_StageIII = {'D_dish': 9 * u.m,
+specs_StageIII = {'type': 'dish',
+                'D_dish': 9 * u.m,
                 'delta_nu': 400 * u.MHz,
                 'N_spec_eff': 16000,
                 'S_A': 100 * u.degree**2,
@@ -111,7 +117,8 @@ specs_StageIII = {'D_dish': 9 * u.m,
                 'Survey_Bandwidth_finish': 428 * u.GHz}
 
 # FYST-like State III/IV from Padmanabhan et al. (2021)
-specs_CII_future = {'D_dish': 10 * u.m,
+specs_CII_future = {'type': 'dish',
+                'D_dish': 10 * u.m,
                 'delta_nu': 300 * u.MHz,
                 'N_spec_eff': 16000,
                 'S_A': 100 * u.degree**2,
@@ -122,7 +129,8 @@ specs_CII_future = {'D_dish': 10 * u.m,
                 'Survey_Bandwidth_finish': 428 * u.GHz}
 
 # EXCLAIM-like from Padmanabhan et al. (2021)
-specs_EXCLAIM = {'D_dish': .74 * u.m,
+specs_EXCLAIM = {'type': 'dish',
+                'D_dish': .74 * u.m,
                 'delta_nu': 1000 * u.MHz,
                 'N_spec_eff': 30,
                 'S_A': 100 * u.degree**2,
@@ -133,7 +141,8 @@ specs_EXCLAIM = {'D_dish': .74 * u.m,
                 'Survey_Bandwidth_finish': 540 * u.GHz}
 
 # EXCLAIM-like from Padmanabhan et al. (2021)
-specs_OIII_future = {'D_dish': 3.0 * u.m,
+specs_OIII_future = {'type': 'dish',
+                'D_dish': 3.0 * u.m,
                 'delta_nu': 1000 * u.MHz,
                 'N_spec_eff': 30,
                 'S_A': 100 * u.degree**2,
@@ -143,7 +152,8 @@ specs_OIII_future = {'D_dish': 3.0 * u.m,
                 'Survey_Bandwidth_start': 420 * u.GHz,
                 'Survey_Bandwidth_finish': 540 * u.GHz}
 
-specs_future = {'D_dish': 3 * u.m,
+specs_future = {'type': 'dish',
+                'D_dish': 3 * u.m,
                 'delta_nu': 300 * u.MHz,
                 'N_spec_eff': 50,
                 'S_A': 16 * u.degree**2,

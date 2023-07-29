@@ -33,11 +33,13 @@ colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
 print('loading simulations')
 
 which_box = 'little'
+rerun = False
+
 print('running analysis on', which_box, 'box')
 
-if which_box is 'little':
+if which_box == 'little':
     rez = 512
-    box = h5py.File('L80_halos_z=6.0155.hdf5', 'r')
+    box = h5py.File('sims/L80_halos_z=6.0155.hdf5', 'r')
     print(box.keys())
 
     redshift = 6.0155
@@ -53,12 +55,12 @@ if which_box is 'little':
     r = np.linspace(0, box_size, rez)
     r_vec = np.stack((r, r, r))
 
-if which_box is 'big':
+if which_box == 'big':
     rez = 1024
-    box = h5py.File('halos.z8.hdf5', 'r')
+    box = h5py.File('sims/halos.z8.hdf5', 'r')
     print(box.keys())
 
-    density = np.fromfile('rho.z=07.9589_cic_1024', dtype=np.float64).reshape(rez, rez, rez, order='F')
+    density = np.fromfile('sims/rho.z=07.9589_cic_1024', dtype=np.float64).reshape(rez, rez, rez, order='F')
 
     #density.max()
 
@@ -75,19 +77,20 @@ if which_box is 'big':
     r = np.linspace(0, box_size, rez)
     r_vec = np.stack((r, r, r))
 
+delta = utils.overdensity(density)
 mass_voxels, mass_edges = np.histogramdd([x,y,z], bins=rez,
                                                 weights=masses)
 
-#print('generating underlying matter density spectrum')
-print('loading underlying matter density spectrum')
+if rerun:
+    print('generating underlying matter density spectrum')
+    k, P_m = analysis.calc_pspec(r_vec, [delta], n_bins=n_bins, bin_scale='log')
+    np.savez(f'spectra/matter_pspec_z{redshift}', k=k, P_m=P_m)
 
-delta = utils.overdensity(density)
-k, P_m = analysis.calc_pspec(r_vec, [delta], n_bins=n_bins, bin_scale='log')
-np.savez('spectra_new/matter_pspec_6.0155', k=k, P_m=P_m)
-
-# matter_pspec = np.load('spectra/matter_pspec_6.0155.npz')
-# k = matter_pspec['k']
-# P_m = matter_pspec['P_m']
+else:
+    print('loading underlying matter density spectrum')
+    matter_pspec = np.load(f'spectra/matter_pspec_z{redshift}.npz')
+    k = matter_pspec['k']
+    P_m = matter_pspec['P_m']
 
 print('yay! finished the matter stuff')
 
@@ -161,12 +164,21 @@ def get_21cm_fields(z, zreion, delta):
 
     return ion_field, t21_field
 
-print('loading zreion...')
-#zreion = np.load('zreion_files/zreion_z6.0155.npy')# gen_21cm_fields(delta)
-zreion = gen_21cm_fields(delta)
-np.save('zreion_files/zreion_z6.0155', zreion)
+if rerun:
+    zreion = gen_21cm_fields(delta)
+    ion_field, t21_field = get_21cm_fields(redshift, zreion, delta)
+    nu_21cm_rest = 1420 * u.MHz
+    nu_21cm_obvs = utils.calc_nu_obs(nu_21cm_rest, redshift)
 
-ion_field, t21_field = get_21cm_fields(redshift, zreion, delta)
+    i21_field = (t21_field * u.mK).to(u.Jy / u.steradian,
+                          equivalencies=u.brightness_temperature(nu_21cm_obvs))
+    np.save('zreion_files/zreion_z6.0155', zreion)
+
+else:
+    print('loading zreion...')
+    zreion = np.load('zreion_files/zreion_z6.0155.npz')# gen_21cm_fields(delta)
+    i21_field = zreion['i21_field']
+
 
 ### Superfake data
 k_indices = [6]
@@ -184,7 +196,7 @@ spectra_pl = analysis.gen_spectra(r_vec, I_fields)
 
 ### Brightness temperature data
 I_fields_bt = cp.deepcopy(I_fields)
-I_fields_bt[0] = t21_field
+I_fields_bt[0] = i21_field
 
 print('generating brightness temperature data')
 # full simulation
@@ -234,7 +246,7 @@ spectra_pl = analysis.gen_spectra(r_vec, I_fields)
 
 ### Brightness temperature data
 I_fields_bt = cp.deepcopy(I_fields)
-I_fields_bt[0] = t21_field
+I_fields_bt[0] = i21_field
 
 print('generating brightness temperature data')
 # full simulation

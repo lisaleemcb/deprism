@@ -114,7 +114,7 @@ def calc_V_pix(survey_specs, redshift, rest_wavelength):
 def calc_t_pix(survey_specs, redshift, rest_wavelength):
     theta_beam = calc_theta_beam(survey_specs['D_dish'], redshift,
                                 rest_wavelength).to(u.arcmin)
-    Omega_beam = calc_Omega_beam(theta_beam)
+    Omega_beam = calc_Omega_beam(survey_specs, theta_beam=theta_beam)
 
     print('sigma_beam:', theta_to_sigma(theta_beam).to(u.arcmin))
 
@@ -156,7 +156,7 @@ def calc_P_N_21cm(survey_specs, k, redshift):
     return (np.sqrt(N_per_bl * time_samples).to(u.Jy  / u.sr, equivalencies=equiv))**2
 
 def calc_X(redshift):
-    return Planck18.comoving_distance(redshift) / u.radian**2
+    return (Planck18.comoving_distance(redshift) * Planck18.h) / u.radian**2
 
 def calc_Y(redshift):
     H = Planck18.H(redshift)
@@ -201,7 +201,7 @@ def calc_theta_beam(D_dish, redshift, rest_wavelength):
 
     return theta_beam.decompose() * u.radian
 
-def calc_Omega_beam(theta_beam=None, sigma_beam=None):
+def calc_Omega_beam(survey_specs, theta_beam=None, sigma_beam=None):
     """Calculates Omega beam
 
     Parameters
@@ -218,7 +218,13 @@ def calc_Omega_beam(theta_beam=None, sigma_beam=None):
         raise Exception('can only specify either theta or sigma beam, but not both')
 
     if theta_beam is not None:
-        Omega_beam = 2 * np.pi * (theta_to_sigma(theta_beam))**2
+        if survey_specs['type'] == 'dish':
+            beam = theta_to_sigma(theta_beam)
+
+        if survey_specs['type'] == 'interferometer':
+            beam = theta_beam
+
+        Omega_beam = 2 * np.pi * beam**2
 
     if sigma_beam is not None:
         Omega_beam = 2 * np.pi * sigma_beam**2
@@ -244,7 +250,7 @@ def calc_V_survey(survey_specs, redshift, rest_wavelength):
     S_A = survey_specs['S_A']
     B_nu = survey_specs['B_nu']
     y = rest_wavelength * (1 + redshift)**2 / Planck18.H(redshift)
-    R = Planck18.comoving_distance(redshift)
+    R = Planck18.comoving_distance(redshift) * Planck18.h
 
     V_survey = R**2 * y * S_A * B_nu
 
@@ -252,34 +258,40 @@ def calc_V_survey(survey_specs, redshift, rest_wavelength):
 
 def calc_L_para_min(survey_specs, redshift, rest_wavelength):
     nu_rest = rest_wavelength.to(u.Hz, equivalencies=u.spectral())
-    nu_obs = utils.calc_nu_obs(nu_rest, redshift)
 
     L_para = ((const.c / Planck18.H(redshift))
-                * (survey_specs['delta_nu'] * (1 + redshift)**2 / nu_obs))
+                * (survey_specs['delta_nu'] * (1 + redshift)**2 / nu_rest))
 
     return L_para.decompose().to(u.Mpc)
 
 def calc_L_para_max(survey_specs, redshift, rest_wavelength):
     nu_rest = rest_wavelength.to(u.Hz, equivalencies=u.spectral())
-    nu_obs = utils.calc_nu_obs(nu_rest, redshift)
 
     L_para = ((const.c / Planck18.H(redshift))
-                * (survey_specs['B_nu'] * (1 + redshift)**2 / nu_obs))
+                * (survey_specs['B_nu'] * (1 + redshift)**2 / nu_rest))
 
     return L_para.decompose().to(u.Mpc)
 
 def calc_L_perp_min(survey_specs, redshift, rest_wavelength):
     # This assumes a square survey
-    R_z = Planck18.comoving_distance(redshift)
-    theta_beam = calc_theta_beam(survey_specs['D_dish'], redshift,
-                                rest_wavelength).to(u.arcmin)
-    sigma_beam = theta_to_sigma(theta_beam)
+    R_z = Planck18.comoving_distance(redshift) * Planck18.h
 
-    return (R_z * sigma_beam).to(u.Mpc, equivalencies=u.dimensionless_angles())
+    if survey_specs['type'] == 'dish':
+        theta_beam = calc_theta_beam(survey_specs['D_dish'], redshift,
+                                    rest_wavelength).to(u.radian)
+        beam = theta_to_sigma(theta_beam)
+
+    if survey_specs['type'] == 'interferometer':
+        beam = calc_theta_beam(survey_specs['D_dish'], redshift,
+                                    rest_wavelength).to(u.radian)
+
+    print('L_perp stuff', R_z, beam)
+
+    return (R_z * beam).to(u.Mpc, equivalencies=u.dimensionless_angles())
 
 def calc_L_perp_max(survey_specs, redshift, rest_wavelength):
     # This assumes a square survey
-    R_z = Planck18.comoving_distance(redshift)
+    R_z = Planck18.comoving_distance(redshift) * Planck18.h
 
     return np.sqrt(R_z**2 * survey_specs['S_A']).to(u.Mpc, equivalencies=u.dimensionless_angles())
 
@@ -311,6 +323,18 @@ def calc_survey_extents(survey_specs, redshift, rest_wavelength):
 
     return L_extent, k_extent
 
+def calc_spacing(L_extent, k_extent):
+    L_perp_min, L_perp_max, L_para_min, L_para_max = L_extent
+    k_perp_min, k_perp_max, k_para_min, k_para_max = k_extent
+
+    delta_perp = (2 * np.pi) / L_perp_max
+    delta_para = (2 * np.pi) / L_para_max
+
+    k_perp_spacing = np.arange(k_perp_min.value, k_perp_max.value, delta_perp.value)
+    k_para_spacing = np.arange(k_para_min.value, k_para_max.value, delta_para.value)
+
+    return k_perp_spacing, k_para_spacing
+
 
 """
 functions for calculating the windowing functions that sets the survey resolution
@@ -319,16 +343,24 @@ def calc_sigma_perp(survey_specs, redshift, rest_wavelength):
 
     theta_beam = calc_theta_beam(survey_specs['D_dish'], redshift,
                                             rest_wavelength).to(u.arcmin)
-    sigma_beam = theta_to_sigma(theta_beam)
+    if survey_specs['type'] == 'dish':
+        theta_beam = calc_theta_beam(survey_specs['D_dish'], redshift,
+                                    rest_wavelength).to(u.radian)
+        beam = theta_to_sigma(theta_beam)
 
-    sigma_perp = Planck18.comoving_distance(redshift) * sigma_beam
+    if survey_specs['type'] == 'interferometer':
+        beam = calc_theta_beam(survey_specs['D_dish'], redshift,
+                                    rest_wavelength).to(u.radian)
+
+
+    sigma_perp = (Planck18.comoving_distance(redshift) * Planck18.h) * beam
 
     return sigma_perp.to(u.Mpc, equivalencies=u.dimensionless_angles())
 
-def calc_sigma_para(survey_specs, redshift, nu_obs):
+def calc_sigma_para(survey_specs, redshift, nu_rest):
     # print('delta nu', survey_specs['delta_nu'])
     sigma_para = ((const.c / Planck18.H(redshift))
-                * (survey_specs['delta_nu'] * (1 + redshift)**2 / nu_obs))
+                * (survey_specs['delta_nu'] * (1 + redshift)**2 / nu_rest))
 
     return sigma_para.decompose().to(u.Mpc)
 
@@ -370,10 +402,9 @@ def calc_W_beam(k, survey_specs, redshift, rest_wavelength):
     W_beam = np.zeros(len(k))
     mu = np.linspace(0,1,int(1e5))
     nu_rest = rest_wavelength.to(u.Hz, equivalencies=u.spectral())
-    nu_obs = utils.calc_nu_obs(nu_rest, redshift)
 
     sigma_perp = calc_sigma_perp(survey_specs, redshift, rest_wavelength)
-    sigma_para = calc_sigma_para(survey_specs, redshift, nu_obs)
+    sigma_para = calc_sigma_para(survey_specs, redshift, nu_rest)
 
     for i in range(len(k)):
         W_beam[i] = simps(calc_W_k(mu, k[i], sigma_perp, sigma_para), mu)
