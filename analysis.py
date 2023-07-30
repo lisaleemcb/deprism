@@ -417,7 +417,8 @@ def inject_noise(data, N):
 def run_analysis(k_indices, spectra, params_dict, noise, model, N_modes=None,
                     data=None, error_x=False,
                     priors='gaussian', priors_width=.10, priors_offset=1.0,
-                    noiseless=False, nsteps=1e6, backend_filename=None):
+                    noiseless=False, nsteps=1e6, backend_filename=None,
+                    b_j_prior=False, b_k_prior=False):
 
     if data == None:
         # data order is P_ii, P_ij, P_jk, P_ik, b_0
@@ -450,20 +451,23 @@ def run_analysis(k_indices, spectra, params_dict, noise, model, N_modes=None,
     MCMC = fitting.MCMC_results(params_dict, k_indices, data, model, N,
                                 priors_offset * params_dict['b_i'],  priors=priors,
                                 priors_width=priors_width,
-                                nsteps=nsteps, backend_filename=backend_filename)
+                                nsteps=nsteps, backend_filename=backend_filename,
+                                b_j_prior=b_j_prior, b_k_prior=b_k_prior)
 
     return data, Beane, LSE, MCMC, N
 
 def keep_P_21(k_indices, spectra, params, noise, model,
                 N_modes=None, nsteps=1e6, noiseless=False,
                 priors='gaussian', priors_offset=1.0, priors_width=.1,
-                error_x=True, backend_filename=None):
+                error_x=True, backend_filename=None,
+                b_j_prior=False, b_k_prior=False):
 
     data, Beane, LSE, MCMC, N = run_analysis(k_indices, spectra, params, noise, model,
                                         N_modes=N_modes, noiseless=noiseless, priors=priors,
                                         priors_offset=priors_offset, priors_width=priors_width,
                                         error_x=error_x, nsteps=nsteps,
-                                        backend_filename=backend_filename)
+                                        backend_filename=backend_filename,
+                                        b_j_prior=b_j_prior, b_k_prior=b_k_prior)
 
     samples_00 = add_P(MCMC[0], k_indices, (0,0))
 

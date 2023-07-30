@@ -9,7 +9,8 @@ import estimators
 from multiprocessing import Pool
 
 def log_prior(param_guesses, params, k_indices, model, N, b0_guess,
-                priors='uniform', priors_width=.25, positivity=False):
+                priors='uniform', priors_width=.25, positivity=False,
+                b_j_prior=False, b_k_prior=False):
 
     P_m = param_guesses['P_m']
     b_0 = b0_guess #params['b_i'] #* .92 # 2660
@@ -58,8 +59,17 @@ def log_prior(param_guesses, params, k_indices, model, N, b0_guess,
 
         #if np.any(np.asarray(P_m) < 0):
         #    return -np.inf
+        p_i = np.log(utils.gaussian(b_i, b0_guess, b0_guess * priors_width))
+        p_j = 0
+        p_k = 0
 
-        return np.log(utils.gaussian(b_i, b0_guess, b0_guess * priors_width))
+        if b_j_prior:
+            p_j = np.log(utils.gaussian(params['b_j'], b_j, params['b_j'] * priors_width))
+        if b_k_prior:
+
+            p_k = np.log(utils.gaussian(params['b_k'], b_k, params['b_k'] * priors_width))
+
+        return p_i + p_j + p_k
 
     if priors == 'jeffreys':
         #print(param_guesses)
@@ -117,7 +127,7 @@ def log_likelihood(param_guesses, k_indices, data, model, N,
 
 def log_prob(guesses, params, k_indices, data, model, N, b0_guess,
                     priors='gaussian', priors_width=.25,
-                    positivity=False, pdf='gaussian'):
+                    positivity=False, pdf='gaussian', b_j_prior=False, b_k_prior=False):
 
     param_guesses = cp.deepcopy(params)
 
@@ -131,7 +141,8 @@ def log_prob(guesses, params, k_indices, data, model, N, b0_guess,
                 param_guesses['P_m'][k] = P_m_params[j]
 
     lp = log_prior(param_guesses, params, k_indices, model, N, b0_guess,
-                    priors=priors, priors_width=priors_width, positivity=positivity)
+                    priors=priors, priors_width=priors_width, positivity=positivity,
+                    b_j_prior=b_j_prior, b_k_prior=b_k_prior)
     if not np.isfinite(lp):
         return -np.inf
 
@@ -144,7 +155,8 @@ def log_prob(guesses, params, k_indices, data, model, N, b0_guess,
 def start_mcmc(params_init, k_indices, data, model, N, b0_guess, p0_in=None,
                 priors='gaussian', priors_width=.1, positivity=False,
                 pdf='gaussian', backend_filename=None, nsteps=1e6, nwalkers=48,
-                burn_in=1, parallel=False, start_from_backend=False):
+                burn_in=1, parallel=False, start_from_backend=False,
+                b_j_prior=False, b_k_prior=False):
 
     print('running mcmc with the following settings:')
     print('fitting data from k: ', k_indices)
@@ -158,13 +170,14 @@ def start_mcmc(params_init, k_indices, data, model, N, b0_guess, p0_in=None,
     print('nwalkers:', nwalkers)
     print('logp of truths is:', log_prob(utils.get_params(params_init, k_indices),
                             params_init, k_indices, data, model, N, b0_guess,
-                            priors=priors, priors_width=.25,
-                            positivity=False, pdf=pdf))
+                            priors=priors, priors_width=priors_width,
+                            positivity=positivity, pdf=pdf,
+                            b_j_prior=b_j_prior, b_k_prior=b_k_prior))
 
     pvals = np.asarray(list(params_init.values()), dtype=object)
 
     args = [params_init, k_indices, data, model, N, b0_guess, priors,
-                priors_width, positivity, pdf]
+                priors_width, positivity, pdf, b_j_prior, b_k_prior]
 
     ndim = len(pvals) - 1 + len(pvals[-1][k_indices])
 
@@ -262,7 +275,8 @@ def many_realizations(params_initial, param_names, k_indices,
 
 def recover_params_mcmc(k, k_indices, lumen_pspecs, model, density, variances,
             priors='uniform', priors_width=.25, N=None, N_frac_error=None, inject_noise=False,
-            pdf='gaussian', positivity=False, nsteps=1e5, nwalkers=72):
+            pdf='gaussian', positivity=False, nsteps=1e5, nwalkers=72,
+            b_j_prior=False, b_k_prior=False):
 
     data = utils.fetch_data(k, k_indices, lumen_pspecs)
 
@@ -308,7 +322,7 @@ def recover_params_mcmc(k, k_indices, lumen_pspecs, model, density, variances,
                             burn_in=5000, nsteps=nsteps,
                             nwalkers=nwalkers, parallel=False,
                             pdf=pdf, priors=priors, priors_width=priors_width,
-                            positivity=positivity)
+                            positivity=positivity, b_j_prior=b_j_prior, b_k_prior=b_k_prior)
 
     return results, params, data
 
@@ -383,7 +397,7 @@ def Beane_et_al(data, spectra, P_N_i, P_N_j, P_N_k, N_modes, k_indices):
 def MCMC_results(params, k_indices, data, model, N, b0_guess, p0_in=None,
                 priors='gaussian', priors_width=.1, positivity=True,
                 pdf='gaussian', backend_filename=None, nsteps=1e6, nwalkers=48,
-                burn_in=500, parallel=False):
+                burn_in=500, parallel=False, b_j_prior=False, b_k_prior=False):
     # lopping off the bias
     #b0_guess = cp.deepcopy(data[-1])
     data_size = model.pspec(k_indices).size
@@ -396,11 +410,14 @@ def MCMC_results(params, k_indices, data, model, N, b0_guess, p0_in=None,
     print('NOISE / DATA: ',np.sqrt(np.diag(N))/ data)
     print('PRIOR RANGE: ', priors_width)
     print('PRIOR GUESS:', b0_guess)
+    print('PRIOR on J is:', b_j_prior)
+    print('PRIOR on K is:', b_k_prior)
 
     results = start_mcmc(params, k_indices, data, model, N, b0_guess, p0_in=p0_in,
                             burn_in=burn_in, nsteps=nsteps,
                             nwalkers=nwalkers, parallel=parallel,
                             pdf=pdf, priors=priors, priors_width=priors_width,
-                            positivity=positivity, backend_filename=backend_filename)
+                            positivity=positivity, backend_filename=backend_filename,
+                            b_j_prior=b_j_prior, b_k_prior=b_k_prior)
 
     return results
