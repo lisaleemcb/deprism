@@ -418,47 +418,18 @@ for i in range(k_units.value.size):
     n_future = [var_21cm_21cm_future, var_21cm_CII_future, var_21cm_OIII_future,
                 var_CII_CII_future, var_CII_OIII_future, var_OIII_OIII_future]
 
-    data_nl, Beane_nl, LSE_nl, MCMC_nl, N_nl = analysis.keep_P_21(k_indices, spectra_sf_interp, params_sf,
-                                            n, model, N_modes=N_modes_joint, noiseless=True, nsteps=nsteps,
-                                            backend_filename=f'backends/survey_current_kmode_{k_HERA[i]:.2f}_sf_nl_bj_z{redshift:.3f}_int.h5',
-                                            error_x=False, b_j_prior=True)
-    data, Beane, LSE, MCMC, N = analysis.keep_P_21(k_indices, spectra_sf_interp, params_sf, n, model,
-                                            N_modes=N_modes_joint, noiseless=False, nsteps=nsteps,
-                                            backend_filename=f'backends/survey_current_kmode_{k_HERA[i]:.2f}_sf_bj_z{redshift:.3f}_int.h5',
-                                            error_x=False, b_j_prior=True)
-
-    np.savez(f'results_all_int/surveys/survey_current_kmode_{k_HERA[i]:.2f}_sf_nl_bj_z{redshift:.3f}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
-                                        samples=MCMC_nl[0], logp=MCMC_nl[1], N=N_nl, params=params_sf)
-    np.savez(f'results_all_int/surveys/survey_current_kmode_{k_HERA[i]:.2f}_sf_bj_z{redshift:.3f}_int', data=data, Beane=Beane, LSE=LSE,
-                                        samples=MCMC[0], logp=MCMC[1], N=N, params=params_sf)
-
-
-    data_nl_bj, Beane_nl_bj, LSE_nl_bj, MCMC_nl_bj, N_nl_bj = analysis.keep_P_21(k_indices, spectra_sf_interp, params_sf,
-                                            n, model, N_modes=N_modes_joint, noiseless=True, nsteps=nsteps,
-                                            backend_filename=f'backends/survey_current_kmode_{k_HERA[i]:.2f}_sf_nl_bj_z{redshift:.3f}_int.h5',
-                                            error_x=False, b_j_prior=True)
-    data_bj, Beane_bj, LSE_bj, MCMC_bj, N_bj = analysis.keep_P_21(k_indices, spectra_sf_interp, params_sf, n, model,
-                                            N_modes=N_modes_joint, noiseless=False, nsteps=nsteps,
-                                            backend_filename=f'backends/survey_current_kmode_{k_HERA[i]:.2f}_sf_bj_z{redshift:.3f}_int.h5',
-                                            error_x=False, b_j_prior=True)
-
-    np.savez(f'results_all_int/surveys/survey_current_kmode_{k_HERA[i]:.2f}_sf_nl_bj_z{redshift:.3f}_int', data=data_nl_bj, Beane=Beane_nl_bj, LSE=LSE_nl_bj,
-                                        samples=MCMC_nl_bj[0], logp=MCMC_nl_bj[1], N=N_nl_bj, params=params_sf)
-    np.savez(f'results_all_int/surveys/survey_current_kmode_{k_HERA[i]:.2f}_sf_bj_z{redshift:.3f}_int', data=data_bj, Beane=Beane_bj, LSE=LSE_bj,
-                                        samples=MCMC_bj[0], logp=MCMC_bj[1], N=N_bj, params=params_sf)
-
     data_nl_f, Beane_nl_f, LSE_nl_f, MCMC_nl_f, N_nl_f = analysis.keep_P_21(k_indices, spectra_sf_interp, params_sf,
-                                            n, model, N_modes=N_modes_joint, noiseless=True, nsteps=nsteps,
-                                            backend_filename=f'backends/survey_current_kmode_{k_HERA[i]:.2f}_sf_nl_f_z{redshift:.3f}_int.h5',
+                                            n_future, model, N_modes=N_modes_joint, noiseless=True, nsteps=nsteps,
+                                            backend_filename=f'backends/survey_kmode_{k_HERA[i]:.2f}_sf_nl_f_z{redshift:.3f}_int.h5',
                                             error_x=False, b_j_prior=False)
-    data_f, Beane_f, LSE_f, MCMC_f, N_f = analysis.keep_P_21(k_indices, spectra_sf_interp, params_sf, n, model,
+    data_f, Beane_f, LSE_f, MCMC_f, N_f = analysis.keep_P_21(k_indices, spectra_sf_interp, params_sf, n_future, model,
                                             N_modes=N_modes_joint, noiseless=False, nsteps=nsteps,
-                                            backend_filename=f'backends/survey_current_kmode_{k_HERA[i]:.2f}_sf_f_z{redshift:.3f}_int.h5',
+                                            backend_filename=f'backends/survey_kmode_{k_HERA[i]:.2f}_sf_f_z{redshift:.3f}_int.h5',
                                             error_x=False, b_j_prior=False)
 
-    np.savez(f'results_all_int/surveys/survey_current_kmode_{k_HERA[i]:.2f}_sf_nl_f_z{redshift:.3f}_int', data=data_nl_f, Beane=Beane_nl_f, LSE=LSE_nl_f,
+    np.savez(f'results_all_int/surveys/survey_kmode_{k_HERA[i]:.2f}_sf_nl_f_z{redshift:.3f}_int', data=data_nl_f, Beane=Beane_nl_f, LSE=LSE_nl_f,
                                         samples=MCMC_nl_f[0], logp=MCMC_nl_f[1], N=N_nl_f, params=params_sf)
-    np.savez(f'results_all_int/surveys/survey_current_kmode_{k_HERA[i]:.2f}_sf_f_z{redshift:.3f}_int', data=data_f, Beane=Beane_f, LSE=LSE_f,
+    np.savez(f'results_all_int/surveys/survey_kmode_{k_HERA[i]:.2f}_sf_f_z{redshift:.3f}_int', data=data_f, Beane=Beane_f, LSE=LSE_f,
                                         samples=MCMC_f[0], logp=MCMC_f[1], N=N_f, params=params_sf)
 
     tf = time.time()
