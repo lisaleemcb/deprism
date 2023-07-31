@@ -392,6 +392,7 @@ var_21cm_OIII_future = survey.var_x(P_21cm_21cm, P_OIII_OIII,
 P_m_interp = np.interp(k_HERA[:-1], k, utils.dimless(k, P_m))
 
 for i in range(k_units.value.size):
+    print('Working in theory space...')
     print('k is:', k_units)
     t0 = time.time()
     k_indices = [i]
