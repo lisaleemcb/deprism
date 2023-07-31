@@ -427,9 +427,9 @@ for i in range(k_units.value.size):
                                             backend_filename=f'backends/survey_current_kmode_{k_HERA[i]:.2f}_sf_bj_z{redshift:.3f}_int.h5',
                                             error_x=False, b_j_prior=True)
 
-    np.savez(f'results_all_int/sf_fits/survey_current_kmode_{k_HERA[i]:.2f}_sf_nl_bj_z{redshift:.3f}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
+    np.savez(f'results_all_int/surveys/survey_current_kmode_{k_HERA[i]:.2f}_sf_nl_bj_z{redshift:.3f}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
                                         samples=MCMC_nl[0], logp=MCMC_nl[1], N=N_nl, params=params_sf)
-    np.savez(f'results_all_int/sf_fits/survey_current_kmode_{k_HERA[i]:.2f}_sf_bj_z{redshift:.3f}_int', data=data, Beane=Beane, LSE=LSE,
+    np.savez(f'results_all_int/surveys/survey_current_kmode_{k_HERA[i]:.2f}_sf_bj_z{redshift:.3f}_int', data=data, Beane=Beane, LSE=LSE,
                                         samples=MCMC[0], logp=MCMC[1], N=N, params=params_sf)
 
 
@@ -442,9 +442,9 @@ for i in range(k_units.value.size):
                                             backend_filename=f'backends/survey_current_kmode_{k_HERA[i]:.2f}_sf_bj_z{redshift:.3f}_int.h5',
                                             error_x=False, b_j_prior=True)
 
-    np.savez(f'results_all_int/sf_fits/survey_current_kmode_{k_HERA[i]:.2f}_sf_nl_bj_z{redshift:.3f}_int', data=data_nl_bj, Beane=Beane_nl_bj, LSE=LSE_nl_bj,
+    np.savez(f'results_all_int/surveys/survey_current_kmode_{k_HERA[i]:.2f}_sf_nl_bj_z{redshift:.3f}_int', data=data_nl_bj, Beane=Beane_nl_bj, LSE=LSE_nl_bj,
                                         samples=MCMC_nl_bj[0], logp=MCMC_nl_bj[1], N=N_nl_bj, params=params_sf)
-    np.savez(f'results_all_int/sf_fits/survey_current_kmode_{k_HERA[i]:.2f}_sf_bj_z{redshift:.3f}_int', data=data_bj, Beane=Beane_bj, LSE=LSE_bj,
+    np.savez(f'results_all_int/surveys/survey_current_kmode_{k_HERA[i]:.2f}_sf_bj_z{redshift:.3f}_int', data=data_bj, Beane=Beane_bj, LSE=LSE_bj,
                                         samples=MCMC_bj[0], logp=MCMC_bj[1], N=N_bj, params=params_sf)
 
     data_nl_f, Beane_nl_f, LSE_nl_f, MCMC_nl_f, N_nl_f = analysis.keep_P_21(k_indices, spectra_sf_interp, params_sf,
@@ -456,9 +456,9 @@ for i in range(k_units.value.size):
                                             backend_filename=f'backends/survey_current_kmode_{k_HERA[i]:.2f}_sf_f_z{redshift:.3f}_int.h5',
                                             error_x=False, b_j_prior=False)
 
-    np.savez(f'results_all_int/sf_fits/survey_current_kmode_{k_HERA[i]:.2f}_sf_nl_f_z{redshift:.3f}_int', data=data_nl_f, Beane=Beane_nl_f, LSE=LSE_nl_f,
+    np.savez(f'results_all_int/surveys/survey_current_kmode_{k_HERA[i]:.2f}_sf_nl_f_z{redshift:.3f}_int', data=data_nl_f, Beane=Beane_nl_f, LSE=LSE_nl_f,
                                         samples=MCMC_nl_f[0], logp=MCMC_nl_f[1], N=N_nl_f, params=params_sf)
-    np.savez(f'results_all_int/sf_fits/survey_current_kmode_{k_HERA[i]:.2f}_sf_f_z{redshift:.3f}_int', data=data_f, Beane=Beane_f, LSE=LSE_f,
+    np.savez(f'results_all_int/surveys/survey_current_kmode_{k_HERA[i]:.2f}_sf_f_z{redshift:.3f}_int', data=data_f, Beane=Beane_f, LSE=LSE_f,
                                         samples=MCMC_f[0], logp=MCMC_f[1], N=N_f, params=params_sf)
 
     tf = time.time()
