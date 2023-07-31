@@ -427,9 +427,9 @@ for i in range(k_units.value.size):
                                             backend_filename=f'backends/survey_current_kmode_{k_HERA[i]:.2f}_sf_bj_z{redshift:.3f}_int.h5',
                                             error_x=False, b_j_prior=True)
 
-    np.savez(f'results_all_int/sf_fits/survey_current_kmode_{k_HERA[i]:.2f}_sf_nl_z{redshift:.3f}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
+    np.savez(f'results_all_int/sf_fits/survey_current_kmode_{k_HERA[i]:.2f}_sf_nl_bj_z{redshift:.3f}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
                                         samples=MCMC_nl[0], logp=MCMC_nl[1], N=N_nl, params=params_sf)
-    np.savez(f'results_all_int/sf_fits/survey_current_kmode_{k_HERA[i]:.2f}_sf_z{redshift:.3f}_int', data=data, Beane=Beane, LSE=LSE,
+    np.savez(f'results_all_int/sf_fits/survey_current_kmode_{k_HERA[i]:.2f}_sf_bj_z{redshift:.3f}_int', data=data, Beane=Beane, LSE=LSE,
                                         samples=MCMC[0], logp=MCMC[1], N=N, params=params_sf)
 
 
