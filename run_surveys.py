@@ -269,45 +269,45 @@ var_21cm_21cm_PAPER = survey.var_x(P_21cm_21cm, P_21cm_21cm,
                                     P_N_21cm_PAPER, P_N_21cm_PAPER,
                                     P_21cm_21cm,
                                     N_modes_joint,
-                                    W_i=W_21cm_HERA,
-                                    W_j=W_21cm_HERA)
+                                    W_i=1.0,
+                                    W_j=1.0)
 
 var_21cm_21cm_HERA = survey.var_x(P_21cm_21cm, P_21cm_21cm,
                                     P_N_21cm_HERA, P_N_21cm_HERA,
                                     P_21cm_21cm,
                                     N_modes_joint,
-                                    W_i=W_21cm_HERA,
-                                    W_j=W_21cm_HERA)
+                                    W_i=1.0,
+                                    W_j=1.0)
 
 var_21cm_21cm_future = survey.var_x(P_21cm_21cm, P_21cm_21cm,
                                     P_N_21cm_future, P_N_21cm_future,
                                     P_21cm_21cm,
                                     N_modes_joint,
-                                    W_i=W_21cm_future,
-                                    W_j=W_21cm_future)
+                                    W_i=1.0,
+                                    W_j=1.0)
 
 # C[II]
 var_CII_CII_StageII = survey.var_x(P_CII_CII, P_CII_CII,
                                     P_N_CII_StageII, P_N_CII_StageIII,
                                     P_CII_CII,
                                     N_modes_joint,
-                                    W_i=W_CII_StageII,
-                                    W_j=W_CII_StageII)
+                                    W_i=1.0,
+                                    W_j=1.0)
 
 var_CII_CII_StageIII = survey.var_x(P_CII_CII, P_CII_CII,
                                     P_N_CII_StageIII,
                                     P_N_CII_StageIII,
                                     P_CII_CII,
                                     N_modes_joint,
-                                    W_i=W_CII_StageIII,
-                                    W_j=W_CII_StageIII)
+                                    W_i=1.0,
+                                    W_j=1.0)
 
 var_CII_CII_future = survey.var_x(P_CII_CII, P_CII_CII,
                                     P_N_CII_future, P_N_CII_future,
                                     P_CII_CII,
                                     N_modes_joint,
-                                    W_i=W_CII_future,
-                                    W_j=W_CII_future)
+                                    W_i=1.0,
+                                    W_j=1.0)
 
 # O[III]
 var_OIII_OIII_EXCLAIM = survey.var_x(P_OIII_OIII, P_OIII_OIII,
@@ -315,16 +315,16 @@ var_OIII_OIII_EXCLAIM = survey.var_x(P_OIII_OIII, P_OIII_OIII,
                                         P_N_OIII_EXCLAIM,
                                         P_OIII_OIII,
                                         N_modes_joint,
-                                        W_i=W_OIII_EXCLAIM,
-                                        W_j=W_OIII_EXCLAIM)
+                                        W_i=1.0,
+                                        W_j=1.0)
 
 var_OIII_OIII_future = survey.var_x(P_OIII_OIII, P_OIII_OIII,
                                         P_N_OIII_EXCLAIM,
                                         P_N_OIII_EXCLAIM,
                                         P_OIII_OIII,
                                         N_modes_joint,
-                                        W_i=W_OIII_EXCLAIM,
-                                        W_j=W_OIII_EXCLAIM)
+                                        W_i=1.0,
+                                        W_j=1.0)
 #===========
 # crosses
 #===========
@@ -333,59 +333,59 @@ var_21cm_CII = survey.var_x(P_21cm_21cm, P_CII_CII,
                             P_N_21cm_HERA, P_N_CII_StageII,
                             P_21cm_CII,
                             N_modes_joint,
-                            W_i=W_21cm_HERA,
-                            W_j=W_CII_StageII)
+                            W_i=1.0,
+                            W_j=1.0)
 
 
 var_CII_OIII = survey.var_x(P_CII_CII, P_OIII_OIII,
                             P_N_CII_StageII, P_N_OIII_EXCLAIM,
                             P_CII_OIII,
                             N_modes_joint,
-                            W_i=W_CII_StageII,
-                            W_j=W_OIII_EXCLAIM)
+                            W_i=1.0,
+                            W_j=1.0)
 
 var_21cm_CII_StageIII = survey.var_x(P_21cm_21cm, P_CII_CII,
                             P_N_21cm_HERA, P_N_CII_StageIII,
                             P_21cm_CII,
                             N_modes_joint,
-                            W_i=W_21cm_HERA,
-                            W_j=W_CII_StageIII)
+                            W_i=1.0,
+                            W_j=1.0)
 
 var_CII_OIII_StageIII = survey.var_x(P_CII_CII, P_OIII_OIII,
                             P_N_CII_StageIII, P_N_OIII_EXCLAIM,
                             P_CII_OIII,
                             N_modes_joint,
-                            W_i=W_CII_StageIII,
-                            W_j=W_OIII_EXCLAIM)
+                            W_i=1.0,
+                            W_j=1.0)
 
 var_21cm_OIII = survey.var_x(P_21cm_21cm, P_OIII_OIII,
                             P_N_21cm_HERA, P_N_OIII_EXCLAIM,
                             P_21cm_OIII,
                             N_modes_joint,
-                            W_i=W_21cm_HERA,
-                            W_j=W_OIII_EXCLAIM)
+                            W_i=1.0,
+                            W_j=1.0)
 
 # future
 var_21cm_CII_future = survey.var_x(P_21cm_21cm, P_CII_CII,
                                     P_N_21cm_future, P_N_CII_future,
                                     P_21cm_CII,
                                     N_modes_joint,
-                                    W_i=W_21cm_future,
-                                    W_j=W_CII_future)
+                                    W_i=1.0,
+                                    W_j=1.0)
 
 var_CII_OIII_future = survey.var_x(P_CII_CII, P_OIII_OIII,
                                   P_N_CII_future, P_N_OIII_future,
                                   P_CII_OIII,
                                   N_modes_joint,
-                                  W_i=W_CII_future,
-                                  W_j=W_OIII_future)
+                                  W_i=1.0,
+                                  W_j=1.0)
 
 var_21cm_OIII_future = survey.var_x(P_21cm_21cm, P_OIII_OIII,
                                     P_N_21cm_future, P_N_OIII_future,
                                     P_21cm_OIII,
                                     N_modes_joint,
-                                    W_i=W_21cm_future,
-                                    W_j=W_OIII_future)
+                                    W_i=1.0,
+                                    W_j=1.0)
 
 
 ### Superfake data and superfake noise levels
@@ -420,11 +420,11 @@ for i in range(k_units.value.size):
 
     data_nl, Beane_nl, LSE_nl, MCMC_nl, N_nl = analysis.keep_P_21(k_indices, spectra_sf_interp, params_sf,
                                             n, model, N_modes=N_modes_joint, noiseless=True, nsteps=nsteps,
-                                            backend_filename=f'backends/survey_kmode_{k_HERA[i]:.2f}_sf_nl_bj_z{redshift:.3f}_int.h5',
+                                            backend_filename=f'backends/survey_kmode_{k_HERA[i]:.2f}_sf_nl_z{redshift:.3f}_int.h5',
                                             error_x=False, b_j_prior=False)
     data, Beane, LSE, MCMC, N = analysis.keep_P_21(k_indices, spectra_sf_interp, params_sf, n, model,
                                             N_modes=N_modes_joint, noiseless=False, nsteps=nsteps,
-                                            backend_filename=f'backends/survey_kmode_{k_HERA[i]:.2f}_sf_bj_z{redshift:.3f}_int.h5',
+                                            backend_filename=f'backends/survey_kmode_{k_HERA[i]:.2f}_sf_z{redshift:.3f}_int.h5',
                                             error_x=False, b_j_prior=False)
 
     np.savez(f'results_all_int/surveys/survey_kmode_{k_HERA[i]:.2f}_sf_nl_z{redshift:.3f}_int', data=data_nl, Beane=Beane_nl, LSE=LSE_nl,
@@ -434,7 +434,7 @@ for i in range(k_units.value.size):
 
     tf = time.time()
     print(f'run {i} saved to disk')
-    print(f'time to complete superfake analysis run {i} is:', (tf - t0) / 60 / 60, 'hours')
+    print(f'time to complete survey analysis run {i} is:', (tf - t0) / 60 / 60, 'hours')
 
 # ### Simulated power law data and fractional noise error
 # print('power law analysis')
