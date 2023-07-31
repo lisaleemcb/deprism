@@ -412,7 +412,7 @@ for i in range(k_units.value.size):
     print(f'parameters are', p_sf_tot)
     model = models.ScalarBias_crossonly(k=k_HERA, params=params_sf)
 
-    nsteps = int(1e6)
+    nsteps = int(1e5)
     n = [var_21cm_21cm_HERA, var_21cm_CII, var_21cm_OIII,
             var_CII_CII_StageIII, var_CII_OIII, var_OIII_OIII_EXCLAIM]
 

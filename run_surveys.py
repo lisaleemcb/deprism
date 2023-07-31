@@ -387,7 +387,8 @@ var_21cm_OIII_future = survey.var_x(P_21cm_21cm, P_OIII_OIII,
                                     W_i=1.0,
                                     W_j=1.0)
 
-
+print('data is:', spectra_sf_interp[1])
+print('truth data is:', spectra_sf[1])
 ### Superfake data and superfake noise levels
 P_m_interp = np.interp(k_HERA[:-1], k, utils.dimless(k, P_m))
 
@@ -412,7 +413,7 @@ for i in range(k_units.value.size):
     print(f'parameters are', p_sf_tot)
     model = models.ScalarBias_crossonly(k=k_HERA, params=params_sf)
 
-    nsteps = int(1e6)
+    nsteps = int(1e5)
     n = [var_21cm_21cm_HERA, var_21cm_CII, var_21cm_OIII,
             var_CII_CII_StageIII, var_CII_OIII, var_OIII_OIII_EXCLAIM]
 
